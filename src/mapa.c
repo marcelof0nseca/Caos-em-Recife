@@ -6,7 +6,7 @@ void DesenharMapa(void)
     for (int linha = 0; linha < TOTAL_LINHAS; linha++) {
         Color cor = GREEN;
 
-        if (linha >= 5 && linha <= 9) {
+        if (linha >= PRIMEIRA_LINHA_RUA && linha <= ULTIMA_LINHA_RUA) {
             cor = DARKGRAY;
         }
 
