@@ -14,5 +14,6 @@ typedef struct {
 void IniciarJogo(Jogo *jogo);
 void AtualizarJogo(Jogo *jogo);
 void DesenharJogo(Jogo *jogo);
+void DesenharInterface(Jogo *jogo);
 
 #endif

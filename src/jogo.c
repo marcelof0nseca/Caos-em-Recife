@@ -25,12 +25,17 @@ void DesenharJogo(Jogo *jogo)
     DesenharCarro(jogo->carro);
     DesenharJogador(jogo->jogador);
 
-    DrawText(TextFormat("Score: %d", jogo->jogador.score), 10, 10, 20, BLACK);
-    DrawText("WASD para mover", 10, 35, 18, BLACK);
+    DesenharInterface(jogo);
 
     if (jogo->gameOver) {
         DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.6f));
         DrawText("GAME OVER", 270, 250, 40, RED);
         DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
     }
+}
+
+void DesenharInterface(Jogo *jogo)
+{
+    DrawText(TextFormat("Score: %d", jogo->jogador.score), 10, 10, 20, BLACK);
+    DrawText("WASD para mover", 10, 35, 18, BLACK);
 }
