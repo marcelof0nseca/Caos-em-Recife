@@ -6,5 +6,7 @@
 #define TAM_BLOCO 40
 #define TOTAL_LINHAS 15
 #define TOTAL_COLUNAS 20
+#define LINHA_INICIAL_JOGADOR 13
+#define COLUNA_INICIAL_JOGADOR 10
 
 #endif
