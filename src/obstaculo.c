@@ -3,8 +3,8 @@
 
 void IniciarCarro(Carro *carro)
 {
-    carro->corpo = (Rectangle){-80, 280, 70, 30};
-    carro->velocidade = 180;
+    carro->corpo = (Rectangle){-80, 280, LARGURA_CARRO, ALTURA_CARRO};
+    carro->velocidade = VELOCIDADE_CARRO;
 }
 
 void AtualizarCarro(Carro *carro)
