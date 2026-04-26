@@ -28,6 +28,9 @@ void AtualizarJogador(Jogador *jogador)
 
 void DesenharJogador(Jogador jogador)
 {
-    DrawRectangleRec(jogador.corpo, YELLOW);
-    DrawRectangleLinesEx(jogador.corpo, 2, BLACK);
+    DrawRectangle((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, YELLOW);
+    DrawCircle((int)jogador.corpo.x + 15, (int)jogador.corpo.y + 7, 8, BEIGE);
+    DrawCircle((int)jogador.corpo.x + 12, (int)jogador.corpo.y + 6, 2, BLACK);
+    DrawCircle((int)jogador.corpo.x + 18, (int)jogador.corpo.y + 6, 2, BLACK);
+    DrawRectangleLines((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, BLACK);
 }
