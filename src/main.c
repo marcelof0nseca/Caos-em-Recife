@@ -12,10 +12,10 @@ int main(void)
     IniciarJogo(&jogo);
 
     while (!WindowShouldClose()) {
-        if (!jogo.gameOver) {
-            AtualizarJogo(&jogo);
-        } else if (IsKeyPressed(KEY_R)) {
+        if (IsKeyPressed(KEY_R)) {
             IniciarJogo(&jogo);
+        } else if (!jogo.gameOver) {
+            AtualizarJogo(&jogo);
         }
 
         BeginDrawing();
