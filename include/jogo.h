@@ -9,11 +9,13 @@ typedef struct {
     Jogador jogador;
     Carro carro;
     bool gameOver;
+    bool jogoIniciado;
 } Jogo;
 
 void IniciarJogo(Jogo *jogo);
 void AtualizarJogo(Jogo *jogo);
 void DesenharJogo(Jogo *jogo);
 void DesenharInterface(Jogo *jogo);
+void DesenharTelaInicial(void);
 
 #endif

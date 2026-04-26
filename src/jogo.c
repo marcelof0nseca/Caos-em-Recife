@@ -7,6 +7,7 @@ void IniciarJogo(Jogo *jogo)
     IniciarJogador(&jogo->jogador);
     IniciarCarro(&jogo->carro);
     jogo->gameOver = false;
+    jogo->jogoIniciado = false;
 }
 
 void AtualizarJogo(Jogo *jogo)
@@ -21,6 +22,11 @@ void AtualizarJogo(Jogo *jogo)
 
 void DesenharJogo(Jogo *jogo)
 {
+    if (!jogo->jogoIniciado) {
+        DesenharTelaInicial();
+        return;
+    }
+
     DesenharMapa();
     DesenharCarro(jogo->carro);
     DesenharJogador(jogo->jogador);
@@ -32,6 +38,13 @@ void DesenharJogo(Jogo *jogo)
         DrawText("GAME OVER", 270, 250, 40, RED);
         DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
     }
+}
+
+void DesenharTelaInicial(void)
+{
+    ClearBackground(DARKGREEN);
+    DrawText("CAOS EM RECIFE", 235, 220, 40, RAYWHITE);
+    DrawText("Pressione ENTER para jogar", 245, 290, 24, YELLOW);
 }
 
 void DesenharInterface(Jogo *jogo)

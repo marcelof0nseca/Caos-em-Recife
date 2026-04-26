@@ -12,8 +12,13 @@ int main(void)
     IniciarJogo(&jogo);
 
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_R)) {
+        if (!jogo.jogoIniciado) {
+            if (IsKeyPressed(KEY_ENTER)) {
+                jogo.jogoIniciado = true;
+            }
+        } else if (IsKeyPressed(KEY_R)) {
             IniciarJogo(&jogo);
+            jogo.jogoIniciado = true;
         } else if (!jogo.gameOver) {
             AtualizarJogo(&jogo);
         }
