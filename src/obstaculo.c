@@ -19,4 +19,9 @@ void AtualizarCarro(Carro *carro)
 void DesenharCarro(Carro carro)
 {
     DrawRectangleRec(carro.corpo, RED);
+    DrawRectangle((int)carro.corpo.x + 10, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
+    DrawRectangle((int)carro.corpo.x + 40, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
+    DrawCircle((int)carro.corpo.x + 15, (int)carro.corpo.y + 30, 5, BLACK);
+    DrawCircle((int)carro.corpo.x + 55, (int)carro.corpo.y + 30, 5, BLACK);
+    DrawRectangleLinesEx(carro.corpo, 2, BLACK);
 }
