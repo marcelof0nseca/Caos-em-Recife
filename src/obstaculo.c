@@ -77,6 +77,16 @@ void AtualizarCarro(Obstaculo *carro)
     }
 }
 
+void AtualizarListaObstaculos(Obstaculo *lista)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        AtualizarCarro(atual);
+        atual = atual->proximo;
+    }
+}
+
 void DesenharCarro(Obstaculo carro)
 {
     DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));
@@ -89,7 +99,32 @@ void DesenharCarro(Obstaculo carro)
     DrawRectangleLinesEx(carro.corpo, 2, BLACK);
 }
 
+void DesenharListaObstaculos(Obstaculo *lista)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        DesenharCarro(*atual);
+        atual = atual->proximo;
+    }
+}
+
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
     return CheckCollisionRecs(carro.corpo, jogador);
+}
+
+bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        if (VerificarColisaoCarro(*atual, jogador)) {
+            return true;
+        }
+
+        atual = atual->proximo;
+    }
+
+    return false;
 }

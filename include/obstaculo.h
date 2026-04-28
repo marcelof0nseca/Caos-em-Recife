@@ -24,7 +24,10 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
 void LiberarObstaculos(Obstaculo **lista);
 void AtualizarCarro(Obstaculo *carro);
+void AtualizarListaObstaculos(Obstaculo *lista);
 void DesenharCarro(Obstaculo carro);
+void DesenharListaObstaculos(Obstaculo *lista);
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador);
+bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador);
 
 #endif
