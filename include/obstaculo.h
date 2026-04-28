@@ -10,7 +10,7 @@ typedef enum {
     TIPO_BURACO
 } TipoObstaculo;
 
-typedef struct {
+typedef struct Obstaculo {
     TipoObstaculo tipo;
     Rectangle corpo;
     float velocidade;
