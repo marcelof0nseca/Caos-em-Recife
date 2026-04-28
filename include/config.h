@@ -21,6 +21,8 @@
 #define Y_INICIAL_CARRO 280
 #define X_INTERFACE 10
 #define Y_SCORE 10
+#define Y_DICA_MOVIMENTO 35
+#define Y_DICA_REINICIO 58
 #define TAM_TEXTO_INTERFACE 18
 
 #endif
