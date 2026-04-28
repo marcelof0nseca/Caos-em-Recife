@@ -8,6 +8,8 @@ void IniciarJogador(Jogador *jogador)
     jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR, jogador->linha * TAM_BLOCO + MARGEM_JOGADOR, LARGURA_JOGADOR, ALTURA_JOGADOR};
     jogador->score = 0;
     jogador->melhorLinha = jogador->linha;
+    jogador->linhaCheckpoint = jogador->linha;
+    jogador->colunaCheckpoint = jogador->coluna;
 }
 
 void AtualizarJogador(Jogador *jogador)
@@ -27,6 +29,11 @@ void AtualizarJogador(Jogador *jogador)
     if (jogador->linha < jogador->melhorLinha) {
         jogador->melhorLinha = jogador->linha;
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
+    }
+
+    if (jogador->linha == 10 || jogador->linha == 4) {
+        jogador->linhaCheckpoint = jogador->linha;
+        jogador->colunaCheckpoint = jogador->coluna;
     }
 }
 

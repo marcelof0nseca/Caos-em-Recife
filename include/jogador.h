@@ -9,6 +9,8 @@ typedef struct {
     int coluna;
     int score;
     int melhorLinha;
+    int linhaCheckpoint;
+    int colunaCheckpoint;
 } Jogador;
 
 void IniciarJogador(Jogador *jogador);
