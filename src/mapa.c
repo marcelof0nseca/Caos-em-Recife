@@ -13,8 +13,8 @@ void DesenharMapa(void)
         DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, cor);
 
         if (cor.r == DARKGRAY.r) {
-            DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, 3, BLACK);
-            DrawRectangle(0, linha * TAM_BLOCO + TAM_BLOCO - 3, LARGURA_TELA, 3, BLACK);
+            DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
+            DrawRectangle(0, linha * TAM_BLOCO + TAM_BLOCO - ESPESSURA_BORDA_RUA, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
             DrawLine(0, linha * TAM_BLOCO + 20, LARGURA_TELA, linha * TAM_BLOCO + 20, YELLOW);
         } else {
             for (int coluna = 0; coluna < TOTAL_COLUNAS; coluna++) {
