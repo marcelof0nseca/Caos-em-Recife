@@ -6,6 +6,7 @@
 typedef struct {
     Rectangle corpo;
     float velocidade;
+    int direcao;
 } Carro;
 
 void IniciarCarro(Carro *carro);

@@ -5,11 +5,12 @@ void IniciarCarro(Carro *carro)
 {
     carro->corpo = (Rectangle){X_INICIAL_CARRO, Y_INICIAL_CARRO, LARGURA_CARRO, ALTURA_CARRO};
     carro->velocidade = VELOCIDADE_CARRO;
+    carro->direcao = 1;
 }
 
 void AtualizarCarro(Carro *carro)
 {
-    carro->corpo.x += carro->velocidade * GetFrameTime();
+    carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
     if (carro->corpo.x > LARGURA_TELA) {
         carro->corpo.x = X_INICIAL_CARRO;
