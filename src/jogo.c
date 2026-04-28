@@ -5,10 +5,12 @@
 
 void IniciarJogo(Jogo *jogo)
 {
+    LiberarObstaculos(&jogo->obstaculos);
     IniciarJogador(&jogo->jogador);
-    IniciarCarro(&jogo->carro);
-    IniciarCarroComDados(&jogo->carro2, LARGURA_TELA + 80, 360, 130, -1);
-    IniciarOnibus(&jogo->onibus, -220, 200, 1);
+    jogo->obstaculos = NULL;
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1));
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, LARGURA_TELA + 80, 360, 130, -1));
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_ONIBUS, -220, 200, VELOCIDADE_CARRO, 1));
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
@@ -27,11 +29,9 @@ void AtualizarJogo(Jogo *jogo)
     }
 
     AtualizarJogador(&jogo->jogador);
-    AtualizarCarro(&jogo->carro);
-    AtualizarCarro(&jogo->carro2);
-    AtualizarCarro(&jogo->onibus);
+    AtualizarListaObstaculos(jogo->obstaculos);
 
-    if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo) || VerificarColisaoCarro(jogo->carro2, jogo->jogador.corpo) || VerificarColisaoCarro(jogo->onibus, jogo->jogador.corpo)) {
+    if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
         VoltarJogadorCheckpoint(&jogo->jogador);
     }
 
@@ -53,9 +53,7 @@ void DesenharJogo(Jogo *jogo)
     }
 
     DesenharMapa();
-    DesenharCarro(jogo->carro);
-    DesenharCarro(jogo->carro2);
-    DesenharCarro(jogo->onibus);
+    DesenharListaObstaculos(jogo->obstaculos);
     DesenharJogador(jogo->jogador);
 
     DesenharInterface(jogo);
