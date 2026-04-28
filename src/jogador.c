@@ -32,5 +32,7 @@ void DesenharJogador(Jogador jogador)
     DrawCircle((int)jogador.corpo.x + 15, (int)jogador.corpo.y + 7, 8, BEIGE);
     DrawCircle((int)jogador.corpo.x + 12, (int)jogador.corpo.y + 6, 2, BLACK);
     DrawCircle((int)jogador.corpo.x + 18, (int)jogador.corpo.y + 6, 2, BLACK);
+    DrawRectangle((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 29, 6, 4, BLUE);
+    DrawRectangle((int)jogador.corpo.x + 17, (int)jogador.corpo.y + 29, 6, 4, BLUE);
     DrawRectangleLines((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, BLACK);
 }
