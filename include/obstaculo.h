@@ -13,6 +13,7 @@ typedef struct {
     Rectangle corpo;
     float velocidade;
     int direcao;
+    struct Obstaculo *proximo;
 } Obstaculo;
 
 void IniciarCarro(Obstaculo *carro);

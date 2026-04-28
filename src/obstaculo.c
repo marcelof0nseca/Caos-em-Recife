@@ -12,6 +12,7 @@ void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, 
     carro->corpo = (Rectangle){x, y, LARGURA_CARRO, ALTURA_CARRO};
     carro->velocidade = velocidade;
     carro->direcao = direcao;
+    carro->proximo = NULL;
 }
 
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
@@ -20,6 +21,7 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->corpo = (Rectangle){x, y, 110, ALTURA_CARRO};
     onibus->velocidade = VELOCIDADE_CARRO * 0.65f;
     onibus->direcao = direcao;
+    onibus->proximo = NULL;
 }
 
 void AtualizarCarro(Obstaculo *carro)
