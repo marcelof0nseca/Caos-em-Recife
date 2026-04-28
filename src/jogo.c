@@ -43,8 +43,8 @@ void DesenharJogo(Jogo *jogo)
 void DesenharTelaInicial(void)
 {
     ClearBackground(DARKGREEN);
-    DrawText("CAOS EM RECIFE", 235, 220, 40, RAYWHITE);
-    DrawText("Pressione ENTER para jogar", 245, 290, 24, YELLOW);
+    DrawText("CAOS EM RECIFE", X_TITULO_INICIAL, Y_TITULO_INICIAL, 40, RAYWHITE);
+    DrawText("Pressione ENTER para jogar", X_TEXTO_INICIAL, Y_TEXTO_INICIAL, 24, YELLOW);
 }
 
 void DesenharInterface(Jogo *jogo)
