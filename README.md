@@ -4,6 +4,8 @@
 
 Jogo simples em C usando Raylib. O objetivo e atravessar a rua desviando dos carros.
 
+O projeto esta separado em arquivos de jogador, obstaculo, mapa e jogo para facilitar a manutencao.
+
 ## Estrutura do projeto
 
 ```text
