@@ -48,3 +48,11 @@ void DesenharJogador(Jogador jogador)
     DrawRectangle((int)jogador.corpo.x + 17, (int)jogador.corpo.y + 29, 6, 4, BLUE);
     DrawRectangleLines((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, BLACK);
 }
+
+void VoltarJogadorCheckpoint(Jogador *jogador)
+{
+    jogador->linha = jogador->linhaCheckpoint;
+    jogador->coluna = jogador->colunaCheckpoint;
+    jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
+    jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
+}

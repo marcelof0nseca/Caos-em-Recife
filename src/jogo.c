@@ -28,7 +28,7 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarCarro(&jogo->carro2);
 
     if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo) || VerificarColisaoCarro(jogo->carro2, jogo->jogador.corpo)) {
-        jogo->gameOver = true;
+        VoltarJogadorCheckpoint(&jogo->jogador);
     }
 
     if (jogo->jogador.linha == 0) {

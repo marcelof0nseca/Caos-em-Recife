@@ -15,6 +15,7 @@ typedef struct {
 
 void IniciarJogador(Jogador *jogador);
 void AtualizarJogador(Jogador *jogador);
+void VoltarJogadorCheckpoint(Jogador *jogador);
 void DesenharJogador(Jogador jogador);
 
 #endif
