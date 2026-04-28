@@ -10,10 +10,19 @@ void IniciarJogo(Jogo *jogo)
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
+    jogo->pausado = false;
 }
 
 void AtualizarJogo(Jogo *jogo)
 {
+    if (IsKeyPressed(KEY_P)) {
+        jogo->pausado = !jogo->pausado;
+    }
+
+    if (jogo->pausado) {
+        return;
+    }
+
     AtualizarJogador(&jogo->jogador);
     AtualizarCarro(&jogo->carro);
     AtualizarCarro(&jogo->carro2);
@@ -60,7 +69,12 @@ void DesenharInterface(Jogo *jogo)
     DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("Evite o carro vermelho", 575, 10, TAM_TEXTO_INTERFACE, BLACK);
+
+    if (jogo->pausado) {
+        DrawText("PAUSADO", 335, 285, 34, YELLOW);
+    }
 }
 
 void DesenharGameOver(Jogo *jogo)

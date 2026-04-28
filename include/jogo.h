@@ -12,6 +12,7 @@ typedef struct {
     bool gameOver;
     bool jogoIniciado;
     bool venceu;
+    bool pausado;
 } Jogo;
 
 void IniciarJogo(Jogo *jogo);
