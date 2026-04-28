@@ -3,9 +3,14 @@
 
 void IniciarCarro(Carro *carro)
 {
-    carro->corpo = (Rectangle){X_INICIAL_CARRO, Y_INICIAL_CARRO, LARGURA_CARRO, ALTURA_CARRO};
-    carro->velocidade = VELOCIDADE_CARRO;
-    carro->direcao = 1;
+    IniciarCarroComDados(carro, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1);
+}
+
+void IniciarCarroComDados(Carro *carro, float x, float y, float velocidade, int direcao)
+{
+    carro->corpo = (Rectangle){x, y, LARGURA_CARRO, ALTURA_CARRO};
+    carro->velocidade = velocidade;
+    carro->direcao = direcao;
 }
 
 void AtualizarCarro(Carro *carro)
