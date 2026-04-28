@@ -52,4 +52,5 @@ void DesenharInterface(Jogo *jogo)
     DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Evite o carro vermelho", 575, 10, TAM_TEXTO_INTERFACE, BLACK);
 }
