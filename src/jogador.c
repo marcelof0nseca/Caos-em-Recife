@@ -5,7 +5,7 @@ void IniciarJogador(Jogador *jogador)
 {
     jogador->linha = LINHA_INICIAL_JOGADOR;
     jogador->coluna = COLUNA_INICIAL_JOGADOR;
-    jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + 5, jogador->linha * TAM_BLOCO + 5, 30, 30};
+    jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + 5, jogador->linha * TAM_BLOCO + 5, LARGURA_JOGADOR, ALTURA_JOGADOR};
     jogador->score = 0;
 }
 
