@@ -34,9 +34,7 @@ void DesenharJogo(Jogo *jogo)
     DesenharInterface(jogo);
 
     if (jogo->gameOver) {
-        DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.6f));
-        DrawText("GAME OVER", 270, 250, 40, RED);
-        DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
+        DesenharGameOver();
     }
 }
 
@@ -53,4 +51,11 @@ void DesenharInterface(Jogo *jogo)
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("Evite o carro vermelho", 575, 10, TAM_TEXTO_INTERFACE, BLACK);
+}
+
+void DesenharGameOver(void)
+{
+    DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.6f));
+    DrawText("GAME OVER", 270, 250, 40, RED);
+    DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
 }
