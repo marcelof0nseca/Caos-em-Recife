@@ -8,6 +8,7 @@ void IniciarJogo(Jogo *jogo)
     IniciarCarro(&jogo->carro);
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
+    jogo->venceu = false;
 }
 
 void AtualizarJogo(Jogo *jogo)
@@ -16,6 +17,11 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarCarro(&jogo->carro);
 
     if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo)) {
+        jogo->gameOver = true;
+    }
+
+    if (jogo->jogador.linha == 0) {
+        jogo->venceu = true;
         jogo->gameOver = true;
     }
 }
@@ -34,7 +40,7 @@ void DesenharJogo(Jogo *jogo)
     DesenharInterface(jogo);
 
     if (jogo->gameOver) {
-        DesenharGameOver();
+        DesenharGameOver(jogo);
     }
 }
 
@@ -54,9 +60,13 @@ void DesenharInterface(Jogo *jogo)
     DrawText("Evite o carro vermelho", 575, 10, TAM_TEXTO_INTERFACE, BLACK);
 }
 
-void DesenharGameOver(void)
+void DesenharGameOver(Jogo *jogo)
 {
     DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.6f));
-    DrawText("GAME OVER", 270, 250, 40, RED);
+    if (jogo->venceu) {
+        DrawText("VOCE VENCEU", 250, 250, 40, YELLOW);
+    } else {
+        DrawText("GAME OVER", 270, 250, 40, RED);
+    }
     DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
 }
