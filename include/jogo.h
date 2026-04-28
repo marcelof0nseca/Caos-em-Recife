@@ -9,6 +9,7 @@ typedef struct {
     Jogador jogador;
     Obstaculo carro;
     Obstaculo carro2;
+    Obstaculo onibus;
     bool gameOver;
     bool jogoIniciado;
     bool venceu;

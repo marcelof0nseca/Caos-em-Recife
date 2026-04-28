@@ -14,6 +14,14 @@ void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, 
     carro->direcao = direcao;
 }
 
+void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
+{
+    onibus->tipo = TIPO_ONIBUS;
+    onibus->corpo = (Rectangle){x, y, 110, ALTURA_CARRO};
+    onibus->velocidade = VELOCIDADE_CARRO * 0.65f;
+    onibus->direcao = direcao;
+}
+
 void AtualizarCarro(Obstaculo *carro)
 {
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
@@ -30,7 +38,7 @@ void AtualizarCarro(Obstaculo *carro)
 void DesenharCarro(Obstaculo carro)
 {
     DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));
-    DrawRectangleRec(carro.corpo, RED);
+    DrawRectangleRec(carro.corpo, carro.tipo == TIPO_ONIBUS ? ORANGE : RED);
     DrawRectangle((int)carro.corpo.x + 10, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
     DrawRectangle((int)carro.corpo.x + 40, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
     DrawCircle((int)carro.corpo.x + 15, (int)carro.corpo.y + 30, 5, BLACK);
