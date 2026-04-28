@@ -8,6 +8,7 @@
 typedef struct {
     Jogador jogador;
     Carro carro;
+    Carro carro2;
     bool gameOver;
     bool jogoIniciado;
     bool venceu;

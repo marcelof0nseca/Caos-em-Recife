@@ -6,6 +6,7 @@ void IniciarJogo(Jogo *jogo)
 {
     IniciarJogador(&jogo->jogador);
     IniciarCarro(&jogo->carro);
+    IniciarCarroComDados(&jogo->carro2, LARGURA_TELA + 80, 360, 130, -1);
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
@@ -15,8 +16,9 @@ void AtualizarJogo(Jogo *jogo)
 {
     AtualizarJogador(&jogo->jogador);
     AtualizarCarro(&jogo->carro);
+    AtualizarCarro(&jogo->carro2);
 
-    if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo)) {
+    if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo) || VerificarColisaoCarro(jogo->carro2, jogo->jogador.corpo)) {
         jogo->gameOver = true;
     }
 
@@ -35,6 +37,7 @@ void DesenharJogo(Jogo *jogo)
 
     DesenharMapa();
     DesenharCarro(jogo->carro);
+    DesenharCarro(jogo->carro2);
     DesenharJogador(jogo->jogador);
 
     DesenharInterface(jogo);
