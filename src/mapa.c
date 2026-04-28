@@ -13,6 +13,10 @@ void DesenharMapa(void)
 
         DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, cor);
 
+        if (linha == 0) {
+            DrawText("CHEGADA", 340, 10, 22, RAYWHITE);
+        }
+
         if (cor.r == DARKGRAY.r) {
             DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
             DrawRectangle(0, linha * TAM_BLOCO + TAM_BLOCO - ESPESSURA_BORDA_RUA, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
