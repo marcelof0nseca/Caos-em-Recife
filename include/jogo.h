@@ -13,6 +13,7 @@ typedef struct {
     bool jogoIniciado;
     bool venceu;
     bool pausado;
+    int recorde;
 } Jogo;
 
 void IniciarJogo(Jogo *jogo);

@@ -1,6 +1,7 @@
 #include "jogo.h"
 #include "mapa.h"
 #include "config.h"
+#include "score.h"
 
 void IniciarJogo(Jogo *jogo)
 {
@@ -11,6 +12,7 @@ void IniciarJogo(Jogo *jogo)
     jogo->jogoIniciado = false;
     jogo->venceu = false;
     jogo->pausado = false;
+    jogo->recorde = CarregarRecorde();
 }
 
 void AtualizarJogo(Jogo *jogo)
@@ -34,6 +36,10 @@ void AtualizarJogo(Jogo *jogo)
     if (jogo->jogador.linha == 0) {
         jogo->venceu = true;
         jogo->gameOver = true;
+        if (jogo->jogador.score > jogo->recorde) {
+            jogo->recorde = jogo->jogador.score;
+            SalvarRecorde(jogo->recorde);
+        }
     }
 }
 
@@ -67,6 +73,7 @@ void DesenharInterface(Jogo *jogo)
 {
     DrawRectangle(0, 0, LARGURA_TELA, 82, Fade(RAYWHITE, 0.75f));
     DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
+    DrawText(TextFormat("Recorde: %d", jogo->recorde), 140, Y_SCORE, 20, BLACK);
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);

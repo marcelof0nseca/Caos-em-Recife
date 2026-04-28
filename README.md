@@ -42,7 +42,7 @@ Caos-em-Recife/
 Usando o comando completo:
 
 ```powershell
-$env:Path = "C:\raylib\w64devkit\bin;" + $env:Path; gcc src\main.c src\jogo.c src\jogador.c src\obstaculo.c src\mapa.c -o CrossyRecife.exe -Iinclude -IC:\raylib\w64devkit\include -LC:\raylib\w64devkit\lib -lraylib -lopengl32 -lgdi32 -lwinmm
+$env:Path = "C:\raylib\w64devkit\bin;" + $env:Path; gcc src\main.c src\jogo.c src\jogador.c src\obstaculo.c src\mapa.c src\score.c -o CrossyRecife.exe -Iinclude -IC:\raylib\w64devkit\include -LC:\raylib\w64devkit\lib -lraylib -lopengl32 -lgdi32 -lwinmm
 ```
 
 Ou usando o Makefile:
