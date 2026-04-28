@@ -17,8 +17,12 @@ void AtualizarCarro(Carro *carro)
 {
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
-    if (carro->corpo.x > LARGURA_TELA) {
+    if (carro->direcao == 1 && carro->corpo.x > LARGURA_TELA) {
         carro->corpo.x = X_INICIAL_CARRO;
+    }
+
+    if (carro->direcao == -1 && carro->corpo.x + carro->corpo.width < 0) {
+        carro->corpo.x = LARGURA_TELA + LARGURA_CARRO;
     }
 }
 
