@@ -3,16 +3,21 @@
 
 #include "raylib.h"
 
+typedef enum {
+    TIPO_CARRO
+} TipoObstaculo;
+
 typedef struct {
+    TipoObstaculo tipo;
     Rectangle corpo;
     float velocidade;
     int direcao;
-} Carro;
+} Obstaculo;
 
-void IniciarCarro(Carro *carro);
-void IniciarCarroComDados(Carro *carro, float x, float y, float velocidade, int direcao);
-void AtualizarCarro(Carro *carro);
-void DesenharCarro(Carro carro);
-bool VerificarColisaoCarro(Carro carro, Rectangle jogador);
+void IniciarCarro(Obstaculo *carro);
+void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
+void AtualizarCarro(Obstaculo *carro);
+void DesenharCarro(Obstaculo carro);
+bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador);
 
 #endif

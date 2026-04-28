@@ -1,19 +1,20 @@
 #include "obstaculo.h"
 #include "config.h"
 
-void IniciarCarro(Carro *carro)
+void IniciarCarro(Obstaculo *carro)
 {
     IniciarCarroComDados(carro, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1);
 }
 
-void IniciarCarroComDados(Carro *carro, float x, float y, float velocidade, int direcao)
+void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao)
 {
+    carro->tipo = TIPO_CARRO;
     carro->corpo = (Rectangle){x, y, LARGURA_CARRO, ALTURA_CARRO};
     carro->velocidade = velocidade;
     carro->direcao = direcao;
 }
 
-void AtualizarCarro(Carro *carro)
+void AtualizarCarro(Obstaculo *carro)
 {
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
@@ -26,7 +27,7 @@ void AtualizarCarro(Carro *carro)
     }
 }
 
-void DesenharCarro(Carro carro)
+void DesenharCarro(Obstaculo carro)
 {
     DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));
     DrawRectangleRec(carro.corpo, RED);
@@ -38,7 +39,7 @@ void DesenharCarro(Carro carro)
     DrawRectangleLinesEx(carro.corpo, 2, BLACK);
 }
 
-bool VerificarColisaoCarro(Carro carro, Rectangle jogador)
+bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
     return CheckCollisionRecs(carro.corpo, jogador);
 }
