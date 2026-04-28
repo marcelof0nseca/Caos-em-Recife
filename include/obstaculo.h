@@ -2,6 +2,7 @@
 #define OBSTACULO_H
 
 #include "raylib.h"
+#include <stdlib.h>
 
 typedef enum {
     TIPO_CARRO,
@@ -19,6 +20,7 @@ typedef struct {
 void IniciarCarro(Obstaculo *carro);
 void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);
+Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AtualizarCarro(Obstaculo *carro);
 void DesenharCarro(Obstaculo carro);
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador);

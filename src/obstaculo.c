@@ -24,6 +24,23 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->proximo = NULL;
 }
 
+Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
+{
+    Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
+
+    if (novo == NULL) {
+        return NULL;
+    }
+
+    if (tipo == TIPO_ONIBUS) {
+        IniciarOnibus(novo, x, y, direcao);
+    } else {
+        IniciarCarroComDados(novo, x, y, velocidade, direcao);
+    }
+
+    return novo;
+}
+
 void AtualizarCarro(Obstaculo *carro)
 {
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
