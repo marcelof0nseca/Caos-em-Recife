@@ -24,6 +24,15 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->proximo = NULL;
 }
 
+void IniciarBuraco(Obstaculo *buraco, float x, float y)
+{
+    buraco->tipo = TIPO_BURACO;
+    buraco->corpo = (Rectangle){x, y, 32, 32};
+    buraco->velocidade = 0;
+    buraco->direcao = 0;
+    buraco->proximo = NULL;
+}
+
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
     Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
@@ -32,7 +41,9 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
         return NULL;
     }
 
-    if (tipo == TIPO_ONIBUS) {
+    if (tipo == TIPO_BURACO) {
+        IniciarBuraco(novo, x, y);
+    } else if (tipo == TIPO_ONIBUS) {
         IniciarOnibus(novo, x, y, direcao);
     } else {
         IniciarCarroComDados(novo, x, y, velocidade, direcao);
@@ -66,6 +77,10 @@ void LiberarObstaculos(Obstaculo **lista)
 
 void AtualizarCarro(Obstaculo *carro)
 {
+    if (carro->tipo == TIPO_BURACO) {
+        return;
+    }
+
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
     if (carro->direcao == 1 && carro->corpo.x > LARGURA_TELA) {
@@ -89,6 +104,12 @@ void AtualizarListaObstaculos(Obstaculo *lista)
 
 void DesenharCarro(Obstaculo carro)
 {
+    if (carro.tipo == TIPO_BURACO) {
+        DrawCircle((int)carro.corpo.x + 16, (int)carro.corpo.y + 16, 16, BLACK);
+        DrawCircle((int)carro.corpo.x + 16, (int)carro.corpo.y + 16, 8, DARKGRAY);
+        return;
+    }
+
     DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));
     DrawRectangleRec(carro.corpo, carro.tipo == TIPO_ONIBUS ? ORANGE : RED);
     DrawRectangle((int)carro.corpo.x + 10, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
