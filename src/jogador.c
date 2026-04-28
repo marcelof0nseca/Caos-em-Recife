@@ -7,6 +7,7 @@ void IniciarJogador(Jogador *jogador)
     jogador->coluna = COLUNA_INICIAL_JOGADOR;
     jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR, jogador->linha * TAM_BLOCO + MARGEM_JOGADOR, LARGURA_JOGADOR, ALTURA_JOGADOR};
     jogador->score = 0;
+    jogador->melhorLinha = jogador->linha;
 }
 
 void AtualizarJogador(Jogador *jogador)
@@ -23,7 +24,10 @@ void AtualizarJogador(Jogador *jogador)
 
     jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
     jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
-    jogador->score = (TOTAL_LINHAS - 1) - jogador->linha;
+    if (jogador->linha < jogador->melhorLinha) {
+        jogador->melhorLinha = jogador->linha;
+        jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
+    }
 }
 
 void DesenharJogador(Jogador jogador)

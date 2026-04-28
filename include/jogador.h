@@ -8,6 +8,7 @@ typedef struct {
     int linha;
     int coluna;
     int score;
+    int melhorLinha;
 } Jogador;
 
 void IniciarJogador(Jogador *jogador);
