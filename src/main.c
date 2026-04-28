@@ -4,7 +4,7 @@
 
 int main(void)
 {
-    Jogo jogo;
+    Jogo jogo = {0};
 
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
     SetTargetFPS(60);
