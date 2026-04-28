@@ -21,6 +21,8 @@ void IniciarCarro(Obstaculo *carro);
 void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
+void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
+void LiberarObstaculos(Obstaculo **lista);
 void AtualizarCarro(Obstaculo *carro);
 void DesenharCarro(Obstaculo carro);
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador);

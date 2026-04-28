@@ -41,6 +41,29 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
     return novo;
 }
 
+void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo)
+{
+    if (novo == NULL) {
+        return;
+    }
+
+    novo->proximo = *lista;
+    *lista = novo;
+}
+
+void LiberarObstaculos(Obstaculo **lista)
+{
+    Obstaculo *atual = *lista;
+
+    while (atual != NULL) {
+        Obstaculo *proximo = atual->proximo;
+        free(atual);
+        atual = proximo;
+    }
+
+    *lista = NULL;
+}
+
 void AtualizarCarro(Obstaculo *carro)
 {
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
