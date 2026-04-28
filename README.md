@@ -2,7 +2,7 @@
 
 ![Capa do jogo Caos em Recife](assets/capa-crossy-recife.png)
 
-Jogo simples em C usando Raylib. O objetivo e atravessar a rua desviando dos carros.
+Jogo simples em C usando Raylib. O objetivo e atravessar a rua desviando dos carros e chegar ate a parte de cima do mapa.
 
 O projeto esta separado em arquivos de jogador, obstaculo, mapa e jogo para facilitar a manutencao.
 
