@@ -11,6 +11,7 @@ void IniciarJogo(Jogo *jogo)
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1));
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, LARGURA_TELA + 80, 360, 130, -1));
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_ONIBUS, -220, 200, VELOCIDADE_CARRO, 1));
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_BURACO, 440, 120, 0, 0));
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
