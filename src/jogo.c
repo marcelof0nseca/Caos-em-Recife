@@ -15,7 +15,7 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarJogador(&jogo->jogador);
     AtualizarCarro(&jogo->carro);
 
-    if (CheckCollisionRecs(jogo->jogador.corpo, jogo->carro.corpo)) {
+    if (VerificarColisaoCarro(jogo->carro, jogo->jogador.corpo)) {
         jogo->gameOver = true;
     }
 }

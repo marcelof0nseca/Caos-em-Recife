@@ -25,3 +25,8 @@ void DesenharCarro(Carro carro)
     DrawCircle((int)carro.corpo.x + 55, (int)carro.corpo.y + 30, 5, BLACK);
     DrawRectangleLinesEx(carro.corpo, 2, BLACK);
 }
+
+bool VerificarColisaoCarro(Carro carro, Rectangle jogador)
+{
+    return CheckCollisionRecs(carro.corpo, jogador);
+}

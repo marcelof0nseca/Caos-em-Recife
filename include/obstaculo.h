@@ -11,5 +11,6 @@ typedef struct {
 void IniciarCarro(Carro *carro);
 void AtualizarCarro(Carro *carro);
 void DesenharCarro(Carro carro);
+bool VerificarColisaoCarro(Carro carro, Rectangle jogador);
 
 #endif
