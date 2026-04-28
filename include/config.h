@@ -19,5 +19,8 @@
 #define VELOCIDADE_CARRO 180
 #define X_INICIAL_CARRO -80
 #define Y_INICIAL_CARRO 280
+#define X_INTERFACE 10
+#define Y_SCORE 10
+#define TAM_TEXTO_INTERFACE 18
 
 #endif

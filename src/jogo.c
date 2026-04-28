@@ -49,7 +49,7 @@ void DesenharTelaInicial(void)
 
 void DesenharInterface(Jogo *jogo)
 {
-    DrawText(TextFormat("Score: %d", jogo->jogador.score), 10, 10, 20, BLACK);
-    DrawText("WASD para mover", 10, 35, 18, BLACK);
-    DrawText("R para reiniciar", 10, 58, 18, BLACK);
+    DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
+    DrawText("WASD para mover", X_INTERFACE, 35, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("R para reiniciar", X_INTERFACE, 58, TAM_TEXTO_INTERFACE, BLACK);
 }
