@@ -1,12 +1,13 @@
 #include "raylib.h"
 #include "config.h"
+#include "mapa.h"
 
 void DesenharMapa(void)
 {
     for (int linha = 0; linha < TOTAL_LINHAS; linha++) {
         Color cor = GREEN;
 
-        if (linha >= PRIMEIRA_LINHA_RUA && linha <= ULTIMA_LINHA_RUA) {
+        if (LinhaEhRua(linha)) {
             cor = DARKGRAY;
         }
 
@@ -23,4 +24,9 @@ void DesenharMapa(void)
             }
         }
     }
+}
+
+bool LinhaEhRua(int linha)
+{
+    return linha >= PRIMEIRA_LINHA_RUA && linha <= ULTIMA_LINHA_RUA;
 }
