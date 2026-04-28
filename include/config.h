@@ -13,5 +13,7 @@
 #define LARGURA_CARRO 70
 #define ALTURA_CARRO 30
 #define VELOCIDADE_CARRO 180
+#define X_INICIAL_CARRO -80
+#define Y_INICIAL_CARRO 280
 
 #endif
