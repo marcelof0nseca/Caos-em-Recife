@@ -3,6 +3,19 @@
 #include "config.h"
 #include "score.h"
 
+static float LimitarFloat(float valor, float minimo, float maximo)
+{
+    if (valor < minimo) {
+        return minimo;
+    }
+
+    if (valor > maximo) {
+        return maximo;
+    }
+
+    return valor;
+}
+
 static void AtualizarRecorde(Jogo *jogo)
 {
     if (jogo->jogador.score > jogo->recorde) {
@@ -25,17 +38,34 @@ static void ConfigurarMoedas(Jogo *jogo)
 {
     jogo->totalMoedas = 0;
 
-    if (jogo->faseAtual == 1) {
-        AdicionarMoedaFase(jogo, 4, 11);
-        AdicionarMoedaFase(jogo, 14, 7);
-        AdicionarMoedaFase(jogo, 8, 3);
-        return;
-    }
+    AdicionarMoedaFase(jogo, 4, 41);
+    AdicionarMoedaFase(jogo, 15, 38);
+    AdicionarMoedaFase(jogo, 6, 35);
+    AdicionarMoedaFase(jogo, 13, 32);
+    AdicionarMoedaFase(jogo, 8, 29);
+    AdicionarMoedaFase(jogo, 18, 23);
+    AdicionarMoedaFase(jogo, 2, 19);
+    AdicionarMoedaFase(jogo, 14, 16);
+    AdicionarMoedaFase(jogo, 4, 13);
+    AdicionarMoedaFase(jogo, 12, 10);
+    AdicionarMoedaFase(jogo, 6, 7);
+    AdicionarMoedaFase(jogo, 17, 4);
+}
 
-    AdicionarMoedaFase(jogo, 2, 12);
-    AdicionarMoedaFase(jogo, 16, 8);
-    AdicionarMoedaFase(jogo, 5, 6);
-    AdicionarMoedaFase(jogo, 12, 2);
+static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
+{
+    AdicionarObstaculo(
+        &jogo->obstaculos,
+        CriarObstaculo(tipo, x, linha * TAM_BLOCO + 5, velocidade, direcao)
+    );
+}
+
+static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
+{
+    AdicionarObstaculo(
+        &jogo->obstaculos,
+        CriarObstaculo(tipo, coluna * TAM_BLOCO, linha * TAM_BLOCO, 0, 0)
+    );
 }
 
 static void ConfigurarObstaculos(Jogo *jogo)
@@ -43,14 +73,78 @@ static void ConfigurarObstaculos(Jogo *jogo)
     LiberarObstaculos(&jogo->obstaculos);
     jogo->obstaculos = NULL;
 
-    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, X_INICIAL_CARRO, 280, VELOCIDADE_CARRO, 1));
-    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, LARGURA_TELA + 80, 360, 130, -1));
-    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_ONIBUS, -220, 200, VELOCIDADE_CARRO, 1));
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 43, 165, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 43, 165, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 80, 42, 155, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 430, 42, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 40, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -620, 40, 175, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 120, 39, 170, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 39, 170, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 37, 185, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -560, 37, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 200, 36, 175, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 610, 36, 175, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -260, 34, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -700, 34, 190, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 100, 33, 180, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 500, 33, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -140, 31, 190, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -520, 31, 190, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 220, 30, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 650, 30, 185, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -180, 28, 200, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -640, 28, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 160, 27, 190, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 540, 27, 190, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 25, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -660, 25, 205, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 100, 24, 195, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 500, 24, 0, -1);
 
-    if (jogo->faseAtual >= 2) {
-        AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_MOTO, LARGURA_TELA + 120, 240, 0, -1));
-        AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_MOTO, -140, 320, 0, 1));
-    }
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -120, 21, 205, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -480, 21, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 140, 20, 195, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 500, 20, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -180, 18, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -560, 18, 215, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 160, 17, 205, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 17, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -150, 15, 220, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -510, 15, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 150, 14, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 14, 215, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 12, 225, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -530, 12, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 170, 11, 215, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 11, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -190, 9, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -560, 9, 230, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 170, 8, 220, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 530, 8, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 6, 230, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -520, 6, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 170, 5, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 540, 5, 225, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 3, 235, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -540, 3, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 180, 2, 225, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 2, 0, -1);
+
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 41);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 12, 41);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 38);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 5, 35);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 14, 32);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 7, 29);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 17, 26);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 4, 23);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 19);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 6, 16);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 13, 13);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 3, 10);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 7);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 8, 4);
 }
 
 static void ConfigurarFase(Jogo *jogo)
@@ -78,28 +172,13 @@ static void DesenharMoedasJogo(Jogo *jogo)
 
 static void AtualizarFase(Jogo *jogo)
 {
-    if (jogo->jogador.linha != 0) {
-        jogo->tocouTopoNestaFase = false;
-        return;
-    }
-
-    if (jogo->tocouTopoNestaFase) {
-        return;
-    }
-
-    jogo->tocouTopoNestaFase = true;
-
-    if (jogo->faseAtual < TOTAL_FASES_ATUAIS) {
-        jogo->faseAtual++;
-        ConfigurarFase(jogo);
-    }
+    jogo->faseAtual = jogo->jogador.linha <= 22 ? 2 : 1;
 }
 
 void IniciarJogo(Jogo *jogo)
 {
     IniciarJogador(&jogo->jogador);
     jogo->faseAtual = 1;
-    jogo->tocouTopoNestaFase = false;
     ConfigurarFase(jogo);
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
@@ -110,6 +189,8 @@ void IniciarJogo(Jogo *jogo)
 
 void AtualizarJogo(Jogo *jogo)
 {
+    Jogador jogadorAntes;
+
     if (IsKeyPressed(KEY_P)) {
         jogo->pausado = !jogo->pausado;
     }
@@ -118,7 +199,13 @@ void AtualizarJogo(Jogo *jogo)
         return;
     }
 
+    jogadorAntes = jogo->jogador;
     AtualizarJogador(&jogo->jogador);
+
+    if (VerificarColisaoFixaLista(jogo->obstaculos, jogo->jogador.corpo)) {
+        jogo->jogador = jogadorAntes;
+    }
+
     AtualizarRecorde(jogo);
     AtualizarMoedas(jogo);
 
@@ -133,15 +220,27 @@ void AtualizarJogo(Jogo *jogo)
 
 void DesenharJogo(Jogo *jogo)
 {
+    Camera2D camera = {0};
+    float alturaMapa = TOTAL_LINHAS * TAM_BLOCO;
+    float cameraY = jogo->jogador.corpo.y - ALTURA_TELA * 0.65f;
+
     if (!jogo->jogoIniciado) {
         DesenharTelaInicial();
         return;
     }
 
+    cameraY = LimitarFloat(cameraY, 0, alturaMapa - ALTURA_TELA);
+    camera.target = (Vector2){0, cameraY};
+    camera.offset = (Vector2){0, 0};
+    camera.rotation = 0;
+    camera.zoom = 1;
+
+    BeginMode2D(camera);
     DesenharMapa();
     DesenharMoedasJogo(jogo);
     DesenharListaObstaculos(jogo->obstaculos);
     DesenharJogador(jogo->jogador);
+    EndMode2D();
 
     DesenharInterface(jogo);
 

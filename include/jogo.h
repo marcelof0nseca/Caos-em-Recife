@@ -6,8 +6,7 @@
 #include "obstaculo.h"
 #include "moeda.h"
 
-#define TOTAL_FASES_ATUAIS 2
-#define MAX_MOEDAS 6
+#define MAX_MOEDAS 12
 
 typedef struct {
     Jogador jogador;
@@ -19,7 +18,6 @@ typedef struct {
     bool jogoIniciado;
     bool venceu;
     bool pausado;
-    bool tocouTopoNestaFase;
     int recorde;
 } Jogo;
 

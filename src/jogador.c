@@ -31,7 +31,13 @@ void AtualizarJogador(Jogador *jogador)
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
     }
 
-    if (jogador->linha == 10 || jogador->linha == 4) {
+    if (jogador->linha == 41 || jogador->linha == 38 ||
+        jogador->linha == 35 || jogador->linha == 32 ||
+        jogador->linha == 29 || jogador->linha == 26 ||
+        jogador->linha == 23 || jogador->linha == 19 ||
+        jogador->linha == 16 || jogador->linha == 13 ||
+        jogador->linha == 10 || jogador->linha == 7 ||
+        jogador->linha == 4) {
         jogador->linhaCheckpoint = jogador->linha;
         jogador->colunaCheckpoint = jogador->coluna;
     }

@@ -42,6 +42,24 @@ void IniciarBuraco(Obstaculo *buraco, float x, float y)
     buraco->proximo = NULL;
 }
 
+void IniciarPedra(Obstaculo *pedra, float x, float y)
+{
+    pedra->tipo = TIPO_PEDRA;
+    pedra->corpo = (Rectangle){x + 6, y + 12, 28, 22};
+    pedra->velocidade = 0;
+    pedra->direcao = 0;
+    pedra->proximo = NULL;
+}
+
+void IniciarArvore(Obstaculo *arvore, float x, float y)
+{
+    arvore->tipo = TIPO_ARVORE;
+    arvore->corpo = (Rectangle){x + 5, y + 4, 30, 32};
+    arvore->velocidade = 0;
+    arvore->direcao = 0;
+    arvore->proximo = NULL;
+}
+
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
     Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
@@ -52,6 +70,10 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
 
     if (tipo == TIPO_BURACO) {
         IniciarBuraco(novo, x, y);
+    } else if (tipo == TIPO_PEDRA) {
+        IniciarPedra(novo, x, y);
+    } else if (tipo == TIPO_ARVORE) {
+        IniciarArvore(novo, x, y);
     } else if (tipo == TIPO_MOTO) {
         IniciarMoto(novo, x, y, direcao);
     } else if (tipo == TIPO_ONIBUS) {
@@ -88,18 +110,18 @@ void LiberarObstaculos(Obstaculo **lista)
 
 void AtualizarCarro(Obstaculo *carro)
 {
-    if (carro->tipo == TIPO_BURACO) {
+    if (carro->velocidade == 0) {
         return;
     }
 
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
     if (carro->direcao == 1 && carro->corpo.x > LARGURA_TELA) {
-        carro->corpo.x = X_INICIAL_CARRO;
+        carro->corpo.x = -carro->corpo.width - 10;
     }
 
     if (carro->direcao == -1 && carro->corpo.x + carro->corpo.width < 0) {
-        carro->corpo.x = LARGURA_TELA + LARGURA_CARRO;
+        carro->corpo.x = LARGURA_TELA + carro->corpo.width;
     }
 }
 
@@ -124,6 +146,29 @@ void DesenharCarro(Obstaculo carro)
         DrawLine(x + 2, y + 11, x - 8, y + 5, BLACK);
         DrawLine(x + 24, y + 4, x + 35, y - 2, BLACK);
         DrawLine(x + 27, y + 20, x + 38, y + 25, BLACK);
+        return;
+    }
+
+    if (carro.tipo == TIPO_PEDRA) {
+        int x = (int)carro.corpo.x;
+        int y = (int)carro.corpo.y;
+
+        DrawEllipse(x + 14, y + 13, 16, 12, GRAY);
+        DrawEllipse(x + 9, y + 9, 9, 7, LIGHTGRAY);
+        DrawCircle(x + 21, y + 8, 5, DARKGRAY);
+        DrawLine(x + 5, y + 18, x + 24, y + 19, DARKGRAY);
+        return;
+    }
+
+    if (carro.tipo == TIPO_ARVORE) {
+        int x = (int)carro.corpo.x;
+        int y = (int)carro.corpo.y;
+
+        DrawRectangle(x + 12, y + 15, 7, 17, BROWN);
+        DrawCircle(x + 15, y + 9, 13, DARKGREEN);
+        DrawCircle(x + 6, y + 15, 9, GREEN);
+        DrawCircle(x + 24, y + 15, 9, GREEN);
+        DrawLine(x + 15, y + 15, x + 7, y + 24, DARKBROWN);
         return;
     }
 
@@ -162,6 +207,10 @@ void DesenharListaObstaculos(Obstaculo *lista)
 
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
+    if (carro.tipo == TIPO_PEDRA || carro.tipo == TIPO_ARVORE) {
+        return false;
+    }
+
     if (carro.tipo == TIPO_BURACO) {
         Rectangle areaPerigosa = {
             carro.corpo.x + 5,
@@ -174,6 +223,22 @@ bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
     }
 
     return CheckCollisionRecs(carro.corpo, jogador);
+}
+
+bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        if ((atual->tipo == TIPO_PEDRA || atual->tipo == TIPO_ARVORE) &&
+            CheckCollisionRecs(atual->corpo, jogador)) {
+            return true;
+        }
+
+        atual = atual->proximo;
+    }
+
+    return false;
 }
 
 bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
