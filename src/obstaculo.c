@@ -24,6 +24,15 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->proximo = NULL;
 }
 
+void IniciarMoto(Obstaculo *moto, float x, float y, int direcao)
+{
+    moto->tipo = TIPO_MOTO;
+    moto->corpo = (Rectangle){x, y + 5, 45, 22};
+    moto->velocidade = VELOCIDADE_CARRO * 1.35f;
+    moto->direcao = direcao;
+    moto->proximo = NULL;
+}
+
 void IniciarBuraco(Obstaculo *buraco, float x, float y)
 {
     buraco->tipo = TIPO_BURACO;
@@ -43,6 +52,8 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
 
     if (tipo == TIPO_BURACO) {
         IniciarBuraco(novo, x, y);
+    } else if (tipo == TIPO_MOTO) {
+        IniciarMoto(novo, x, y, direcao);
     } else if (tipo == TIPO_ONIBUS) {
         IniciarOnibus(novo, x, y, direcao);
     } else {
@@ -113,6 +124,19 @@ void DesenharCarro(Obstaculo carro)
         DrawLine(x + 2, y + 11, x - 8, y + 5, BLACK);
         DrawLine(x + 24, y + 4, x + 35, y - 2, BLACK);
         DrawLine(x + 27, y + 20, x + 38, y + 25, BLACK);
+        return;
+    }
+
+    if (carro.tipo == TIPO_MOTO) {
+        int x = (int)carro.corpo.x;
+        int y = (int)carro.corpo.y;
+
+        DrawRectangle(x + 8, y + 5, 27, 8, BLUE);
+        DrawRectangle(x + 19, y, 12, 7, SKYBLUE);
+        DrawCircle(x + 9, y + 19, 5, BLACK);
+        DrawCircle(x + 36, y + 19, 5, BLACK);
+        DrawLine(x + 35, y + 5, x + 44, y + 1, BLACK);
+        DrawRectangleLinesEx(carro.corpo, 1, DARKBLUE);
         return;
     }
 

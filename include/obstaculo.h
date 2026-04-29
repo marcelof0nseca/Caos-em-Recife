@@ -7,6 +7,7 @@
 typedef enum {
     TIPO_CARRO,
     TIPO_ONIBUS,
+    TIPO_MOTO,
     TIPO_BURACO
 } TipoObstaculo;
 
@@ -21,6 +22,7 @@ typedef struct Obstaculo {
 void IniciarCarro(Obstaculo *carro);
 void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);
+void IniciarMoto(Obstaculo *moto, float x, float y, int direcao);
 void IniciarBuraco(Obstaculo *buraco, float x, float y);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
