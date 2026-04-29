@@ -38,10 +38,10 @@ static void ConfigurarMoedas(Jogo *jogo)
 {
     jogo->totalMoedas = 0;
 
-    AdicionarMoedaFase(jogo, 4, 41);
-    AdicionarMoedaFase(jogo, 15, 38);
-    AdicionarMoedaFase(jogo, 6, 35);
-    AdicionarMoedaFase(jogo, 13, 32);
+    AdicionarMoedaFase(jogo, 10, 44);
+    AdicionarMoedaFase(jogo, 15, 39);
+    AdicionarMoedaFase(jogo, 6, 36);
+    AdicionarMoedaFase(jogo, 13, 33);
     AdicionarMoedaFase(jogo, 8, 29);
     AdicionarMoedaFase(jogo, 18, 23);
     AdicionarMoedaFase(jogo, 2, 19);
@@ -73,22 +73,18 @@ static void ConfigurarObstaculos(Jogo *jogo)
     LiberarObstaculos(&jogo->obstaculos);
     jogo->obstaculos = NULL;
 
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 43, 165, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 43, 165, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 80, 42, 155, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 430, 42, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 40, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -620, 40, 175, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 120, 39, 170, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 39, 170, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 37, 185, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -560, 37, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 200, 36, 175, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 610, 36, 175, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -260, 34, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -700, 34, 190, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 100, 33, 180, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 500, 33, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 41, 165, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 41, 165, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 80, 40, 155, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 430, 40, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 38, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -620, 38, 175, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 120, 37, 170, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 37, 170, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 35, 185, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -560, 35, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 200, 34, 175, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 610, 34, 175, -1);
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -140, 31, 190, 1);
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -520, 31, 190, 1);
     AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 220, 30, 0, -1);
@@ -145,6 +141,10 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 3, 10);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 7);
     AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 8, 4);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 2, 44);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 6, 44);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 44);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 18, 43);
 }
 
 static void ConfigurarFase(Jogo *jogo)

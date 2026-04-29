@@ -38,8 +38,7 @@ bool LinhaEhRua(int linha)
            linha == 24 || linha == 25 ||
            linha == 27 || linha == 28 ||
            linha == 30 || linha == 31 ||
-           linha == 33 || linha == 34 ||
-           linha == 36 || linha == 37 ||
-           linha == 39 || linha == 40 ||
-           linha == 42 || linha == 43;
+           linha == 34 || linha == 35 ||
+           linha == 37 || linha == 38 ||
+           linha == 40 || linha == 41;
 }
