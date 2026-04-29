@@ -27,7 +27,7 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
 void IniciarBuraco(Obstaculo *buraco, float x, float y)
 {
     buraco->tipo = TIPO_BURACO;
-    buraco->corpo = (Rectangle){x, y, 32, 32};
+    buraco->corpo = (Rectangle){x + 4, y + 7, 32, 26};
     buraco->velocidade = 0;
     buraco->direcao = 0;
     buraco->proximo = NULL;
@@ -105,8 +105,14 @@ void AtualizarListaObstaculos(Obstaculo *lista)
 void DesenharCarro(Obstaculo carro)
 {
     if (carro.tipo == TIPO_BURACO) {
-        DrawCircle((int)carro.corpo.x + 16, (int)carro.corpo.y + 16, 16, BLACK);
-        DrawCircle((int)carro.corpo.x + 16, (int)carro.corpo.y + 16, 8, DARKGRAY);
+        int x = (int)carro.corpo.x;
+        int y = (int)carro.corpo.y;
+
+        DrawEllipse(x + 16, y + 13, 18, 12, Fade(BLACK, 0.85f));
+        DrawEllipse(x + 16, y + 12, 11, 7, DARKGRAY);
+        DrawLine(x + 2, y + 11, x - 8, y + 5, BLACK);
+        DrawLine(x + 24, y + 4, x + 35, y - 2, BLACK);
+        DrawLine(x + 27, y + 20, x + 38, y + 25, BLACK);
         return;
     }
 
@@ -132,6 +138,17 @@ void DesenharListaObstaculos(Obstaculo *lista)
 
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
+    if (carro.tipo == TIPO_BURACO) {
+        Rectangle areaPerigosa = {
+            carro.corpo.x + 5,
+            carro.corpo.y + 5,
+            carro.corpo.width - 10,
+            carro.corpo.height - 9
+        };
+
+        return CheckCollisionRecs(areaPerigosa, jogador);
+    }
+
     return CheckCollisionRecs(carro.corpo, jogador);
 }
 

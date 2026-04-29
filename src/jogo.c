@@ -11,7 +11,8 @@ void IniciarJogo(Jogo *jogo)
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1));
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_CARRO, LARGURA_TELA + 80, 360, 130, -1));
     AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_ONIBUS, -220, 200, VELOCIDADE_CARRO, 1));
-    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_BURACO, 440, 120, 0, 0));
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_BURACO, 240, 240, 0, 0));
+    AdicionarObstaculo(&jogo->obstaculos, CriarObstaculo(TIPO_BURACO, 520, 320, 0, 0));
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
@@ -30,6 +31,11 @@ void AtualizarJogo(Jogo *jogo)
     }
 
     AtualizarJogador(&jogo->jogador);
+    if (jogo->jogador.score > jogo->recorde) {
+        jogo->recorde = jogo->jogador.score;
+        SalvarRecorde(jogo->recorde);
+    }
+
     AtualizarListaObstaculos(jogo->obstaculos);
 
     if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
@@ -39,10 +45,6 @@ void AtualizarJogo(Jogo *jogo)
     if (jogo->jogador.linha == 0) {
         jogo->venceu = true;
         jogo->gameOver = true;
-        if (jogo->jogador.score > jogo->recorde) {
-            jogo->recorde = jogo->jogador.score;
-            SalvarRecorde(jogo->recorde);
-        }
     }
 }
 
@@ -79,7 +81,7 @@ void DesenharInterface(Jogo *jogo)
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Evite o carro vermelho", 575, 10, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Evite carros e buracos", 565, 10, TAM_TEXTO_INTERFACE, BLACK);
 
     if (jogo->pausado) {
         DrawText("PAUSADO", 335, 285, 34, YELLOW);

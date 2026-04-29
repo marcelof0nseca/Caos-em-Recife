@@ -7,8 +7,12 @@ int CarregarRecorde(void)
     FILE *arquivo = fopen("scores.txt", "r");
 
     if (arquivo != NULL) {
-        fscanf(arquivo, "%d", &recorde);
+        if (fscanf(arquivo, "%d", &recorde) != 1) {
+            recorde = 0;
+        }
         fclose(arquivo);
+    } else {
+        SalvarRecorde(recorde);
     }
 
     return recorde;
