@@ -9,13 +9,10 @@ typedef struct {
     int coluna;
     int score;
     int melhorLinha;
-    int linhaCheckpoint;
-    int colunaCheckpoint;
 } Jogador;
 
 void IniciarJogador(Jogador *jogador);
 void AtualizarJogador(Jogador *jogador);
-void VoltarJogadorCheckpoint(Jogador *jogador);
 void DesenharJogador(Jogador jogador);
 
 #endif

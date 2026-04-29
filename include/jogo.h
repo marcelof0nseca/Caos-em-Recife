@@ -13,6 +13,7 @@ typedef struct {
     Obstaculo *obstaculos;
     Moeda moedas[MAX_MOEDAS];
     int totalMoedas;
+    int moedasColetadas;
     int faseAtual;
     bool gameOver;
     bool jogoIniciado;

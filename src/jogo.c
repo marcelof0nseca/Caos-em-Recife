@@ -158,6 +158,7 @@ static void AtualizarMoedas(Jogo *jogo)
     for (int i = 0; i < jogo->totalMoedas; i++) {
         if (ColetarMoeda(&jogo->moedas[i], jogo->jogador.corpo)) {
             jogo->jogador.score += jogo->moedas[i].valor;
+            jogo->moedasColetadas++;
             AtualizarRecorde(jogo);
         }
     }
@@ -179,6 +180,7 @@ void IniciarJogo(Jogo *jogo)
 {
     IniciarJogador(&jogo->jogador);
     jogo->faseAtual = 1;
+    jogo->moedasColetadas = 0;
     ConfigurarFase(jogo);
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
@@ -212,7 +214,8 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarListaObstaculos(jogo->obstaculos);
 
     if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
-        VoltarJogadorCheckpoint(&jogo->jogador);
+        jogo->venceu = false;
+        jogo->gameOver = true;
     }
 
     AtualizarFase(jogo);
@@ -262,6 +265,7 @@ void DesenharInterface(Jogo *jogo)
     DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
     DrawText(TextFormat("Recorde: %d", jogo->recorde), 140, Y_SCORE, 20, BLACK);
     DrawText(TextFormat("Fase: %d", jogo->faseAtual), 330, Y_SCORE, 20, BLACK);
+    DrawText(TextFormat("Moedas: %d", jogo->moedasColetadas), 430, Y_SCORE, 20, BLACK);
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
@@ -278,7 +282,10 @@ void DesenharGameOver(Jogo *jogo)
     if (jogo->venceu) {
         DrawText("VOCE VENCEU", 250, 250, 40, YELLOW);
     } else {
-        DrawText("GAME OVER", 270, 250, 40, RED);
+        DrawText("VOCE PERDEU", 260, 210, 40, RED);
     }
-    DrawText("Pressione R para reiniciar", 245, 310, 24, WHITE);
+    DrawText(TextFormat("Score da partida: %d", jogo->jogador.score), 250, 275, 24, WHITE);
+    DrawText(TextFormat("Moedas coletadas: %d", jogo->moedasColetadas), 250, 310, 24, GOLD);
+    DrawText("Deseja jogar novamente?", 245, 365, 24, WHITE);
+    DrawText("Pressione R para sim", 275, 400, 22, YELLOW);
 }

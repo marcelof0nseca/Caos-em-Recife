@@ -8,8 +8,6 @@ void IniciarJogador(Jogador *jogador)
     jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR, jogador->linha * TAM_BLOCO + MARGEM_JOGADOR, LARGURA_JOGADOR, ALTURA_JOGADOR};
     jogador->score = 0;
     jogador->melhorLinha = jogador->linha;
-    jogador->linhaCheckpoint = jogador->linha;
-    jogador->colunaCheckpoint = jogador->coluna;
 }
 
 void AtualizarJogador(Jogador *jogador)
@@ -31,16 +29,6 @@ void AtualizarJogador(Jogador *jogador)
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
     }
 
-    if (jogador->linha == 41 || jogador->linha == 38 ||
-        jogador->linha == 35 || jogador->linha == 32 ||
-        jogador->linha == 29 || jogador->linha == 26 ||
-        jogador->linha == 23 || jogador->linha == 19 ||
-        jogador->linha == 16 || jogador->linha == 13 ||
-        jogador->linha == 10 || jogador->linha == 7 ||
-        jogador->linha == 4) {
-        jogador->linhaCheckpoint = jogador->linha;
-        jogador->colunaCheckpoint = jogador->coluna;
-    }
 }
 
 void DesenharJogador(Jogador jogador)
@@ -53,12 +41,4 @@ void DesenharJogador(Jogador jogador)
     DrawRectangle((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 29, 6, 4, BLUE);
     DrawRectangle((int)jogador.corpo.x + 17, (int)jogador.corpo.y + 29, 6, 4, BLUE);
     DrawRectangleLines((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, BLACK);
-}
-
-void VoltarJogadorCheckpoint(Jogador *jogador)
-{
-    jogador->linha = jogador->linhaCheckpoint;
-    jogador->coluna = jogador->colunaCheckpoint;
-    jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
-    jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
 }
