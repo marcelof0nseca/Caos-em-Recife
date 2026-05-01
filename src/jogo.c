@@ -62,6 +62,10 @@ static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, i
 
 static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
 {
+    if (LinhaEhRua(linha)) {
+        return;
+    }
+
     AdicionarObstaculo(
         &jogo->obstaculos,
         CriarObstaculo(tipo, coluna * TAM_BLOCO, linha * TAM_BLOCO, 0, 0)
@@ -127,10 +131,10 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 180, 2, 225, -1);
     AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 2, 0, -1);
 
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 41);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 12, 41);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 38);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 5, 35);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 42);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 12, 42);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 39);
+    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 5, 36);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 14, 32);
     AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 7, 29);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 17, 26);
