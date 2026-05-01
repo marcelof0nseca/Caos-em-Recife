@@ -1,6 +1,20 @@
 #include "obstaculo.h"
 #include "config.h"
 
+static Texture2D texturaPedra = {0};
+
+void InicializarObstaculos(void)
+{
+    texturaPedra = LoadTexture("assets/pedra.png");
+}
+
+void FinalizarObstaculos(void)
+{
+    if (texturaPedra.id != 0) {
+        UnloadTexture(texturaPedra);
+    }
+}
+
 void IniciarCarro(Obstaculo *carro)
 {
     IniciarCarroComDados(carro, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1);
@@ -152,6 +166,14 @@ void DesenharCarro(Obstaculo carro)
     if (carro.tipo == TIPO_PEDRA) {
         int x = (int)carro.corpo.x;
         int y = (int)carro.corpo.y;
+
+        if (texturaPedra.id != 0) {
+            Rectangle origem = {0, 0, texturaPedra.width, texturaPedra.height};
+            Rectangle destino = {x - 6, y - 7, 40, 28};
+
+            DrawTexturePro(texturaPedra, origem, destino, (Vector2){0, 0}, 0, WHITE);
+            return;
+        }
 
         DrawEllipse(x + 14, y + 13, 16, 12, GRAY);
         DrawEllipse(x + 9, y + 9, 9, 7, LIGHTGRAY);
