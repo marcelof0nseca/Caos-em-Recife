@@ -21,8 +21,6 @@ typedef struct Obstaculo {
     struct Obstaculo *proximo;
 } Obstaculo;
 
-void InicializarObstaculos(void);
-void FinalizarObstaculos(void);
 void IniciarCarro(Obstaculo *carro);
 void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);

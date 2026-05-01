@@ -11,7 +11,6 @@ int main(void)
     SetTargetFPS(60);
 
     InicializarMapa();
-    InicializarObstaculos();
     IniciarJogo(&jogo);
 
     while (!WindowShouldClose()) {
@@ -32,7 +31,6 @@ int main(void)
         EndDrawing();
     }
 
-    FinalizarObstaculos();
     FinalizarMapa();
     CloseWindow();
     return 0;
