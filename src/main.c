@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "config.h"
 #include "jogo.h"
+#include "mapa.h"
 
 int main(void)
 {

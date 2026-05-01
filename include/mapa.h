@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+void InicializarMapa(void);
+void FinalizarMapa(void);
 void DesenharMapa(void);
 bool LinhaEhRua(int linha);
 
