@@ -359,11 +359,13 @@ void DesenharCarro(Obstaculo carro)
 
         if (sprite.id != 0) {
             Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            float larguraDestino = carro.corpo.width + 34;
+            float alturaDestino = carro.corpo.height + 34;
             Rectangle destino = {
-                carro.corpo.x - 6,
-                carro.corpo.y - 5,
-                carro.corpo.width + 12,
-                carro.corpo.height + 10
+                carro.corpo.x + carro.corpo.width * 0.5f - larguraDestino * 0.5f,
+                carro.corpo.y + carro.corpo.height - alturaDestino + 8,
+                larguraDestino,
+                alturaDestino
             };
 
             DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
