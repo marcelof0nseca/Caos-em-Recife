@@ -5,12 +5,14 @@
 static Texture2D texturaPista = {0};
 static Texture2D texturaCalcadaCanaleta = {0};
 static Texture2D texturaCalcadaSimples = {0};
+static Texture2D texturaPoste = {0};
 
 void InicializarMapa(void)
 {
     texturaPista = LoadTexture("assets/pista.png");
     texturaCalcadaCanaleta = LoadTexture("assets/calcada_canaleta.png");
     texturaCalcadaSimples = LoadTexture("assets/calcada_simples.png");
+    texturaPoste = LoadTexture("assets/cenario/poste.png");
 
     if (texturaCalcadaCanaleta.id != 0) {
         SetTextureFilter(texturaCalcadaCanaleta, TEXTURE_FILTER_POINT);
@@ -18,6 +20,10 @@ void InicializarMapa(void)
 
     if (texturaCalcadaSimples.id != 0) {
         SetTextureFilter(texturaCalcadaSimples, TEXTURE_FILTER_POINT);
+    }
+
+    if (texturaPoste.id != 0) {
+        SetTextureFilter(texturaPoste, TEXTURE_FILTER_POINT);
     }
 }
 
@@ -33,6 +39,10 @@ void FinalizarMapa(void)
 
     if (texturaCalcadaSimples.id != 0) {
         UnloadTexture(texturaCalcadaSimples);
+    }
+
+    if (texturaPoste.id != 0) {
+        UnloadTexture(texturaPoste);
     }
 }
 
@@ -99,6 +109,93 @@ static void DesenharCalcada(int linha)
     }
 }
 
+static bool LinhaEhFimFaixaCalcada(int linha)
+{
+    if (LinhaEhRua(linha)) {
+        return false;
+    }
+
+    return linha == TOTAL_LINHAS - 1 || LinhaEhRua(linha + 1);
+}
+
+static int ObterIndiceFaixaCalcada(int linhaFinal)
+{
+    int indice = 0;
+
+    for (int linha = 0; linha < linhaFinal; linha++) {
+        if (LinhaEhFimFaixaCalcada(linha)) {
+            indice++;
+        }
+    }
+
+    return indice;
+}
+
+static void DesenharPoste(int coluna, int linha, int variante)
+{
+    if (texturaPoste.id != 0) {
+        bool espelhar = variante % 2 == 1;
+        float largura = 17.0f + (variante % 3);
+        float altura = 66.0f + (variante % 4) * 3.0f;
+        float deslocamentoX = (float)((variante * 7) % 13) - 6.0f;
+        Rectangle origem = {
+            espelhar ? (float)texturaPoste.width : 0,
+            0,
+            espelhar ? -(float)texturaPoste.width : (float)texturaPoste.width,
+            texturaPoste.height
+        };
+        Rectangle destino = {
+            coluna * TAM_BLOCO + 12 + deslocamentoX,
+            linha * TAM_BLOCO + TAM_BLOCO - altura,
+            largura,
+            altura
+        };
+
+        DrawTexturePro(texturaPoste, origem, destino, (Vector2){0, 0}, 0, WHITE);
+        return;
+    }
+
+    DrawRectangle(coluna * TAM_BLOCO + 18, linha * TAM_BLOCO - 28, 6, 60, DARKGRAY);
+    DrawRectangle(coluna * TAM_BLOCO + 13, linha * TAM_BLOCO + 29, 16, 4, DARKBROWN);
+}
+
+static void DesenharPostesMapa(void)
+{
+    static const int padroes[][4] = {
+        {2, 9, 16, -1},
+        {5, 13, -1, -1},
+        {1, 7, 12, 18},
+        {4, 10, 17, -1},
+        {3, 15, -1, -1},
+        {6, 11, 18, -1},
+        {2, 8, 14, -1},
+        {5, 16, -1, -1}
+    };
+    int totalPadroes = sizeof(padroes) / sizeof(padroes[0]);
+
+    for (int linha = 0; linha < TOTAL_LINHAS; linha++) {
+        int indiceFaixa;
+        int indicePadrao;
+
+        if (!LinhaEhFimFaixaCalcada(linha)) {
+            continue;
+        }
+
+        indiceFaixa = ObterIndiceFaixaCalcada(linha);
+        indicePadrao = indiceFaixa % totalPadroes;
+
+        for (int i = 0; i < 4; i++) {
+            int coluna = padroes[indicePadrao][i];
+
+            if (coluna < 0) {
+                continue;
+            }
+
+            DesenharPoste(coluna, linha, indiceFaixa + i);
+        }
+    }
+}
+
 void DesenharMapa(void)
 {
     for (int linha = 0; linha < TOTAL_LINHAS; linha++) {
@@ -109,6 +206,8 @@ void DesenharMapa(void)
 
         DesenharCalcada(linha);
     }
+
+    DesenharPostesMapa();
 }
 
 bool LinhaEhRua(int linha)
