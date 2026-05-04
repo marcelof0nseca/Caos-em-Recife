@@ -8,6 +8,7 @@ static Texture2D spritesCachorroDireita[4] = {0};
 static Texture2D spritesCachorroEsquerda[4] = {0};
 static Texture2D spriteCachorroMordendoDireita = {0};
 static Texture2D spriteCachorroMordendoEsquerda = {0};
+static Texture2D spritesBuraco[4] = {0};
 
 static Texture2D CarregarTexturaObstaculo(const char *caminho)
 {
@@ -43,6 +44,10 @@ void InicializarTexturasObstaculo(void)
     spritesCachorroEsquerda[3] = CarregarTexturaObstaculo("assets/cachorro/correndo_esquerda_4.png");
     spriteCachorroMordendoDireita = CarregarTexturaObstaculo("assets/cachorro/mordendo_direita.png");
     spriteCachorroMordendoEsquerda = CarregarTexturaObstaculo("assets/cachorro/mordendo_esquerda.png");
+    spritesBuraco[0] = CarregarTexturaObstaculo("assets/itens/buraco_1.png");
+    spritesBuraco[1] = CarregarTexturaObstaculo("assets/itens/buraco_2.png");
+    spritesBuraco[2] = CarregarTexturaObstaculo("assets/itens/buraco_3.png");
+    spritesBuraco[3] = CarregarTexturaObstaculo("assets/itens/buraco_4.png");
 }
 
 void FinalizarTexturasObstaculo(void)
@@ -74,6 +79,11 @@ void FinalizarTexturasObstaculo(void)
             UnloadTexture(spritesCachorroEsquerda[frame]);
             spritesCachorroEsquerda[frame] = (Texture2D){0};
         }
+
+        if (spritesBuraco[frame].id != 0) {
+            UnloadTexture(spritesBuraco[frame]);
+            spritesBuraco[frame] = (Texture2D){0};
+        }
     }
 
     if (spriteCachorroMordendoDireita.id != 0) {
@@ -99,6 +109,7 @@ void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, 
     carro->velocidade = velocidade;
     carro->direcao = direcao;
     carro->mordendo = false;
+    carro->variante = 0;
     carro->proximo = NULL;
 }
 
@@ -109,6 +120,7 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->velocidade = VELOCIDADE_CARRO * 0.65f;
     onibus->direcao = direcao;
     onibus->mordendo = false;
+    onibus->variante = 0;
     onibus->proximo = NULL;
 }
 
@@ -119,16 +131,27 @@ void IniciarMoto(Obstaculo *moto, float x, float y, int direcao)
     moto->velocidade = VELOCIDADE_CARRO * 1.35f;
     moto->direcao = direcao;
     moto->mordendo = false;
+    moto->variante = 0;
     moto->proximo = NULL;
 }
 
 void IniciarBuraco(Obstaculo *buraco, float x, float y)
 {
+    int variante = ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 4;
+    float larguras[] = {34, 42, 50, 62};
+    float alturas[] = {26, 31, 37, 42};
+
     buraco->tipo = TIPO_BURACO;
-    buraco->corpo = (Rectangle){x + 4, y + 7, 32, 26};
+    buraco->corpo = (Rectangle){
+        x + (TAM_BLOCO - larguras[variante]) * 0.5f,
+        y + (TAM_BLOCO - alturas[variante]) * 0.5f,
+        larguras[variante],
+        alturas[variante]
+    };
     buraco->velocidade = 0;
     buraco->direcao = 0;
     buraco->mordendo = false;
+    buraco->variante = variante;
     buraco->proximo = NULL;
 }
 
@@ -139,6 +162,7 @@ void IniciarPedra(Obstaculo *pedra, float x, float y)
     pedra->velocidade = 0;
     pedra->direcao = 0;
     pedra->mordendo = false;
+    pedra->variante = 0;
     pedra->proximo = NULL;
 }
 
@@ -149,6 +173,7 @@ void IniciarArvore(Obstaculo *arvore, float x, float y)
     arvore->velocidade = 0;
     arvore->direcao = 0;
     arvore->mordendo = false;
+    arvore->variante = 0;
     arvore->proximo = NULL;
 }
 
@@ -159,6 +184,7 @@ void IniciarGuardaSol(Obstaculo *guardaSol, float x, float y)
     guardaSol->velocidade = 0;
     guardaSol->direcao = 0;
     guardaSol->mordendo = false;
+    guardaSol->variante = 0;
     guardaSol->proximo = NULL;
 }
 
@@ -169,6 +195,7 @@ void IniciarGuardaChuvaFrevo(Obstaculo *guardaChuvaFrevo, float x, float y)
     guardaChuvaFrevo->velocidade = 0;
     guardaChuvaFrevo->direcao = 0;
     guardaChuvaFrevo->mordendo = false;
+    guardaChuvaFrevo->variante = 0;
     guardaChuvaFrevo->proximo = NULL;
 }
 
@@ -179,6 +206,7 @@ void IniciarCachorro(Obstaculo *cachorro, float x, float y, int direcao)
     cachorro->velocidade = VELOCIDADE_CACHORRO;
     cachorro->direcao = direcao;
     cachorro->mordendo = false;
+    cachorro->variante = 0;
     cachorro->proximo = NULL;
 }
 
@@ -307,6 +335,20 @@ void DesenharCarro(Obstaculo carro)
     if (carro.tipo == TIPO_BURACO) {
         int x = (int)carro.corpo.x;
         int y = (int)carro.corpo.y;
+        Texture2D sprite = spritesBuraco[carro.variante % 4];
+
+        if (sprite.id != 0) {
+            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            Rectangle destino = {
+                carro.corpo.x - 6,
+                carro.corpo.y - 5,
+                carro.corpo.width + 12,
+                carro.corpo.height + 10
+            };
+
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
 
         DrawEllipse(x + 16, y + 13, 18, 12, Fade(BLACK, 0.85f));
         DrawEllipse(x + 16, y + 12, 11, 7, DARKGRAY);

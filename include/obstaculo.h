@@ -22,6 +22,7 @@ typedef struct Obstaculo {
     float velocidade;
     int direcao;
     bool mordendo;
+    int variante;
     struct Obstaculo *proximo;
 } Obstaculo;
 
