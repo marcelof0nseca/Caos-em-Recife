@@ -11,6 +11,19 @@ static Texture2D spriteCachorroMordendoDireita = {0};
 static Texture2D spriteCachorroMordendoEsquerda = {0};
 static Texture2D spritesBuraco[4] = {0};
 
+typedef struct {
+    Texture2D esquerda;
+    Texture2D direita;
+} SpriteVeiculo;
+
+static SpriteVeiculo spritesCarro[5] = {0};
+static SpriteVeiculo spritesOnibus[4] = {0};
+static SpriteVeiculo spritesMoto[2] = {0};
+
+#define TOTAL_SPRITES_CARRO ((int)(sizeof(spritesCarro) / sizeof(spritesCarro[0])))
+#define TOTAL_SPRITES_ONIBUS ((int)(sizeof(spritesOnibus) / sizeof(spritesOnibus[0])))
+#define TOTAL_SPRITES_MOTO ((int)(sizeof(spritesMoto) / sizeof(spritesMoto[0])))
+
 static Texture2D CarregarTexturaObstaculo(const char *caminho)
 {
     Texture2D textura = {0};
@@ -30,12 +43,81 @@ static Texture2D CarregarTexturaObstaculo(const char *caminho)
     return textura;
 }
 
+static Texture2D CarregarTexturaVeiculo(const char *caminho)
+{
+    Texture2D textura = {0};
+    textura = LoadTexture(caminho);
+
+    if (textura.id != 0) {
+        SetTextureFilter(textura, TEXTURE_FILTER_BILINEAR);
+    }
+
+    return textura;
+}
+
+static SpriteVeiculo CarregarSpriteVeiculo(const char *caminhoEsquerda, const char *caminhoDireita)
+{
+    SpriteVeiculo sprite = {0};
+
+    sprite.esquerda = CarregarTexturaVeiculo(caminhoEsquerda);
+    sprite.direita = CarregarTexturaVeiculo(caminhoDireita);
+    return sprite;
+}
+
+static void DescarregarSpriteVeiculo(SpriteVeiculo *sprite)
+{
+    if (sprite->esquerda.id != 0) {
+        UnloadTexture(sprite->esquerda);
+        sprite->esquerda = (Texture2D){0};
+    }
+
+    if (sprite->direita.id != 0) {
+        UnloadTexture(sprite->direita);
+        sprite->direita = (Texture2D){0};
+    }
+}
+
+static Texture2D ObterTexturaVeiculo(SpriteVeiculo sprite, int direcao)
+{
+    return direcao == -1 ? sprite.esquerda : sprite.direita;
+}
+
+static int SortearVarianteVeiculo(SpriteVeiculo *sprites, int total)
+{
+    int varianteInicial = GetRandomValue(0, total - 1);
+
+    if (ObterTexturaVeiculo(sprites[varianteInicial], 1).id != 0 ||
+        ObterTexturaVeiculo(sprites[varianteInicial], -1).id != 0) {
+        return varianteInicial;
+    }
+
+    for (int variante = 0; variante < total; variante++) {
+        if (ObterTexturaVeiculo(sprites[variante], 1).id != 0 ||
+            ObterTexturaVeiculo(sprites[variante], -1).id != 0) {
+            return variante;
+        }
+    }
+
+    return varianteInicial;
+}
+
 void InicializarTexturasObstaculo(void)
 {
     texturaCoqueiro = CarregarTexturaObstaculo("assets/cenario/coqueiro.png");
     texturaGuardaSol = CarregarTexturaObstaculo("assets/cenario/guarda_sol.png");
     texturaGuardaChuvaFrevo = CarregarTexturaObstaculo("assets/cenario/guarda_chuva_frevo.png");
     texturaPoste = CarregarTexturaObstaculo("assets/cenario/poste.png");
+    spritesCarro[0] = CarregarSpriteVeiculo("assets/veiculos/prontos/carros/taxi_esquerda.png", "assets/veiculos/prontos/carros/taxi_direita.png");
+    spritesCarro[1] = CarregarSpriteVeiculo("assets/veiculos/prontos/carros/rocam_esquerda.png", "assets/veiculos/prontos/carros/rocam_direita.png");
+    spritesCarro[2] = CarregarSpriteVeiculo("assets/veiculos/prontos/carros/pm_esquerda.png", "assets/veiculos/prontos/carros/pm_direita.png");
+    spritesCarro[3] = CarregarSpriteVeiculo("assets/veiculos/prontos/carros/cttu_esquerda.png", "assets/veiculos/prontos/carros/cttu_direita.png");
+    spritesCarro[4] = CarregarSpriteVeiculo("assets/veiculos/prontos/carros/firma_esquerda.png", "assets/veiculos/prontos/carros/firma_direita.png");
+    spritesOnibus[0] = CarregarSpriteVeiculo("assets/veiculos/prontos/onibus/borborema_esquerda.png", "assets/veiculos/prontos/onibus/borborema_direita.png");
+    spritesOnibus[1] = CarregarSpriteVeiculo("assets/veiculos/prontos/onibus/sport_esquerda.png", "assets/veiculos/prontos/onibus/sport_direita.png");
+    spritesOnibus[2] = CarregarSpriteVeiculo("assets/veiculos/prontos/onibus/nautico_esquerda.png", "assets/veiculos/prontos/onibus/nautico_direita.png");
+    spritesOnibus[3] = CarregarSpriteVeiculo("assets/veiculos/prontos/onibus/santa_cruz_esquerda.png", "assets/veiculos/prontos/onibus/santa_cruz_direita.png");
+    spritesMoto[0] = CarregarSpriteVeiculo("assets/veiculos/prontos/motos/ifood_esquerda.png", "assets/veiculos/prontos/motos/ifood_direita.png");
+    spritesMoto[1] = CarregarSpriteVeiculo("assets/veiculos/prontos/motos/dupla_esquerda.png", "assets/veiculos/prontos/motos/dupla_direita.png");
     spritesCachorroDireita[0] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_1.png");
     spritesCachorroDireita[1] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_2.png");
     spritesCachorroDireita[2] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_3.png");
@@ -55,6 +137,7 @@ void InicializarTexturasObstaculo(void)
 void FinalizarTexturasObstaculo(void)
 {
     int frame;
+    int variante;
 
     if (texturaCoqueiro.id != 0) {
         UnloadTexture(texturaCoqueiro);
@@ -74,6 +157,18 @@ void FinalizarTexturasObstaculo(void)
     if (texturaPoste.id != 0) {
         UnloadTexture(texturaPoste);
         texturaPoste = (Texture2D){0};
+    }
+
+    for (variante = 0; variante < TOTAL_SPRITES_CARRO; variante++) {
+        DescarregarSpriteVeiculo(&spritesCarro[variante]);
+    }
+
+    for (variante = 0; variante < TOTAL_SPRITES_ONIBUS; variante++) {
+        DescarregarSpriteVeiculo(&spritesOnibus[variante]);
+    }
+
+    for (variante = 0; variante < TOTAL_SPRITES_MOTO; variante++) {
+        DescarregarSpriteVeiculo(&spritesMoto[variante]);
     }
 
     for (frame = 0; frame < 4; frame++) {
@@ -116,7 +211,7 @@ void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, 
     carro->velocidade = velocidade;
     carro->direcao = direcao;
     carro->mordendo = false;
-    carro->variante = 0;
+    carro->variante = SortearVarianteVeiculo(spritesCarro, TOTAL_SPRITES_CARRO);
     carro->proximo = NULL;
 }
 
@@ -127,7 +222,7 @@ void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao)
     onibus->velocidade = VELOCIDADE_CARRO * 0.65f;
     onibus->direcao = direcao;
     onibus->mordendo = false;
-    onibus->variante = 0;
+    onibus->variante = SortearVarianteVeiculo(spritesOnibus, TOTAL_SPRITES_ONIBUS);
     onibus->proximo = NULL;
 }
 
@@ -138,7 +233,7 @@ void IniciarMoto(Obstaculo *moto, float x, float y, int direcao)
     moto->velocidade = VELOCIDADE_CARRO * 1.35f;
     moto->direcao = direcao;
     moto->mordendo = false;
-    moto->variante = 0;
+    moto->variante = SortearVarianteVeiculo(spritesMoto, TOTAL_SPRITES_MOTO);
     moto->proximo = NULL;
 }
 
@@ -470,8 +565,28 @@ void DesenharCarro(Obstaculo carro)
     }
 
     if (carro.tipo == TIPO_MOTO) {
+        int varianteMoto = carro.variante % TOTAL_SPRITES_MOTO;
+        Texture2D sprite = ObterTexturaVeiculo(spritesMoto[varianteMoto], carro.direcao);
         int x = (int)carro.corpo.x;
         int y = (int)carro.corpo.y;
+        float escala = varianteMoto == 0 ? 1.18f : 1.0f;
+
+        if (sprite.id != 0) {
+            float larguraDestinoBase = carro.corpo.width + 12;
+            float alturaDestinoBase = carro.corpo.height + 24;
+            float larguraDestino = larguraDestinoBase * escala;
+            float alturaDestino = alturaDestinoBase * escala;
+            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            Rectangle destino = {
+                carro.corpo.x - 6 - (larguraDestino - larguraDestinoBase) * 0.5f,
+                carro.corpo.y - 12 - (alturaDestino - alturaDestinoBase) * 0.5f,
+                larguraDestino,
+                alturaDestino
+            };
+
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
 
         DrawRectangle(x + 8, y + 5, 27, 8, BLUE);
         DrawRectangle(x + 19, y, 12, 7, SKYBLUE);
@@ -480,6 +595,40 @@ void DesenharCarro(Obstaculo carro)
         DrawLine(x + 35, y + 5, x + 44, y + 1, BLACK);
         DrawRectangleLinesEx(carro.corpo, 1, DARKBLUE);
         return;
+    }
+
+    if (carro.tipo == TIPO_CARRO) {
+        Texture2D sprite = ObterTexturaVeiculo(spritesCarro[carro.variante % TOTAL_SPRITES_CARRO], carro.direcao);
+
+        if (sprite.id != 0) {
+            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            Rectangle destino = {
+                carro.corpo.x - 4,
+                carro.corpo.y - 7,
+                carro.corpo.width + 8,
+                carro.corpo.height + 14
+            };
+
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
+    }
+
+    if (carro.tipo == TIPO_ONIBUS) {
+        Texture2D sprite = ObterTexturaVeiculo(spritesOnibus[carro.variante % TOTAL_SPRITES_ONIBUS], carro.direcao);
+
+        if (sprite.id != 0) {
+            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            Rectangle destino = {
+                carro.corpo.x - 8,
+                carro.corpo.y - 15,
+                carro.corpo.width + 16,
+                carro.corpo.height + 26
+            };
+
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
     }
 
     DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));

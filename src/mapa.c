@@ -8,9 +8,9 @@ static Texture2D texturaCalcadaSimples = {0};
 
 void InicializarMapa(void)
 {
-    texturaPista = LoadTexture("assets/pista.png");
-    texturaCalcadaCanaleta = LoadTexture("assets/calcada_canaleta.png");
-    texturaCalcadaSimples = LoadTexture("assets/calcada_simples.png");
+    texturaPista = LoadTexture("assets/cenario/pista.png");
+    texturaCalcadaCanaleta = LoadTexture("assets/cenario/calcada_canaleta.png");
+    texturaCalcadaSimples = LoadTexture("assets/cenario/calcada_simples.png");
 
     if (texturaCalcadaCanaleta.id != 0) {
         SetTextureFilter(texturaCalcadaCanaleta, TEXTURE_FILTER_POINT);
