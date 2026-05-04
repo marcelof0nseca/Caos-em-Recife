@@ -3,12 +3,22 @@
 #include "mapa.h"
 
 static Texture2D texturaPista = {0};
-static Texture2D texturaGrama = {0};
+static Texture2D texturaCalcadaCanaleta = {0};
+static Texture2D texturaCalcadaSimples = {0};
 
 void InicializarMapa(void)
 {
     texturaPista = LoadTexture("assets/pista.png");
-    texturaGrama = LoadTexture("assets/grama.png");
+    texturaCalcadaCanaleta = LoadTexture("assets/calcada_canaleta.png");
+    texturaCalcadaSimples = LoadTexture("assets/calcada_simples.png");
+
+    if (texturaCalcadaCanaleta.id != 0) {
+        SetTextureFilter(texturaCalcadaCanaleta, TEXTURE_FILTER_POINT);
+    }
+
+    if (texturaCalcadaSimples.id != 0) {
+        SetTextureFilter(texturaCalcadaSimples, TEXTURE_FILTER_POINT);
+    }
 }
 
 void FinalizarMapa(void)
@@ -17,8 +27,12 @@ void FinalizarMapa(void)
         UnloadTexture(texturaPista);
     }
 
-    if (texturaGrama.id != 0) {
-        UnloadTexture(texturaGrama);
+    if (texturaCalcadaCanaleta.id != 0) {
+        UnloadTexture(texturaCalcadaCanaleta);
+    }
+
+    if (texturaCalcadaSimples.id != 0) {
+        UnloadTexture(texturaCalcadaSimples);
     }
 }
 
@@ -48,14 +62,24 @@ static void DesenharPista(int linha)
     DrawLine(0, linha * TAM_BLOCO + 20, LARGURA_TELA, linha * TAM_BLOCO + 20, YELLOW);
 }
 
-static void DesenharGrama(int linha)
+static bool LinhaEhCalcadaIsolada(int linha)
 {
-    if (texturaGrama.id != 0) {
+    bool temRuaAcima = linha == 0 || LinhaEhRua(linha - 1);
+    bool temRuaAbaixo = linha == TOTAL_LINHAS - 1 || LinhaEhRua(linha + 1);
+
+    return temRuaAcima && temRuaAbaixo;
+}
+
+static void DesenharCalcada(int linha)
+{
+    Texture2D textura = LinhaEhCalcadaIsolada(linha) ? texturaCalcadaCanaleta : texturaCalcadaSimples;
+
+    if (textura.id != 0) {
         Rectangle origem = {
             0,
             0,
-            texturaGrama.width,
-            texturaGrama.height
+            textura.width,
+            textura.height
         };
         Rectangle destino = {
             0,
@@ -64,15 +88,14 @@ static void DesenharGrama(int linha)
             TAM_BLOCO
         };
 
-        DrawTexturePro(texturaGrama, origem, destino, (Vector2){0, 0}, 0, WHITE);
+        DrawTexturePro(textura, origem, destino, (Vector2){0, 0}, 0, WHITE);
         return;
     }
 
-    DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, GREEN);
+    DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, LIGHTGRAY);
 
     for (int coluna = 0; coluna < TOTAL_COLUNAS; coluna++) {
-        DrawCircle(coluna * TAM_BLOCO + 12, linha * TAM_BLOCO + 28, 2, DARKGREEN);
-        DrawCircle(coluna * TAM_BLOCO + 30, linha * TAM_BLOCO + 10, 2, DARKGREEN);
+        DrawRectangleLines(coluna * TAM_BLOCO, linha * TAM_BLOCO, TAM_BLOCO, TAM_BLOCO, GRAY);
     }
 }
 
@@ -84,7 +107,7 @@ void DesenharMapa(void)
             continue;
         }
 
-        DesenharGrama(linha);
+        DesenharCalcada(linha);
     }
 }
 
