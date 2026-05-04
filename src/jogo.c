@@ -131,6 +131,13 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 180, 2, 225, -1);
     AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 2, 0, -1);
 
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -180, 43, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 120, 39, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -260, 32, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 210, 26, 0, -1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -220, 16, 0, 1);
+    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 180, 7, 0, -1);
+
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 42);
     AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 12, 42);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 39);
@@ -298,7 +305,7 @@ void DesenharInterface(Jogo *jogo)
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Evite veiculos e colete moedas", 480, 10, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Evite veiculos e cachorros", 480, 10, TAM_TEXTO_INTERFACE, BLACK);
 
     if (jogo->pausado) {
         DrawText("PAUSADO", 335, 285, 34, YELLOW);

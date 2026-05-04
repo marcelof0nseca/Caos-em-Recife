@@ -12,7 +12,8 @@ typedef enum {
     TIPO_PEDRA,
     TIPO_ARVORE,
     TIPO_GUARDA_SOL,
-    TIPO_GUARDA_CHUVA_FREVO
+    TIPO_GUARDA_CHUVA_FREVO,
+    TIPO_CACHORRO
 } TipoObstaculo;
 
 typedef struct Obstaculo {
@@ -20,6 +21,7 @@ typedef struct Obstaculo {
     Rectangle corpo;
     float velocidade;
     int direcao;
+    bool mordendo;
     struct Obstaculo *proximo;
 } Obstaculo;
 
@@ -34,6 +36,7 @@ void IniciarPedra(Obstaculo *pedra, float x, float y);
 void IniciarArvore(Obstaculo *arvore, float x, float y);
 void IniciarGuardaSol(Obstaculo *guardaSol, float x, float y);
 void IniciarGuardaChuvaFrevo(Obstaculo *guardaChuvaFrevo, float x, float y);
+void IniciarCachorro(Obstaculo *cachorro, float x, float y, int direcao);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
 void LiberarObstaculos(Obstaculo **lista);
