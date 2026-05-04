@@ -132,23 +132,36 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 2, 0, -1);
 
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 42);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 12, 42);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 12, 42);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 39);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 5, 36);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 5, 36);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 14, 32);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 7, 29);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 7, 29);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 17, 26);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 4, 23);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 4, 23);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 19);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 6, 16);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 6, 16);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 13, 13);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 3, 10);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 3, 10);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 7);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 8, 4);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 8, 4);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 2, 44);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 6, 44);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 6, 44);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 44);
-    AdicionarObstaculoFixo(jogo, TIPO_PEDRA, 18, 43);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 18, 43);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 9, 42);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 10, 39);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 1, 35);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 11, 35);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 2, 32);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 9, 26);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 12, 20);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 1, 19);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 10, 16);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 18, 13);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 11, 10);
+    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 5, 7);
+    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 14, 4);
 }
 
 static void ConfigurarFase(Jogo *jogo)
@@ -196,6 +209,8 @@ void IniciarJogo(Jogo *jogo)
 void AtualizarJogo(Jogo *jogo)
 {
     Jogador jogadorAntes;
+    DirecaoJogador direcaoAposEntrada;
+    double tempoAtaqueAposEntrada;
 
     if (IsKeyPressed(KEY_P)) {
         jogo->pausado = !jogo->pausado;
@@ -207,9 +222,18 @@ void AtualizarJogo(Jogo *jogo)
 
     jogadorAntes = jogo->jogador;
     AtualizarJogador(&jogo->jogador);
+    direcaoAposEntrada = jogo->jogador.direcao;
+    tempoAtaqueAposEntrada = jogo->jogador.tempoUltimoAtaque;
 
     if (VerificarColisaoFixaLista(jogo->obstaculos, jogo->jogador.corpo)) {
-        jogo->jogador = jogadorAntes;
+        jogo->jogador.linha = jogadorAntes.linha;
+        jogo->jogador.coluna = jogadorAntes.coluna;
+        jogo->jogador.corpo = jogadorAntes.corpo;
+        jogo->jogador.score = jogadorAntes.score;
+        jogo->jogador.melhorLinha = jogadorAntes.melhorLinha;
+        jogo->jogador.tempoUltimoMovimento = jogadorAntes.tempoUltimoMovimento;
+        jogo->jogador.direcao = direcaoAposEntrada;
+        jogo->jogador.tempoUltimoAtaque = tempoAtaqueAposEntrada;
     }
 
     AtualizarRecorde(jogo);
@@ -220,6 +244,7 @@ void AtualizarJogo(Jogo *jogo)
     if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
         jogo->venceu = false;
         jogo->gameOver = true;
+        jogo->jogador.tempoInicioMorte = GetTime();
     }
 
     AtualizarFase(jogo);
@@ -246,7 +271,7 @@ void DesenharJogo(Jogo *jogo)
     DesenharMapa();
     DesenharMoedasJogo(jogo);
     DesenharListaObstaculos(jogo->obstaculos);
-    DesenharJogador(jogo->jogador);
+    DesenharJogador(jogo->jogador, jogo->gameOver && !jogo->venceu);
     EndMode2D();
 
     DesenharInterface(jogo);

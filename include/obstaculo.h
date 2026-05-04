@@ -10,7 +10,9 @@ typedef enum {
     TIPO_MOTO,
     TIPO_BURACO,
     TIPO_PEDRA,
-    TIPO_ARVORE
+    TIPO_ARVORE,
+    TIPO_GUARDA_SOL,
+    TIPO_GUARDA_CHUVA_FREVO
 } TipoObstaculo;
 
 typedef struct Obstaculo {
@@ -21,6 +23,8 @@ typedef struct Obstaculo {
     struct Obstaculo *proximo;
 } Obstaculo;
 
+void InicializarTexturasObstaculo(void);
+void FinalizarTexturasObstaculo(void);
 void IniciarCarro(Obstaculo *carro);
 void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
 void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);
@@ -28,6 +32,8 @@ void IniciarMoto(Obstaculo *moto, float x, float y, int direcao);
 void IniciarBuraco(Obstaculo *buraco, float x, float y);
 void IniciarPedra(Obstaculo *pedra, float x, float y);
 void IniciarArvore(Obstaculo *arvore, float x, float y);
+void IniciarGuardaSol(Obstaculo *guardaSol, float x, float y);
+void IniciarGuardaChuvaFrevo(Obstaculo *guardaChuvaFrevo, float x, float y);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
 void LiberarObstaculos(Obstaculo **lista);

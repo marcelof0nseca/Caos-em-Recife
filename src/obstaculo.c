@@ -1,6 +1,54 @@
 #include "obstaculo.h"
 #include "config.h"
 
+static Texture2D texturaCoqueiro = {0};
+static Texture2D texturaGuardaSol = {0};
+static Texture2D texturaGuardaChuvaFrevo = {0};
+
+static Texture2D CarregarTexturaObstaculo(const char *caminho)
+{
+    Texture2D textura = {0};
+    Image imagem = LoadImage(caminho);
+
+    if (imagem.data == 0) {
+        return textura;
+    }
+
+    textura = LoadTextureFromImage(imagem);
+    UnloadImage(imagem);
+
+    if (textura.id != 0) {
+        SetTextureFilter(textura, TEXTURE_FILTER_POINT);
+    }
+
+    return textura;
+}
+
+void InicializarTexturasObstaculo(void)
+{
+    texturaCoqueiro = CarregarTexturaObstaculo("assets/cenario/coqueiro.png");
+    texturaGuardaSol = CarregarTexturaObstaculo("assets/cenario/guarda_sol.png");
+    texturaGuardaChuvaFrevo = CarregarTexturaObstaculo("assets/cenario/guarda_chuva_frevo.png");
+}
+
+void FinalizarTexturasObstaculo(void)
+{
+    if (texturaCoqueiro.id != 0) {
+        UnloadTexture(texturaCoqueiro);
+        texturaCoqueiro = (Texture2D){0};
+    }
+
+    if (texturaGuardaSol.id != 0) {
+        UnloadTexture(texturaGuardaSol);
+        texturaGuardaSol = (Texture2D){0};
+    }
+
+    if (texturaGuardaChuvaFrevo.id != 0) {
+        UnloadTexture(texturaGuardaChuvaFrevo);
+        texturaGuardaChuvaFrevo = (Texture2D){0};
+    }
+}
+
 void IniciarCarro(Obstaculo *carro)
 {
     IniciarCarroComDados(carro, X_INICIAL_CARRO, Y_INICIAL_CARRO, VELOCIDADE_CARRO, 1);
@@ -60,6 +108,24 @@ void IniciarArvore(Obstaculo *arvore, float x, float y)
     arvore->proximo = NULL;
 }
 
+void IniciarGuardaSol(Obstaculo *guardaSol, float x, float y)
+{
+    guardaSol->tipo = TIPO_GUARDA_SOL;
+    guardaSol->corpo = (Rectangle){x + 7, y + 10, 26, 24};
+    guardaSol->velocidade = 0;
+    guardaSol->direcao = 0;
+    guardaSol->proximo = NULL;
+}
+
+void IniciarGuardaChuvaFrevo(Obstaculo *guardaChuvaFrevo, float x, float y)
+{
+    guardaChuvaFrevo->tipo = TIPO_GUARDA_CHUVA_FREVO;
+    guardaChuvaFrevo->corpo = (Rectangle){x + 7, y + 9, 26, 25};
+    guardaChuvaFrevo->velocidade = 0;
+    guardaChuvaFrevo->direcao = 0;
+    guardaChuvaFrevo->proximo = NULL;
+}
+
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
     Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
@@ -74,6 +140,10 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
         IniciarPedra(novo, x, y);
     } else if (tipo == TIPO_ARVORE) {
         IniciarArvore(novo, x, y);
+    } else if (tipo == TIPO_GUARDA_SOL) {
+        IniciarGuardaSol(novo, x, y);
+    } else if (tipo == TIPO_GUARDA_CHUVA_FREVO) {
+        IniciarGuardaChuvaFrevo(novo, x, y);
     } else if (tipo == TIPO_MOTO) {
         IniciarMoto(novo, x, y, direcao);
     } else if (tipo == TIPO_ONIBUS) {
@@ -164,11 +234,50 @@ void DesenharCarro(Obstaculo carro)
         int x = (int)carro.corpo.x;
         int y = (int)carro.corpo.y;
 
+        if (texturaCoqueiro.id != 0) {
+            Rectangle origem = {0, 0, (float)texturaCoqueiro.width, (float)texturaCoqueiro.height};
+            Rectangle destino = {
+                carro.corpo.x - 4,
+                carro.corpo.y - 14,
+                38,
+                56
+            };
+
+            DrawTexturePro(texturaCoqueiro, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
+
         DrawRectangle(x + 12, y + 15, 7, 17, BROWN);
         DrawCircle(x + 15, y + 9, 13, DARKGREEN);
         DrawCircle(x + 6, y + 15, 9, GREEN);
         DrawCircle(x + 24, y + 15, 9, GREEN);
         DrawLine(x + 15, y + 15, x + 7, y + 24, DARKBROWN);
+        return;
+    }
+
+    if (carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO) {
+        Texture2D textura = carro.tipo == TIPO_GUARDA_SOL ? texturaGuardaSol : texturaGuardaChuvaFrevo;
+
+        if (textura.id != 0) {
+            Rectangle origem = {0, 0, (float)textura.width, (float)textura.height};
+            Rectangle destino = {
+                carro.corpo.x - 6,
+                carro.corpo.y - 11,
+                38,
+                carro.tipo == TIPO_GUARDA_SOL ? 40 : 41
+            };
+
+            DrawTexturePro(textura, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
+
+        if (carro.tipo == TIPO_GUARDA_SOL) {
+            DrawCircle((int)carro.corpo.x + 13, (int)carro.corpo.y + 8, 11, ORANGE);
+            DrawRectangle((int)carro.corpo.x + 12, (int)carro.corpo.y + 17, 2, 14, GRAY);
+        } else {
+            DrawCircle((int)carro.corpo.x + 13, (int)carro.corpo.y + 8, 11, YELLOW);
+            DrawRectangle((int)carro.corpo.x + 12, (int)carro.corpo.y + 17, 2, 14, BROWN);
+        }
         return;
     }
 
@@ -207,7 +316,8 @@ void DesenharListaObstaculos(Obstaculo *lista)
 
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
-    if (carro.tipo == TIPO_PEDRA || carro.tipo == TIPO_ARVORE) {
+    if (carro.tipo == TIPO_PEDRA || carro.tipo == TIPO_ARVORE ||
+        carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO) {
         return false;
     }
 
@@ -230,7 +340,8 @@ bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
     Obstaculo *atual = lista;
 
     while (atual != NULL) {
-        if ((atual->tipo == TIPO_PEDRA || atual->tipo == TIPO_ARVORE) &&
+        if ((atual->tipo == TIPO_PEDRA || atual->tipo == TIPO_ARVORE ||
+             atual->tipo == TIPO_GUARDA_SOL || atual->tipo == TIPO_GUARDA_CHUVA_FREVO) &&
             CheckCollisionRecs(atual->corpo, jogador)) {
             return true;
         }
