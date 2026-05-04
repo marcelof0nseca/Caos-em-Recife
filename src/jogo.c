@@ -65,7 +65,7 @@ static void AdicionarObstaculoNaLinhaMapa(Jogo *jogo, TipoObstaculo tipo, float 
 {
     AdicionarObstaculo(
         &jogo->obstaculos,
-        CriarObstaculo(tipo, x, linha * TAM_BLOCO + 5, velocidade, direcao)
+        CriarObstaculo(tipo, x, linha * TAM_BLOCO -3 , velocidade, direcao)
     );
 }
 

@@ -9,7 +9,7 @@ ifeq ($(OS),Windows_NT)
 	OUT = CrossyRecife.exe
 	CFLAGS += -I$(RAYLIB_DIR)/include
 	LFLAGS = -L$(RAYLIB_DIR)/lib -lraylib -lopengl32 -lgdi32 -lwinmm
-	RUN = $(OUT)
+	RUN = ./$(OUT)
 else
 	CC = gcc
 	OUT = CrossyRecife

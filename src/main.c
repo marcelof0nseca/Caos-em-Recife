@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "raylib.h"
 #include "config.h"
 #include "jogo.h"
@@ -54,6 +56,7 @@ int main(void)
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
     SetTargetFPS(60);
+    SetRandomSeed((unsigned int)time(NULL));
     ChangeDirectory(GetApplicationDirectory());
     telaVirtual = LoadRenderTexture(LARGURA_TELA, ALTURA_TELA);
     SetTextureFilter(telaVirtual.texture, TEXTURE_FILTER_POINT);
