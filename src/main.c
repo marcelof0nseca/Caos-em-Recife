@@ -9,8 +9,12 @@ int main(void)
 
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
     SetTargetFPS(60);
+    ChangeDirectory(GetApplicationDirectory());
 
     InicializarMapa();
+    InicializarSpritesJogador();
+    InicializarTexturaMoeda();
+    InicializarTexturasObstaculo();
     IniciarJogo(&jogo);
 
     while (!WindowShouldClose()) {
@@ -32,6 +36,9 @@ int main(void)
     }
 
     FinalizarMapa();
+    FinalizarTexturasObstaculo();
+    FinalizarTexturaMoeda();
+    FinalizarSpritesJogador();
     CloseWindow();
     return 0;
 }

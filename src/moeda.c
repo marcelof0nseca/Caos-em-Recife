@@ -1,6 +1,40 @@
 #include "moeda.h"
 #include "config.h"
 
+static Texture2D texturaMoeda = {0};
+
+static Texture2D CarregarTexturaMoedaArquivo(const char *caminho)
+{
+    Texture2D textura = {0};
+    Image imagem = LoadImage(caminho);
+
+    if (imagem.data == 0) {
+        return textura;
+    }
+
+    textura = LoadTextureFromImage(imagem);
+    UnloadImage(imagem);
+
+    if (textura.id != 0) {
+        SetTextureFilter(textura, TEXTURE_FILTER_POINT);
+    }
+
+    return textura;
+}
+
+void InicializarTexturaMoeda(void)
+{
+    texturaMoeda = CarregarTexturaMoedaArquivo("assets/itens/moeda.png");
+}
+
+void FinalizarTexturaMoeda(void)
+{
+    if (texturaMoeda.id != 0) {
+        UnloadTexture(texturaMoeda);
+        texturaMoeda = (Texture2D){0};
+    }
+}
+
 void IniciarMoeda(Moeda *moeda, int coluna, int linha)
 {
     moeda->corpo = (Rectangle){
@@ -16,6 +50,19 @@ void IniciarMoeda(Moeda *moeda, int coluna, int linha)
 void DesenharMoeda(Moeda moeda)
 {
     if (moeda.coletada) {
+        return;
+    }
+
+    if (texturaMoeda.id != 0) {
+        Rectangle origem = {0, 0, (float)texturaMoeda.width, (float)texturaMoeda.height};
+        Rectangle destino = {
+            moeda.corpo.x - 1,
+            moeda.corpo.y - 1,
+            moeda.corpo.width + 2,
+            moeda.corpo.height + 2
+        };
+
+        DrawTexturePro(texturaMoeda, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
         return;
     }
 

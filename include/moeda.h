@@ -10,6 +10,8 @@ typedef struct {
     int valor;
 } Moeda;
 
+void InicializarTexturaMoeda(void);
+void FinalizarTexturaMoeda(void);
 void IniciarMoeda(Moeda *moeda, int coluna, int linha);
 void DesenharMoeda(Moeda moeda);
 bool ColetarMoeda(Moeda *moeda, Rectangle jogador);

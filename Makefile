@@ -1,5 +1,6 @@
 SRC = src/main.c src/jogo.c src/jogador.c src/obstaculo.c src/mapa.c src/score.c src/moeda.c
 CFLAGS = -Wall -Wextra -Iinclude
+PKG_CONFIG ?= pkg-config
 
 ifeq ($(OS),Windows_NT)
 	RAYLIB_DIR = C:/raylib/w64devkit
@@ -12,7 +13,11 @@ ifeq ($(OS),Windows_NT)
 else
 	CC = gcc
 	OUT = CrossyRecife
-	LFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+	CFLAGS += $(shell $(PKG_CONFIG) --cflags raylib 2>/dev/null)
+	LFLAGS = $(shell $(PKG_CONFIG) --libs raylib 2>/dev/null)
+	ifeq ($(strip $(LFLAGS)),)
+		LFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+	endif
 	RUN = ./$(OUT)
 endif
 
