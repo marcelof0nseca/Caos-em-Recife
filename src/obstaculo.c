@@ -4,6 +4,7 @@
 static Texture2D texturaCoqueiro = {0};
 static Texture2D texturaGuardaSol = {0};
 static Texture2D texturaGuardaChuvaFrevo = {0};
+static Texture2D texturaPoste = {0};
 static Texture2D spritesCachorroDireita[4] = {0};
 static Texture2D spritesCachorroEsquerda[4] = {0};
 static Texture2D spriteCachorroMordendoDireita = {0};
@@ -34,6 +35,7 @@ void InicializarTexturasObstaculo(void)
     texturaCoqueiro = CarregarTexturaObstaculo("assets/cenario/coqueiro.png");
     texturaGuardaSol = CarregarTexturaObstaculo("assets/cenario/guarda_sol.png");
     texturaGuardaChuvaFrevo = CarregarTexturaObstaculo("assets/cenario/guarda_chuva_frevo.png");
+    texturaPoste = CarregarTexturaObstaculo("assets/cenario/poste.png");
     spritesCachorroDireita[0] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_1.png");
     spritesCachorroDireita[1] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_2.png");
     spritesCachorroDireita[2] = CarregarTexturaObstaculo("assets/cachorro/correndo_direita_3.png");
@@ -67,6 +69,11 @@ void FinalizarTexturasObstaculo(void)
     if (texturaGuardaChuvaFrevo.id != 0) {
         UnloadTexture(texturaGuardaChuvaFrevo);
         texturaGuardaChuvaFrevo = (Texture2D){0};
+    }
+
+    if (texturaPoste.id != 0) {
+        UnloadTexture(texturaPoste);
+        texturaPoste = (Texture2D){0};
     }
 
     for (frame = 0; frame < 4; frame++) {
@@ -210,6 +217,17 @@ void IniciarCachorro(Obstaculo *cachorro, float x, float y, int direcao)
     cachorro->proximo = NULL;
 }
 
+void IniciarPoste(Obstaculo *poste, float x, float y)
+{
+    poste->tipo = TIPO_POSTE;
+    poste->corpo = (Rectangle){x + 15, y + 6, 10, 30};
+    poste->velocidade = 0;
+    poste->direcao = 0;
+    poste->mordendo = false;
+    poste->variante = ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 6;
+    poste->proximo = NULL;
+}
+
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
     Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
@@ -232,6 +250,8 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
         IniciarMoto(novo, x, y, direcao);
     } else if (tipo == TIPO_CACHORRO) {
         IniciarCachorro(novo, x, y, direcao);
+    } else if (tipo == TIPO_POSTE) {
+        IniciarPoste(novo, x, y);
     } else if (tipo == TIPO_ONIBUS) {
         IniciarOnibus(novo, x, y, direcao);
     } else {
@@ -358,6 +378,33 @@ void DesenharCarro(Obstaculo carro)
         return;
     }
 
+    if (carro.tipo == TIPO_POSTE) {
+        if (texturaPoste.id != 0) {
+            bool espelhar = carro.variante % 2 == 1;
+            float largura = 17.0f + (carro.variante % 3);
+            float altura = 66.0f + (carro.variante % 4) * 3.0f;
+            Rectangle origem = {
+                espelhar ? (float)texturaPoste.width : 0,
+                0,
+                espelhar ? -(float)texturaPoste.width : (float)texturaPoste.width,
+                (float)texturaPoste.height
+            };
+            Rectangle destino = {
+                carro.corpo.x + carro.corpo.width * 0.5f - largura * 0.5f,
+                carro.corpo.y + carro.corpo.height - altura + 4,
+                largura,
+                altura
+            };
+
+            DrawTexturePro(texturaPoste, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+            return;
+        }
+
+        DrawRectangle((int)carro.corpo.x + 2, (int)carro.corpo.y - 32, 6, 60, DARKGRAY);
+        DrawRectangle((int)carro.corpo.x - 3, (int)carro.corpo.y + 25, 16, 4, DARKBROWN);
+        return;
+    }
+
     if (carro.tipo == TIPO_PEDRA) {
         int x = (int)carro.corpo.x;
         int y = (int)carro.corpo.y;
@@ -456,7 +503,8 @@ void DesenharListaObstaculos(Obstaculo *lista)
 bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
     if (carro.tipo == TIPO_PEDRA || carro.tipo == TIPO_ARVORE ||
-        carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO) {
+        carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO ||
+        carro.tipo == TIPO_POSTE) {
         return false;
     }
 
@@ -480,7 +528,8 @@ bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
 
     while (atual != NULL) {
         if ((atual->tipo == TIPO_PEDRA || atual->tipo == TIPO_ARVORE ||
-             atual->tipo == TIPO_GUARDA_SOL || atual->tipo == TIPO_GUARDA_CHUVA_FREVO) &&
+             atual->tipo == TIPO_GUARDA_SOL || atual->tipo == TIPO_GUARDA_CHUVA_FREVO ||
+             atual->tipo == TIPO_POSTE) &&
             CheckCollisionRecs(atual->corpo, jogador)) {
             return true;
         }

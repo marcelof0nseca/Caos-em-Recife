@@ -99,6 +99,16 @@ static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
     );
 }
 
+static void AdicionarPosteMapa(Jogo *jogo, int coluna, int linha)
+{
+    AdicionarObstaculoFixoMapa(jogo, TIPO_POSTE, coluna, linha);
+}
+
+static void AdicionarPosteFase(Jogo *jogo, int coluna, int linha)
+{
+    AdicionarPosteMapa(jogo, coluna, linha + LINHAS_FASE_3);
+}
+
 static void ConfigurarObstaculos(Jogo *jogo)
 {
     LiberarObstaculos(&jogo->obstaculos);
@@ -127,6 +137,13 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarBuracoMapa(jogo, 2, 7);
     AdicionarBuracoMapa(jogo, 10, 4);
     AdicionarBuracoMapa(jogo, 15, 1);
+
+    AdicionarPosteMapa(jogo, 2, 14);
+    AdicionarPosteMapa(jogo, 8, 13);
+    AdicionarPosteMapa(jogo, 14, 10);
+    AdicionarPosteMapa(jogo, 6, 7);
+    AdicionarPosteMapa(jogo, 3, 4);
+    AdicionarPosteMapa(jogo, 6, 1);
 
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 41, 165, 1);
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 41, 165, 1);
@@ -220,6 +237,19 @@ static void ConfigurarObstaculos(Jogo *jogo)
     AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 11, 10);
     AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 5, 7);
     AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 14, 4);
+
+    AdicionarPosteFase(jogo, 6, 42);
+    AdicionarPosteFase(jogo, 13, 43);
+    AdicionarPosteFase(jogo, 4, 39);
+    AdicionarPosteFase(jogo, 15, 36);
+    AdicionarPosteFase(jogo, 6, 32);
+    AdicionarPosteFase(jogo, 13, 29);
+    AdicionarPosteFase(jogo, 10, 23);
+    AdicionarPosteFase(jogo, 16, 19);
+    AdicionarPosteFase(jogo, 8, 13);
+    AdicionarPosteFase(jogo, 17, 10);
+    AdicionarPosteFase(jogo, 2, 7);
+    AdicionarPosteFase(jogo, 11, 4);
 }
 
 static void ConfigurarFase(Jogo *jogo)
