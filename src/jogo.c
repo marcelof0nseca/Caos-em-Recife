@@ -24,7 +24,7 @@ static void AtualizarRecorde(Jogo *jogo)
     }
 }
 
-static void AdicionarMoedaFase(Jogo *jogo, int coluna, int linha)
+static void AdicionarMoedaMapa(Jogo *jogo, int coluna, int linha)
 {
     if (jogo->totalMoedas >= MAX_MOEDAS) {
         return;
@@ -32,6 +32,11 @@ static void AdicionarMoedaFase(Jogo *jogo, int coluna, int linha)
 
     IniciarMoeda(&jogo->moedas[jogo->totalMoedas], coluna, linha);
     jogo->totalMoedas++;
+}
+
+static void AdicionarMoedaFase(Jogo *jogo, int coluna, int linha)
+{
+    AdicionarMoedaMapa(jogo, coluna, linha + LINHAS_FASE_3);
 }
 
 static void ConfigurarMoedas(Jogo *jogo)
@@ -50,9 +55,13 @@ static void ConfigurarMoedas(Jogo *jogo)
     AdicionarMoedaFase(jogo, 12, 10);
     AdicionarMoedaFase(jogo, 6, 7);
     AdicionarMoedaFase(jogo, 17, 4);
+    AdicionarMoedaMapa(jogo, 4, 13);
+    AdicionarMoedaMapa(jogo, 15, 10);
+    AdicionarMoedaMapa(jogo, 7, 7);
+    AdicionarMoedaMapa(jogo, 13, 4);
 }
 
-static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
+static void AdicionarObstaculoNaLinhaMapa(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
 {
     AdicionarObstaculo(
         &jogo->obstaculos,
@@ -60,7 +69,12 @@ static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, i
     );
 }
 
-static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
+static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
+{
+    AdicionarObstaculoNaLinhaMapa(jogo, tipo, x, linha + LINHAS_FASE_3, velocidade, direcao);
+}
+
+static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
 {
     if (LinhaEhRua(linha)) {
         return;
@@ -72,10 +86,47 @@ static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, i
     );
 }
 
+static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
+{
+    AdicionarObstaculoFixoMapa(jogo, tipo, coluna, linha + LINHAS_FASE_3);
+}
+
+static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
+{
+    AdicionarObstaculo(
+        &jogo->obstaculos,
+        CriarObstaculo(TIPO_BURACO, coluna * TAM_BLOCO, linha * TAM_BLOCO, 0, 0)
+    );
+}
+
 static void ConfigurarObstaculos(Jogo *jogo)
 {
     LiberarObstaculos(&jogo->obstaculos);
     jogo->obstaculos = NULL;
+
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -120, 12, 235, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, -540, 12, 0, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 130, 11, 0, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 480, 11, 225, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, -180, 9, 0, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -520, 9, 245, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 160, 8, 235, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, LARGURA_TELA + 560, 8, 0, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -140, 6, 250, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, -500, 6, 0, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 170, 5, 0, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 520, 5, 240, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -170, 3, 255, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, -610, 3, 0, 1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 190, 2, 0, -1);
+    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 540, 2, 245, -1);
+
+    AdicionarBuracoMapa(jogo, 4, 14);
+    AdicionarBuracoMapa(jogo, 11, 13);
+    AdicionarBuracoMapa(jogo, 17, 10);
+    AdicionarBuracoMapa(jogo, 2, 7);
+    AdicionarBuracoMapa(jogo, 10, 4);
+    AdicionarBuracoMapa(jogo, 15, 1);
 
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 41, 165, 1);
     AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 41, 165, 1);
@@ -197,7 +248,12 @@ static void DesenharMoedasJogo(Jogo *jogo)
 
 static void AtualizarFase(Jogo *jogo)
 {
-    jogo->faseAtual = jogo->jogador.linha <= 22 ? 2 : 1;
+    if (jogo->jogador.linha < LINHAS_FASE_3) {
+        jogo->faseAtual = 3;
+        return;
+    }
+
+    jogo->faseAtual = jogo->jogador.linha <= 22 + LINHAS_FASE_3 ? 2 : 1;
 }
 
 void IniciarJogo(Jogo *jogo)
@@ -255,6 +311,11 @@ void AtualizarJogo(Jogo *jogo)
     }
 
     AtualizarFase(jogo);
+
+    if (jogo->jogador.linha == 0) {
+        jogo->venceu = true;
+        jogo->gameOver = true;
+    }
 }
 
 void DesenharJogo(Jogo *jogo)
@@ -305,7 +366,7 @@ void DesenharInterface(Jogo *jogo)
     DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Evite veiculos e cachorros", 480, 10, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Evite veiculos, cachorros e buracos", 480, 10, TAM_TEXTO_INTERFACE, BLACK);
 
     if (jogo->pausado) {
         DrawText("PAUSADO", 335, 285, 34, YELLOW);

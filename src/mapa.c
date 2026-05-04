@@ -212,17 +212,26 @@ void DesenharMapa(void)
 
 bool LinhaEhRua(int linha)
 {
-    return linha == 2 || linha == 3 ||
-           linha == 5 || linha == 6 ||
-           linha == 8 || linha == 9 ||
-           linha == 11 || linha == 12 ||
-           linha == 14 || linha == 15 ||
-           linha == 17 || linha == 18 ||
-           linha == 20 || linha == 21 ||
-           linha == 24 || linha == 25 ||
-           linha == 27 || linha == 28 ||
-           linha == 30 || linha == 31 ||
-           linha == 34 || linha == 35 ||
-           linha == 37 || linha == 38 ||
-           linha == 40 || linha == 41;
+    int linhaAntiga = linha - LINHAS_FASE_3;
+
+    if (linha == 2 || linha == 3 ||
+        linha == 5 || linha == 6 ||
+        linha == 8 || linha == 9 ||
+        linha == 11 || linha == 12) {
+        return true;
+    }
+
+    return linhaAntiga == 2 || linhaAntiga == 3 ||
+           linhaAntiga == 5 || linhaAntiga == 6 ||
+           linhaAntiga == 8 || linhaAntiga == 9 ||
+           linhaAntiga == 11 || linhaAntiga == 12 ||
+           linhaAntiga == 14 || linhaAntiga == 15 ||
+           linhaAntiga == 17 || linhaAntiga == 18 ||
+           linhaAntiga == 20 || linhaAntiga == 21 ||
+           linhaAntiga == 24 || linhaAntiga == 25 ||
+           linhaAntiga == 27 || linhaAntiga == 28 ||
+           linhaAntiga == 30 || linhaAntiga == 31 ||
+           linhaAntiga == 34 || linhaAntiga == 35 ||
+           linhaAntiga == 37 || linhaAntiga == 38 ||
+           linhaAntiga == 40 || linhaAntiga == 41;
 }

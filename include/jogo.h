@@ -6,7 +6,7 @@
 #include "obstaculo.h"
 #include "moeda.h"
 
-#define MAX_MOEDAS 12
+#define MAX_MOEDAS 16
 
 typedef struct {
     Jogador jogador;
