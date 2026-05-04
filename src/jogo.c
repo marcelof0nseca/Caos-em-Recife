@@ -388,18 +388,18 @@ void DesenharTelaInicial(void)
 
 void DesenharInterface(Jogo *jogo)
 {
-    DrawRectangle(0, 0, LARGURA_TELA, 82, Fade(RAYWHITE, 0.75f));
-    DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_SCORE, 20, BLACK);
-    DrawText(TextFormat("Recorde: %d", jogo->recorde), 140, Y_SCORE, 20, BLACK);
-    DrawText(TextFormat("Fase: %d", jogo->faseAtual), 330, Y_SCORE, 20, BLACK);
-    DrawText(TextFormat("Moedas: %d", jogo->moedasColetadas), 430, Y_SCORE, 20, BLACK);
-    DrawText("WASD para mover", X_INTERFACE, Y_DICA_MOVIMENTO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("R para reiniciar", X_INTERFACE, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("P para pausar", 220, Y_DICA_REINICIO, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Evite veiculos, cachorros e buracos", 480, 10, TAM_TEXTO_INTERFACE, BLACK);
+    DrawRectangle(0, 0, LARGURA_TELA, 102, Fade(RAYWHITE, 0.75f));
+    DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_INTERFACE_TITULOS, 20, BLACK);
+    DrawText(TextFormat("Recorde: %d", jogo->recorde), 190, Y_INTERFACE_TITULOS, 20, BLACK);
+    DrawText(TextFormat("Fase: %d", jogo->faseAtual), 360, Y_INTERFACE_TITULOS, 20, BLACK);
+    DrawText(TextFormat("Moedas: %d", jogo->moedasColetadas), 480, Y_INTERFACE_TITULOS, 20, BLACK);
+    DrawText("WASD para mover", X_INTERFACE, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("R para reiniciar", 220, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("P para pausar", 400, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Evite veiculos, cachorros e buracos", 530, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
 
     if (jogo->pausado) {
-        DrawText("PAUSADO", 335, 285, 34, YELLOW);
+        DrawText("PAUSADO", 335, 300, 34, YELLOW);
     }
 }
 
