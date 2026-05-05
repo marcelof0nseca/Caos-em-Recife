@@ -103,6 +103,16 @@ static Texture2D ObterTexturaVeiculo(SpriteVeiculo sprite, int direcao)
     return direcao == -1 ? sprite.esquerda : sprite.direita;
 }
 
+static void DesenharSprite(Texture2D sprite, Rectangle destino)
+{
+    if (sprite.id == 0) {
+        return;
+    }
+
+    DrawTexturePro(sprite, (Rectangle){0, 0, (float)sprite.width, (float)sprite.height},
+                   destino, (Vector2){0, 0}, 0.0f, WHITE);
+}
+
 static int SortearVarianteVeiculo(SpriteVeiculo *sprites, int total)
 {
     int varianteInicial = GetRandomValue(0, total - 1);
@@ -374,8 +384,6 @@ void AtualizarListaObstaculos(Obstaculo *lista)
 static void DesenharCachorro(Obstaculo cachorro)
 {
     Texture2D sprite;
-    Rectangle origem;
-    Rectangle destino;
     int frame = (int)(GetTime() * 10.0) % 4;
 
     if (cachorro.mordendo) {
@@ -384,25 +392,15 @@ static void DesenharCachorro(Obstaculo cachorro)
         sprite = cachorro.direcao == 1 ? spritesCachorroDireita[frame] : spritesCachorroEsquerda[frame];
     }
 
-    if (sprite.id != 0) {
-        float larguraDestino = cachorro.mordendo ? 68.0f : 64.0f;
-        float alturaDestino = cachorro.mordendo ? 40.0f : 36.0f;
+    float larguraDestino = cachorro.mordendo ? 68.0f : 64.0f;
+    float alturaDestino = cachorro.mordendo ? 40.0f : 36.0f;
 
-        origem = (Rectangle){0, 0, (float)sprite.width, (float)sprite.height};
-        destino = (Rectangle){
-            cachorro.corpo.x + cachorro.corpo.width * 0.5f - larguraDestino * 0.5f,
-            cachorro.corpo.y + cachorro.corpo.height - alturaDestino + 4,
-            larguraDestino,
-            alturaDestino
-        };
-
-        DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-        return;
-    }
-
-    DrawRectangleRec(cachorro.corpo, BROWN);
-    DrawCircle((int)cachorro.corpo.x + (cachorro.direcao == 1 ? 48 : 10), (int)cachorro.corpo.y + 10, 8, GOLD);
-    DrawRectangleLinesEx(cachorro.corpo, 1, BLACK);
+    DesenharSprite(sprite, (Rectangle){
+        cachorro.corpo.x + cachorro.corpo.width * 0.5f - larguraDestino * 0.5f,
+        cachorro.corpo.y + cachorro.corpo.height - alturaDestino + 4,
+        larguraDestino,
+        alturaDestino
+    });
 }
 
 static void DesenharCarro(Obstaculo carro)
@@ -415,203 +413,119 @@ static void DesenharCarro(Obstaculo carro)
     if (carro.tipo == TIPO_LIXO_GRANDE) {
         Texture2D sprite = spritesLixoGrande[carro.variante % 6];
 
-        if (sprite.id != 0) {
-            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-            Rectangle destino = {
-                carro.corpo.x - 8,
-                carro.corpo.y - 8,
-                carro.corpo.width + 16,
-                carro.corpo.height + 18
-            };
-
-            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-        } else {
-            DrawRectangleRec(carro.corpo, BROWN);
-        }
+        DesenharSprite(sprite, (Rectangle){
+            carro.corpo.x - 8,
+            carro.corpo.y - 8,
+            carro.corpo.width + 16,
+            carro.corpo.height + 18
+        });
         return;
     }
 
     if (carro.tipo == TIPO_BURACO) {
-        int x = (int)carro.corpo.x;
-        int y = (int)carro.corpo.y;
         Texture2D sprite = spritesBuraco[carro.variante % 4];
 
-        if (sprite.id != 0) {
-            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-            float larguraDestino = carro.corpo.width + 34;
-            float alturaDestino = carro.corpo.height + 34;
-            Rectangle destino = {
-                carro.corpo.x + carro.corpo.width * 0.5f - larguraDestino * 0.5f,
-                carro.corpo.y + carro.corpo.height - alturaDestino + 8,
-                larguraDestino,
-                alturaDestino
-            };
+        float larguraDestino = carro.corpo.width + 34;
+        float alturaDestino = carro.corpo.height + 34;
 
-            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
-
-        DrawEllipse(x + 16, y + 13, 18, 12, Fade(BLACK, 0.85f));
-        DrawEllipse(x + 16, y + 12, 11, 7, DARKGRAY);
-        DrawLine(x + 2, y + 11, x - 8, y + 5, BLACK);
-        DrawLine(x + 24, y + 4, x + 35, y - 2, BLACK);
-        DrawLine(x + 27, y + 20, x + 38, y + 25, BLACK);
+        DesenharSprite(sprite, (Rectangle){
+            carro.corpo.x + carro.corpo.width * 0.5f - larguraDestino * 0.5f,
+            carro.corpo.y + carro.corpo.height - alturaDestino + 8,
+            larguraDestino,
+            alturaDestino
+        });
         return;
     }
 
     if (carro.tipo == TIPO_POSTE) {
-        if (texturaPoste.id != 0) {
-            bool espelhar = carro.variante % 2 == 1;
-            float largura = 17.0f + (carro.variante % 3);
-            float altura = 66.0f + (carro.variante % 4) * 3.0f;
-            Rectangle origem = {
-                espelhar ? (float)texturaPoste.width : 0,
-                0,
-                espelhar ? -(float)texturaPoste.width : (float)texturaPoste.width,
-                (float)texturaPoste.height
-            };
-            Rectangle destino = {
-                carro.corpo.x + carro.corpo.width * 0.5f - largura * 0.5f,
-                carro.corpo.y + carro.corpo.height - altura + 4,
-                largura,
-                altura
-            };
-
-            DrawTexturePro(texturaPoste, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+        if (texturaPoste.id == 0) {
             return;
         }
 
-        DrawRectangle((int)carro.corpo.x + 2, (int)carro.corpo.y - 32, 6, 60, DARKGRAY);
-        DrawRectangle((int)carro.corpo.x - 3, (int)carro.corpo.y + 25, 16, 4, DARKBROWN);
+        bool espelhar = carro.variante % 2 == 1;
+        float largura = 17.0f + (carro.variante % 3);
+        float altura = 66.0f + (carro.variante % 4) * 3.0f;
+        Rectangle origem = {
+            espelhar ? (float)texturaPoste.width : 0,
+            0,
+            espelhar ? -(float)texturaPoste.width : (float)texturaPoste.width,
+            (float)texturaPoste.height
+        };
+        Rectangle destino = {
+            carro.corpo.x + carro.corpo.width * 0.5f - largura * 0.5f,
+            carro.corpo.y + carro.corpo.height - altura + 4,
+            largura,
+            altura
+        };
+
+        DrawTexturePro(texturaPoste, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
         return;
     }
 
     if (carro.tipo == TIPO_ARVORE) {
-        int x = (int)carro.corpo.x;
-        int y = (int)carro.corpo.y;
-
-        if (texturaCoqueiro.id != 0) {
-            Rectangle origem = {0, 0, (float)texturaCoqueiro.width, (float)texturaCoqueiro.height};
-            Rectangle destino = {
-                carro.corpo.x - 4,
-                carro.corpo.y - 14,
-                38,
-                56
-            };
-
-            DrawTexturePro(texturaCoqueiro, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
-
-        DrawRectangle(x + 12, y + 15, 7, 17, BROWN);
-        DrawCircle(x + 15, y + 9, 13, DARKGREEN);
-        DrawCircle(x + 6, y + 15, 9, GREEN);
-        DrawCircle(x + 24, y + 15, 9, GREEN);
-        DrawLine(x + 15, y + 15, x + 7, y + 24, DARKBROWN);
+        DesenharSprite(texturaCoqueiro, (Rectangle){
+            carro.corpo.x - 4,
+            carro.corpo.y - 14,
+            38,
+            56
+        });
         return;
     }
 
     if (carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO) {
         Texture2D textura = carro.tipo == TIPO_GUARDA_SOL ? texturaGuardaSol : texturaGuardaChuvaFrevo;
 
-        if (textura.id != 0) {
-            Rectangle origem = {0, 0, (float)textura.width, (float)textura.height};
-            Rectangle destino = {
-                carro.corpo.x - 6,
-                carro.corpo.y - 11,
-                38,
-                carro.tipo == TIPO_GUARDA_SOL ? 40 : 41
-            };
-
-            DrawTexturePro(textura, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
-
-        if (carro.tipo == TIPO_GUARDA_SOL) {
-            DrawCircle((int)carro.corpo.x + 13, (int)carro.corpo.y + 8, 11, ORANGE);
-            DrawRectangle((int)carro.corpo.x + 12, (int)carro.corpo.y + 17, 2, 14, GRAY);
-        } else {
-            DrawCircle((int)carro.corpo.x + 13, (int)carro.corpo.y + 8, 11, YELLOW);
-            DrawRectangle((int)carro.corpo.x + 12, (int)carro.corpo.y + 17, 2, 14, BROWN);
-        }
+        DesenharSprite(textura, (Rectangle){
+            carro.corpo.x - 6,
+            carro.corpo.y - 11,
+            38,
+            carro.tipo == TIPO_GUARDA_SOL ? 40 : 41
+        });
         return;
     }
 
     if (carro.tipo == TIPO_MOTO) {
         int varianteMoto = carro.variante % TOTAL_SPRITES_MOTO;
         Texture2D sprite = ObterTexturaVeiculo(spritesMoto[varianteMoto], carro.direcao);
-        int x = (int)carro.corpo.x;
-        int y = (int)carro.corpo.y;
         float escala = varianteMoto == 0 ? 1.18f : 1.0f;
 
-        if (sprite.id != 0) {
-            float larguraDestinoBase = carro.corpo.width + 12;
-            float alturaDestinoBase = carro.corpo.height + 24;
-            float larguraDestino = larguraDestinoBase * escala;
-            float alturaDestino = alturaDestinoBase * escala;
-            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-            Rectangle destino = {
-                carro.corpo.x - 6 - (larguraDestino - larguraDestinoBase) * 0.5f,
-                carro.corpo.y - 12 - (alturaDestino - alturaDestinoBase) * 0.5f,
-                larguraDestino,
-                alturaDestino
-            };
+        float larguraDestinoBase = carro.corpo.width + 12;
+        float alturaDestinoBase = carro.corpo.height + 24;
+        float larguraDestino = larguraDestinoBase * escala;
+        float alturaDestino = alturaDestinoBase * escala;
 
-            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
-
-        DrawRectangle(x + 8, y + 5, 27, 8, BLUE);
-        DrawRectangle(x + 19, y, 12, 7, SKYBLUE);
-        DrawCircle(x + 9, y + 19, 5, BLACK);
-        DrawCircle(x + 36, y + 19, 5, BLACK);
-        DrawLine(x + 35, y + 5, x + 44, y + 1, BLACK);
-        DrawRectangleLinesEx(carro.corpo, 1, DARKBLUE);
+        DesenharSprite(sprite, (Rectangle){
+            carro.corpo.x - 6 - (larguraDestino - larguraDestinoBase) * 0.5f,
+            carro.corpo.y - 12 - (alturaDestino - alturaDestinoBase) * 0.5f,
+            larguraDestino,
+            alturaDestino
+        });
         return;
     }
 
     if (carro.tipo == TIPO_CARRO) {
         Texture2D sprite = ObterTexturaVeiculo(spritesCarro[carro.variante % TOTAL_SPRITES_CARRO], carro.direcao);
 
-        if (sprite.id != 0) {
-            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-            Rectangle destino = {
-                carro.corpo.x - 4,
-                carro.corpo.y - 7,
-                carro.corpo.width + 8,
-                carro.corpo.height + 14
-            };
-
-            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
+        DesenharSprite(sprite, (Rectangle){
+            carro.corpo.x - 4,
+            carro.corpo.y - 7,
+            carro.corpo.width + 8,
+            carro.corpo.height + 14
+        });
+        return;
     }
 
     if (carro.tipo == TIPO_ONIBUS) {
         Texture2D sprite = ObterTexturaVeiculo(spritesOnibus[carro.variante % TOTAL_SPRITES_ONIBUS], carro.direcao);
 
-        if (sprite.id != 0) {
-            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-            Rectangle destino = {
-                carro.corpo.x - 8,
-                carro.corpo.y - 15,
-                carro.corpo.width + 16,
-                carro.corpo.height + 26
-            };
-
-            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-            return;
-        }
+        DesenharSprite(sprite, (Rectangle){
+            carro.corpo.x - 8,
+            carro.corpo.y - 15,
+            carro.corpo.width + 16,
+            carro.corpo.height + 26
+        });
+        return;
     }
-
-    DrawRectangle((int)carro.corpo.x + 3, (int)carro.corpo.y + 25, LARGURA_CARRO, 8, Fade(BLACK, 0.25f));
-    DrawRectangleRec(carro.corpo, carro.tipo == TIPO_ONIBUS ? ORANGE : RED);
-    DrawRectangle((int)carro.corpo.x + 10, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
-    DrawRectangle((int)carro.corpo.x + 40, (int)carro.corpo.y + 5, 18, 8, SKYBLUE);
-    DrawCircle((int)carro.corpo.x + 15, (int)carro.corpo.y + 30, 5, BLACK);
-    DrawCircle((int)carro.corpo.x + 55, (int)carro.corpo.y + 30, 5, BLACK);
-    DrawRectangle((int)carro.corpo.x + 62, (int)carro.corpo.y + 10, 6, 6, YELLOW);
-    DrawRectangleLinesEx(carro.corpo, 2, BLACK);
 }
 
 void DesenharListaObstaculos(Obstaculo *lista)

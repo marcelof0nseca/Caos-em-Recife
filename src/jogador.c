@@ -30,18 +30,6 @@ static Texture2D CarregarTexturaSprite(const char *caminho)
     return textura;
 }
 
-static void DesenharJogadorFallback(Jogador jogador)
-{
-    DrawCircle((int)jogador.corpo.x + 15, (int)jogador.corpo.y + 31, 12, Fade(BLACK, 0.25f));
-    DrawRectangle((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, YELLOW);
-    DrawCircle((int)jogador.corpo.x + 15, (int)jogador.corpo.y + 7, 8, BEIGE);
-    DrawCircle((int)jogador.corpo.x + 12, (int)jogador.corpo.y + 6, 2, BLACK);
-    DrawCircle((int)jogador.corpo.x + 18, (int)jogador.corpo.y + 6, 2, BLACK);
-    DrawRectangle((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 29, 6, 4, BLUE);
-    DrawRectangle((int)jogador.corpo.x + 17, (int)jogador.corpo.y + 29, 6, 4, BLUE);
-    DrawRectangleLines((int)jogador.corpo.x + 7, (int)jogador.corpo.y + 10, 16, 20, BLACK);
-}
-
 static void DescarregarSeCarregada(Texture2D *textura)
 {
     if (textura->id != 0) {
@@ -196,7 +184,6 @@ void DesenharJogador(Jogador jogador, bool derrotado)
     Texture2D *sprite = ObterSpriteAtual(jogador, derrotado);
 
     if (sprite->id == 0) {
-        DesenharJogadorFallback(jogador);
         return;
     }
 

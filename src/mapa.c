@@ -69,11 +69,6 @@ static void DesenharPista(int linha)
         DrawTexturePro(texturaPista, origem, destino, (Vector2){0, 0}, 0, WHITE);
         return;
     }
-
-    DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, DARKGRAY);
-    DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
-    DrawRectangle(0, linha * TAM_BLOCO + TAM_BLOCO - ESPESSURA_BORDA_RUA, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
-    DrawLine(0, linha * TAM_BLOCO + 20, LARGURA_TELA, linha * TAM_BLOCO + 20, YELLOW);
 }
 
 static void DesenharAlagamento(int linha)
@@ -92,8 +87,6 @@ static void DesenharAlagamento(int linha)
 
         return;
     }
-
-    DrawRectangle(0, y, LARGURA_TELA, TAM_BLOCO, (Color){16, 89, 120, 255});
 }
 
 static bool LinhaEhCalcadaIsolada(int linha)
@@ -124,12 +117,6 @@ static void DesenharCalcada(int linha)
 
         DrawTexturePro(textura, origem, destino, (Vector2){0, 0}, 0, WHITE);
         return;
-    }
-
-    DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO, LIGHTGRAY);
-
-    for (int coluna = 0; coluna < TOTAL_COLUNAS; coluna++) {
-        DrawRectangleLines(coluna * TAM_BLOCO, linha * TAM_BLOCO, TAM_BLOCO, TAM_BLOCO, GRAY);
     }
 }
 

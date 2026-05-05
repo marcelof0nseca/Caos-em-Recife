@@ -418,7 +418,6 @@ void DesenharTelaInicial(void)
 
 void DesenharInterface(Jogo *jogo)
 {
-    DrawRectangle(0, 0, LARGURA_TELA, 102, Fade(RAYWHITE, 0.75f));
     DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_INTERFACE_TITULOS, 20, BLACK);
     DrawText(TextFormat("Recorde: %d", jogo->recorde), 190, Y_INTERFACE_TITULOS, 20, BLACK);
     DrawText(TextFormat("Fase: %d", jogo->faseAtual), 360, Y_INTERFACE_TITULOS, 20, BLACK);
@@ -435,7 +434,6 @@ void DesenharInterface(Jogo *jogo)
 
 void DesenharGameOver(Jogo *jogo)
 {
-    DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.6f));
     if (jogo->venceu) {
         DrawText("VOCE VENCEU", 250, 250, 40, YELLOW);
     } else {

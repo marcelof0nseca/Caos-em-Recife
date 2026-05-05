@@ -63,12 +63,7 @@ void DesenharMoeda(Moeda moeda)
         };
 
         DrawTexturePro(texturaMoeda, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-        return;
     }
-
-    DrawCircle((int)moeda.corpo.x + 8, (int)moeda.corpo.y + 8, 8, GOLD);
-    DrawCircleLines((int)moeda.corpo.x + 8, (int)moeda.corpo.y + 8, 8, ORANGE);
-    DrawCircle((int)moeda.corpo.x + 8, (int)moeda.corpo.y + 8, 3, YELLOW);
 }
 
 bool ColetarMoeda(Moeda *moeda, Rectangle jogador)
