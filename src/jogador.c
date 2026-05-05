@@ -175,13 +175,15 @@ void AtualizarJogador(Jogador *jogador)
         jogador->tempoUltimoAtaque = GetTime();
     }
 
-    if (jogador->linha < 0) jogador->linha = 0;
-    if (jogador->linha > TOTAL_LINHAS - 1) jogador->linha = TOTAL_LINHAS - 1;
-    if (jogador->coluna < 0) jogador->coluna = 0;
-    if (jogador->coluna > TOTAL_COLUNAS - 1) jogador->coluna = TOTAL_COLUNAS - 1;
+    if (moveu) {
+        if (jogador->linha < 0) jogador->linha = 0;
+        if (jogador->linha > TOTAL_LINHAS - 1) jogador->linha = TOTAL_LINHAS - 1;
+        if (jogador->coluna < 0) jogador->coluna = 0;
+        if (jogador->coluna > TOTAL_COLUNAS - 1) jogador->coluna = TOTAL_COLUNAS - 1;
 
-    jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
-    jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
+        jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
+        jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
+    }
     if (jogador->linha < jogador->melhorLinha) {
         jogador->melhorLinha = jogador->linha;
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;

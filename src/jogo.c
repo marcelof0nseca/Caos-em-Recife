@@ -97,7 +97,8 @@ static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, i
 
 static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
 {
-    if (LinhaEhRua(linha)) {
+    if ((tipo == TIPO_LIXO_GRANDE && !LinhaEhAlagamento(linha)) ||
+        (tipo != TIPO_LIXO_GRANDE && (LinhaEhRua(linha) || LinhaEhAlagamento(linha)))) {
         return;
     }
 
@@ -114,6 +115,10 @@ static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, i
 
 static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 {
+    if (LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
+        return;
+    }
+
     AdicionarObstaculo(
         &jogo->obstaculos,
         CriarObstaculo(TIPO_BURACO, coluna * TAM_BLOCO, linha * TAM_BLOCO, 0, 0)
@@ -141,6 +146,13 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_MOTO, 170, 5, 0, -1, false, true}, {TIPO_CARRO, 520, 5, 240, -1, false, true},
         {TIPO_CARRO, -170, 3, 255, 1, false, false}, {TIPO_ONIBUS, -610, 3, 0, 1, false, false},
         {TIPO_MOTO, 190, 2, 0, -1, false, true}, {TIPO_CARRO, 540, 2, 245, -1, false, true},
+        {TIPO_CARRO, -380, 12, 255, 1, false, false}, {TIPO_MOTO, 420, 8, 0, -1, false, true},
+        {TIPO_ONIBUS, -820, 6, 0, 1, false, false}, {TIPO_CARRO, 760, 3, 260, -1, false, true},
+        {TIPO_LIXO_GRANDE, -120, 13, 95, 1, false, false}, {TIPO_LIXO_GRANDE, -560, 13, 95, 1, false, false},
+        {TIPO_LIXO_GRANDE, 120, 10, 105, -1, false, true}, {TIPO_LIXO_GRANDE, 560, 10, 105, -1, false, true},
+        {TIPO_LIXO_GRANDE, -180, 7, 115, 1, false, false}, {TIPO_LIXO_GRANDE, -650, 7, 115, 1, false, false},
+        {TIPO_LIXO_GRANDE, 160, 4, 125, -1, false, true}, {TIPO_LIXO_GRANDE, 620, 4, 125, -1, false, true},
+        {TIPO_LIXO_GRANDE, -220, 1, 135, 1, false, false}, {TIPO_LIXO_GRANDE, -760, 1, 135, 1, false, false},
 
         {TIPO_CARRO, -100, 41, 165, 1, true, false}, {TIPO_CARRO, -460, 41, 165, 1, true, false},
         {TIPO_CARRO, 80, 40, 155, -1, true, true}, {TIPO_ONIBUS, 430, 40, 0, -1, true, true},
@@ -154,6 +166,9 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_CARRO, 160, 27, 190, -1, true, true}, {TIPO_CARRO, 540, 27, 190, -1, true, true},
         {TIPO_ONIBUS, -220, 25, 0, 1, true, false}, {TIPO_CARRO, -660, 25, 205, 1, true, false},
         {TIPO_CARRO, 100, 24, 195, -1, true, true}, {TIPO_ONIBUS, 500, 24, 0, -1, true, true},
+        {TIPO_MOTO, -840, 41, 0, 1, true, false}, {TIPO_CARRO, 820, 37, 185, -1, true, true},
+        {TIPO_MOTO, -880, 31, 0, 1, true, false}, {TIPO_CARRO, 900, 27, 205, -1, true, true},
+        {TIPO_ONIBUS, -980, 24, 0, 1, true, false},
 
         {TIPO_CARRO, -120, 21, 205, 1, true, false}, {TIPO_MOTO, -480, 21, 0, 1, true, false},
         {TIPO_CARRO, 140, 20, 195, -1, true, true}, {TIPO_MOTO, 500, 20, 0, -1, true, true},
@@ -169,14 +184,21 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_MOTO, 170, 5, 0, -1, true, true}, {TIPO_CARRO, 540, 5, 225, -1, true, true},
         {TIPO_CARRO, -160, 3, 235, 1, true, false}, {TIPO_MOTO, -540, 3, 0, 1, true, false},
         {TIPO_CARRO, 180, 2, 225, -1, true, true}, {TIPO_MOTO, 540, 2, 0, -1, true, true},
+        {TIPO_MOTO, -850, 18, 0, 1, true, false}, {TIPO_CARRO, 880, 15, 240, -1, true, true},
+        {TIPO_ONIBUS, -940, 12, 0, 1, true, false}, {TIPO_CARRO, 870, 8, 245, -1, true, true},
+        {TIPO_MOTO, -900, 3, 0, 1, true, false},
 
-        {TIPO_CACHORRO, -180, 43, 0, 1, true, false}, {TIPO_CACHORRO, 120, 39, 0, -1, true, true},
-        {TIPO_CACHORRO, -260, 32, 0, 1, true, false}, {TIPO_CACHORRO, 210, 26, 0, -1, true, true},
-        {TIPO_CACHORRO, -220, 16, 0, 1, true, false}, {TIPO_CACHORRO, 180, 7, 0, -1, true, true}
+        {TIPO_CACHORRO, -520, 43, 0, 1, true, false},
+        {TIPO_CACHORRO, 640, 39, 0, -1, true, true},
+        {TIPO_CACHORRO, -760, 32, 0, 1, true, false},
+        {TIPO_CACHORRO, 820, 26, 0, -1, true, true},
+        {TIPO_CACHORRO, -980, 44, 0, 1, true, false},
+        {TIPO_CACHORRO, 1040, 36, 0, -1, true, true}
     };
     PosicaoMapa buracos[] = {
-        {4, 14, false}, {11, 13, false}, {17, 10, false},
-        {2, 7, false}, {10, 4, false}, {15, 1, false}
+        {3, 0, true}, {11, 1, true}, {17, 4, true},
+        {2, 7, true}, {14, 10, true}, {6, 13, true},
+        {12, 16, true}, {4, 19, true}, {16, 22, true}
     };
     PosicaoMapa postes[] = {
         {2, 14, false}, {8, 13, false}, {14, 10, false}, {6, 7, false},
@@ -201,7 +223,10 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_GUARDA_CHUVA_FREVO, 12, 20, true}, {TIPO_GUARDA_SOL, 1, 19, true},
         {TIPO_ARVORE, 10, 16, true}, {TIPO_GUARDA_CHUVA_FREVO, 18, 13, true},
         {TIPO_GUARDA_SOL, 11, 10, true}, {TIPO_ARVORE, 5, 7, true},
-        {TIPO_GUARDA_CHUVA_FREVO, 14, 4, true}
+        {TIPO_GUARDA_CHUVA_FREVO, 14, 4, true},
+        {TIPO_ARVORE, 19, 42, true}, {TIPO_GUARDA_SOL, 4, 39, true},
+        {TIPO_GUARDA_CHUVA_FREVO, 16, 32, true}, {TIPO_ARVORE, 7, 20, true},
+        {TIPO_GUARDA_SOL, 15, 7, true}
     };
 
     LiberarObstaculos(&jogo->obstaculos);
@@ -218,11 +243,19 @@ static void ConfigurarObstaculos(Jogo *jogo)
     }
 
     for (int i = 0; i < (int)(sizeof(buracos) / sizeof(buracos[0])); i++) {
-        AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha);
+        if (buracos[i].usaDeslocamentoFase) {
+            AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha + LINHAS_FASE_3);
+        } else {
+            AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha);
+        }
     }
 
     for (int i = 0; i < (int)(sizeof(fixos) / sizeof(fixos[0])); i++) {
-        AdicionarObstaculoFixo(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
+        if (fixos[i].usaDeslocamentoFase) {
+            AdicionarObstaculoFixo(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
+        } else {
+            AdicionarObstaculoFixoMapa(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
+        }
     }
 
     for (int i = 0; i < (int)(sizeof(postes) / sizeof(postes[0])); i++) {
@@ -261,11 +294,47 @@ static void DesenharMoedasJogo(Jogo *jogo)
 static void AtualizarFase(Jogo *jogo)
 {
     if (jogo->jogador.linha < LINHAS_FASE_3) {
+        jogo->faseAtual = 4;
+        return;
+    }
+
+    if (jogo->jogador.linha <= 22 + LINHAS_FASE_3) {
         jogo->faseAtual = 3;
         return;
     }
 
-    jogo->faseAtual = jogo->jogador.linha <= 22 + LINHAS_FASE_3 ? 2 : 1;
+    jogo->faseAtual = jogo->jogador.linha <= 44 ? 2 : 1;
+}
+
+static void PerderJogo(Jogo *jogo)
+{
+    jogo->venceu = false;
+    jogo->gameOver = true;
+    jogo->jogador.tempoInicioMorte = GetTime();
+}
+
+static void AtualizarCaronaAlagamento(Jogo *jogo)
+{
+    float velocidadeApoio;
+
+    if (!LinhaEhAlagamento(jogo->jogador.linha)) {
+        return;
+    }
+
+    velocidadeApoio = ObterVelocidadeApoioAlagamento(jogo->obstaculos, jogo->jogador.corpo);
+
+    if (velocidadeApoio == 0.0f) {
+        PerderJogo(jogo);
+        return;
+    }
+
+    jogo->jogador.corpo.x += velocidadeApoio * GetFrameTime();
+    jogo->jogador.coluna = (int)((jogo->jogador.corpo.x - MARGEM_JOGADOR + TAM_BLOCO * 0.5f) / TAM_BLOCO);
+
+    if (jogo->jogador.corpo.x + jogo->jogador.corpo.width < 0 ||
+        jogo->jogador.corpo.x > LARGURA_TELA) {
+        PerderJogo(jogo);
+    }
 }
 
 void IniciarJogo(Jogo *jogo)
@@ -317,10 +386,10 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarListaObstaculos(jogo->obstaculos);
 
     if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
-        jogo->venceu = false;
-        jogo->gameOver = true;
-        jogo->jogador.tempoInicioMorte = GetTime();
+        PerderJogo(jogo);
     }
+
+    AtualizarCaronaAlagamento(jogo);
 
     AtualizarFase(jogo);
 
@@ -378,7 +447,7 @@ void DesenharInterface(Jogo *jogo)
     DrawText("WASD para mover", X_INTERFACE, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("R para reiniciar", 220, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
     DrawText("P para pausar", 400, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Evite veiculos, cachorros e buracos", 530, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
+    DrawText("Cuidado com alagamentos", 530, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
 
     if (jogo->pausado) {
         DrawText("PAUSADO", 335, 300, 34, YELLOW);
