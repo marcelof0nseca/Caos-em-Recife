@@ -10,6 +10,7 @@ static Texture2D spritesCachorroEsquerda[4] = {0};
 static Texture2D spriteCachorroMordendoDireita = {0};
 static Texture2D spriteCachorroMordendoEsquerda = {0};
 static Texture2D spritesBuraco[4] = {0};
+static Texture2D spritesLixoGrande[6] = {0};
 
 typedef struct {
     Texture2D esquerda;
@@ -162,6 +163,12 @@ void InicializarTexturasObstaculo(void)
     spritesBuraco[1] = CarregarTexturaObstaculo("assets/itens/buraco_2.png");
     spritesBuraco[2] = CarregarTexturaObstaculo("assets/itens/buraco_3.png");
     spritesBuraco[3] = CarregarTexturaObstaculo("assets/itens/buraco_4.png");
+    spritesLixoGrande[0] = CarregarTexturaObstaculo("assets/itens/plataforma_madeira.png");
+    spritesLixoGrande[1] = CarregarTexturaObstaculo("assets/itens/plataforma_caixa.png");
+    spritesLixoGrande[2] = CarregarTexturaObstaculo("assets/itens/plataforma_sofa.png");
+    spritesLixoGrande[3] = CarregarTexturaObstaculo("assets/itens/plataforma_concreto.png");
+    spritesLixoGrande[4] = CarregarTexturaObstaculo("assets/itens/plataforma_cacamba.png");
+    spritesLixoGrande[5] = CarregarTexturaObstaculo("assets/itens/plataforma_barril.png");
 }
 
 void FinalizarTexturasObstaculo(void)
@@ -190,6 +197,10 @@ void FinalizarTexturasObstaculo(void)
         DescarregarTextura(&spritesCachorroDireita[frame]);
         DescarregarTextura(&spritesCachorroEsquerda[frame]);
         DescarregarTextura(&spritesBuraco[frame]);
+    }
+
+    for (frame = 0; frame < 6; frame++) {
+        DescarregarTextura(&spritesLixoGrande[frame]);
     }
 
     DescarregarTextura(&spriteCachorroMordendoDireita);
@@ -276,6 +287,12 @@ static void IniciarPoste(Obstaculo *poste, float x, float y)
                         0, 0, ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 6);
 }
 
+static void IniciarLixoGrande(Obstaculo *lixo, float x, float y, float velocidade, int direcao)
+{
+    ConfigurarObstaculo(lixo, TIPO_LIXO_GRANDE, (Rectangle){x + 2, y + 6, 76, 28},
+                        velocidade, direcao, ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 6);
+}
+
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
     Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
@@ -300,6 +317,8 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
         IniciarCachorro(novo, x, y, direcao);
     } else if (tipo == TIPO_POSTE) {
         IniciarPoste(novo, x, y);
+    } else if (tipo == TIPO_LIXO_GRANDE) {
+        IniciarLixoGrande(novo, x, y, velocidade, direcao);
     } else if (tipo == TIPO_ONIBUS) {
         IniciarOnibus(novo, x, y, direcao);
     } else {
@@ -393,10 +412,66 @@ static void DesenharCachorro(Obstaculo cachorro)
     DrawRectangleLinesEx(cachorro.corpo, 1, BLACK);
 }
 
+static void DesenharLixoGrande(Obstaculo lixo)
+{
+    int x = (int)lixo.corpo.x;
+    int y = (int)lixo.corpo.y;
+    Color madeira = lixo.variante % 2 == 0 ? BROWN : DARKBROWN;
+    Texture2D sprite = spritesLixoGrande[lixo.variante % 6];
+
+    if (sprite.id != 0) {
+        Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+        Rectangle destino = {
+            lixo.corpo.x - 8,
+            lixo.corpo.y - 8,
+            lixo.corpo.width + 16,
+            lixo.corpo.height + 18
+        };
+
+        DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+        return;
+    }
+
+    DrawEllipse(x + 38, y + 22, 44, 9, Fade(SKYBLUE, 0.35f));
+
+    if (lixo.variante == 1) {
+        DrawRectangle(x + 6, y + 4, 64, 18, (Color){86, 130, 60, 255});
+        DrawRectangleLines(x + 6, y + 4, 64, 18, DARKGREEN);
+        return;
+    }
+
+    if (lixo.variante == 2) {
+        DrawRectangle(x + 8, y + 2, 58, 22, LIGHTGRAY);
+        DrawRectangleLines(x + 8, y + 2, 58, 22, GRAY);
+        DrawLine(x + 12, y + 8, x + 62, y + 8, GRAY);
+        DrawLine(x + 12, y + 15, x + 62, y + 15, GRAY);
+        return;
+    }
+
+    if (lixo.variante == 3) {
+        DrawCircle(x + 26, y + 15, 16, DARKGRAY);
+        DrawCircle(x + 26, y + 15, 8, BLACK);
+        DrawRectangle(x + 48, y + 6, 20, 17, YELLOW);
+        DrawRectangleLines(x + 48, y + 6, 20, 17, GOLD);
+        return;
+    }
+
+    for (int t = 0; t < 4; t++) {
+        int tabuaY = y + 4 + t * 6;
+        DrawRectangle(x + 4, tabuaY, 68, 4, madeira);
+        DrawRectangleLines(x + 4, tabuaY, 68, 4, DARKBROWN);
+    }
+}
+
 static void DesenharCarro(Obstaculo carro)
 {
     if (carro.tipo == TIPO_CACHORRO) {
         DesenharCachorro(carro);
+        return;
+    }
+
+    if (carro.tipo == TIPO_LIXO_GRANDE) {
+        DesenharLixoGrande(carro);
         return;
     }
 
@@ -613,7 +688,7 @@ static bool EhObstaculoFixo(TipoObstaculo tipo)
 
 static bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
-    if (EhObstaculoFixo(carro.tipo)) {
+    if (EhObstaculoFixo(carro.tipo) || carro.tipo == TIPO_LIXO_GRANDE) {
         return false;
     }
 
@@ -644,6 +719,36 @@ bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
     }
 
     return false;
+}
+
+bool VerificarApoioAlagamento(Obstaculo *lista, Rectangle jogador)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        if (atual->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(atual->corpo, jogador)) {
+            return true;
+        }
+
+        atual = atual->proximo;
+    }
+
+    return false;
+}
+
+float ObterVelocidadeApoioAlagamento(Obstaculo *lista, Rectangle jogador)
+{
+    Obstaculo *atual = lista;
+
+    while (atual != NULL) {
+        if (atual->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(atual->corpo, jogador)) {
+            return atual->velocidade * atual->direcao;
+        }
+
+        atual = atual->proximo;
+    }
+
+    return 0.0f;
 }
 
 bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
