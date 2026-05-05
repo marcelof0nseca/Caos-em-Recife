@@ -5,35 +5,47 @@
 static Texture2D texturaPista = {0};
 static Texture2D texturaCalcadaCanaleta = {0};
 static Texture2D texturaCalcadaSimples = {0};
+static Texture2D spritesAlagamento[4] = {0};
+
+static Texture2D CarregarTexturaMapa(const char *caminho)
+{
+    Texture2D textura = LoadTexture(caminho);
+
+    if (textura.id != 0) {
+        SetTextureFilter(textura, TEXTURE_FILTER_POINT);
+    }
+
+    return textura;
+}
+
+static void DescarregarTexturaMapa(Texture2D *textura)
+{
+    if (textura->id != 0) {
+        UnloadTexture(*textura);
+        *textura = (Texture2D){0};
+    }
+}
 
 void InicializarMapa(void)
 {
-    texturaPista = LoadTexture("assets/cenario/pista.png");
-    texturaCalcadaCanaleta = LoadTexture("assets/cenario/calcada_canaleta.png");
-    texturaCalcadaSimples = LoadTexture("assets/cenario/calcada_simples.png");
-
-    if (texturaCalcadaCanaleta.id != 0) {
-        SetTextureFilter(texturaCalcadaCanaleta, TEXTURE_FILTER_POINT);
-    }
-
-    if (texturaCalcadaSimples.id != 0) {
-        SetTextureFilter(texturaCalcadaSimples, TEXTURE_FILTER_POINT);
-    }
+    texturaPista = CarregarTexturaMapa("assets/cenario/pista.png");
+    texturaCalcadaCanaleta = CarregarTexturaMapa("assets/cenario/calcada_canaleta.png");
+    texturaCalcadaSimples = CarregarTexturaMapa("assets/cenario/calcada_simples.png");
+    spritesAlagamento[0] = CarregarTexturaMapa("assets/itens/agua1.png");
+    spritesAlagamento[1] = CarregarTexturaMapa("assets/itens/agua2.png");
+    spritesAlagamento[2] = CarregarTexturaMapa("assets/itens/agua3.png");
+    spritesAlagamento[3] = CarregarTexturaMapa("assets/itens/agua4.png");
 
 }
 
 void FinalizarMapa(void)
 {
-    if (texturaPista.id != 0) {
-        UnloadTexture(texturaPista);
-    }
+    DescarregarTexturaMapa(&texturaPista);
+    DescarregarTexturaMapa(&texturaCalcadaCanaleta);
+    DescarregarTexturaMapa(&texturaCalcadaSimples);
 
-    if (texturaCalcadaCanaleta.id != 0) {
-        UnloadTexture(texturaCalcadaCanaleta);
-    }
-
-    if (texturaCalcadaSimples.id != 0) {
-        UnloadTexture(texturaCalcadaSimples);
+    for (int i = 0; i < 4; i++) {
+        DescarregarTexturaMapa(&spritesAlagamento[i]);
     }
 
 }
@@ -62,6 +74,34 @@ static void DesenharPista(int linha)
     DrawRectangle(0, linha * TAM_BLOCO, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
     DrawRectangle(0, linha * TAM_BLOCO + TAM_BLOCO - ESPESSURA_BORDA_RUA, LARGURA_TELA, ESPESSURA_BORDA_RUA, BLACK);
     DrawLine(0, linha * TAM_BLOCO + 20, LARGURA_TELA, linha * TAM_BLOCO + 20, YELLOW);
+}
+
+static void DesenharAlagamento(int linha)
+{
+    int y = linha * TAM_BLOCO;
+    float tempo = (float)GetTime();
+    Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % 4];
+
+    if (sprite.id != 0) {
+        Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+
+        for (int x = 0; x < LARGURA_TELA; x += TAM_BLOCO * 2) {
+            Rectangle destino = {x, y, TAM_BLOCO * 2, TAM_BLOCO};
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0, WHITE);
+        }
+
+        return;
+    }
+
+    DrawRectangle(0, y, LARGURA_TELA, TAM_BLOCO, (Color){16, 89, 120, 255});
+
+    for (int x = -40; x < LARGURA_TELA + 40; x += 80) {
+        int ondaX = x + (int)(tempo * 28.0f) % 80;
+        DrawLine(ondaX, y + 10, ondaX + 18, y + 7, (Color){92, 171, 197, 255});
+        DrawLine(ondaX + 18, y + 7, ondaX + 38, y + 12, (Color){92, 171, 197, 255});
+        DrawLine(ondaX + 8, y + 27, ondaX + 25, y + 24, (Color){38, 128, 164, 255});
+        DrawLine(ondaX + 25, y + 24, ondaX + 46, y + 29, (Color){38, 128, 164, 255});
+    }
 }
 
 static bool LinhaEhCalcadaIsolada(int linha)
@@ -104,6 +144,11 @@ static void DesenharCalcada(int linha)
 void DesenharMapa(void)
 {
     for (int linha = 0; linha < TOTAL_LINHAS; linha++) {
+        if (LinhaEhAlagamento(linha)) {
+            DesenharAlagamento(linha);
+            continue;
+        }
+
         if (LinhaEhRua(linha)) {
             DesenharPista(linha);
             continue;
@@ -116,6 +161,10 @@ void DesenharMapa(void)
 bool LinhaEhRua(int linha)
 {
     int linhaAntiga = linha - LINHAS_FASE_3;
+
+    if (LinhaEhAlagamento(linha)) {
+        return false;
+    }
 
     if (linha == 2 || linha == 3 ||
         linha == 5 || linha == 6 ||
@@ -137,4 +186,10 @@ bool LinhaEhRua(int linha)
            linhaAntiga == 34 || linhaAntiga == 35 ||
            linhaAntiga == 37 || linhaAntiga == 38 ||
            linhaAntiga == 40 || linhaAntiga == 41;
+}
+
+bool LinhaEhAlagamento(int linha)
+{
+    return linha == 1 || linha == 4 || linha == 7 ||
+           linha == 10 || linha == 13;
 }
