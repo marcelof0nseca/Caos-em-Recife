@@ -100,11 +100,13 @@ static void CarregarSpritesVeiculo(SpriteVeiculo *sprites, const CaminhosVeiculo
 
 static Texture2D ObterTexturaVeiculo(SpriteVeiculo sprite, int direcao)
 {
+    /* Cada veiculo tem uma imagem para esquerda e outra para direita. */
     return direcao == -1 ? sprite.esquerda : sprite.direita;
 }
 
 static void DesenharSprite(Texture2D sprite, Rectangle destino)
 {
+    /* Sem desenho manual: se o png nao carregou, nao desenha nada. */
     if (sprite.id == 0) {
         return;
     }
@@ -117,6 +119,7 @@ static int SortearVarianteVeiculo(SpriteVeiculo *sprites, int total)
 {
     int varianteInicial = GetRandomValue(0, total - 1);
 
+    /* Tenta sortear um sprite carregado, para nao escolher imagem vazia. */
     if (ObterTexturaVeiculo(sprites[varianteInicial], 1).id != 0 ||
         ObterTexturaVeiculo(sprites[varianteInicial], -1).id != 0) {
         return varianteInicial;
@@ -248,6 +251,7 @@ static void IniciarMoto(Obstaculo *moto, float x, float y, int direcao)
 
 static void IniciarBuraco(Obstaculo *buraco, float x, float y)
 {
+    /* O buraco muda um pouco de tamanho para nao ficar tudo igual. */
     int variante = ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 4;
     float larguras[] = {34, 42, 50, 62};
     float alturas[] = {26, 31, 37, 42};
@@ -362,6 +366,7 @@ static void AtualizarCarro(Obstaculo *carro)
 
     carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
 
+    /* Quando sai da tela, volta pelo outro lado para continuar o fluxo. */
     if (carro->direcao == 1 && carro->corpo.x > LARGURA_TELA) {
         carro->corpo.x = -carro->corpo.width - 10;
     }
@@ -384,6 +389,7 @@ void AtualizarListaObstaculos(Obstaculo *lista)
 static void DesenharCachorro(Obstaculo cachorro)
 {
     Texture2D sprite;
+    /* Troca de frame pelo tempo para o cachorro parecer correndo. */
     int frame = (int)(GetTime() * 10.0) % 4;
 
     if (cachorro.mordendo) {
@@ -442,6 +448,7 @@ static void DesenharCarro(Obstaculo carro)
             return;
         }
 
+        /* Espelha e varia um pouco o poste para nao repetir igual. */
         bool espelhar = carro.variante % 2 == 1;
         float largura = 17.0f + (carro.variante % 3);
         float altura = 66.0f + (carro.variante % 4) * 3.0f;
@@ -487,6 +494,7 @@ static void DesenharCarro(Obstaculo carro)
     if (carro.tipo == TIPO_MOTO) {
         int varianteMoto = carro.variante % TOTAL_SPRITES_MOTO;
         Texture2D sprite = ObterTexturaVeiculo(spritesMoto[varianteMoto], carro.direcao);
+        /* A primeira moto e menor no arquivo, entao aumento um pouco. */
         float escala = varianteMoto == 0 ? 1.18f : 1.0f;
 
         float larguraDestinoBase = carro.corpo.width + 12;
@@ -546,11 +554,13 @@ static bool EhObstaculoFixo(TipoObstaculo tipo)
 
 static bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
 {
+    /* Obstaculos parados bloqueiam o caminho em outra funcao. */
     if (EhObstaculoFixo(carro.tipo) || carro.tipo == TIPO_LIXO_GRANDE) {
         return false;
     }
 
     if (carro.tipo == TIPO_BURACO) {
+        /* A colisao do buraco e menor que o sprite para ficar mais justo. */
         Rectangle areaPerigosa = {
             carro.corpo.x + 5,
             carro.corpo.y + 5,
@@ -584,6 +594,7 @@ float ObterVelocidadeApoioAlagamento(Obstaculo *lista, Rectangle jogador)
     Obstaculo *atual = lista;
 
     while (atual != NULL) {
+        /* Retorna a velocidade da plataforma que esta debaixo do jogador. */
         if (atual->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(atual->corpo, jogador)) {
             return atual->velocidade * atual->direcao;
         }
@@ -600,6 +611,7 @@ bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
 
     while (atual != NULL) {
         if (atual->tipo == TIPO_CACHORRO) {
+            /* Quando encosta no jogador, troca para o sprite mordendo. */
             atual->mordendo = CheckCollisionRecs(atual->corpo, jogador);
 
             if (atual->mordendo) {

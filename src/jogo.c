@@ -97,6 +97,7 @@ static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, i
 
 static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
 {
+    /* Evita colocar lixo fora da agua e obstaculo fixo no meio da rua. */
     if ((tipo == TIPO_LIXO_GRANDE && !LinhaEhAlagamento(linha)) ||
         (tipo != TIPO_LIXO_GRANDE && (LinhaEhRua(linha) || LinhaEhAlagamento(linha)))) {
         return;
@@ -110,6 +111,7 @@ static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int colun
 
 static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 {
+    /* Buraco fica so na calcada, nunca em rua ou alagamento. */
     if (LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
         return;
     }
@@ -122,6 +124,8 @@ static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 
 static void ConfigurarObstaculos(Jogo *jogo)
 {
+    /* Aqui ficam as posicoes principais dos obstaculos.
+       usaDeslocamentoFase = true joga a linha para a parte nova do mapa. */
     ObstaculoMovel moveis[] = {
         {TIPO_CARRO, -120, 12, 235, 1, false, false}, {TIPO_ONIBUS, -540, 12, 0, 1, false, false},
         {TIPO_MOTO, 130, 11, 0, -1, false, true}, {TIPO_CARRO, 480, 11, 225, -1, false, true},
@@ -218,6 +222,7 @@ static void ConfigurarObstaculos(Jogo *jogo)
     jogo->obstaculos = NULL;
 
     for (int i = 0; i < (int)(sizeof(moveis) / sizeof(moveis[0])); i++) {
+        /* Alguns carros comecam depois da tela para nao aparecer tudo junto. */
         float x = moveis[i].xDepoisDaTela ? LARGURA_TELA + moveis[i].x : moveis[i].x;
 
         if (moveis[i].usaDeslocamentoFase) {
@@ -272,6 +277,7 @@ static void DesenharMoedasJogo(Jogo *jogo)
 
 static void AtualizarFase(Jogo *jogo)
 {
+    /* A fase atual depende da linha em que o jogador esta no mapa grande. */
     if (jogo->jogador.linha < LINHAS_FASE_3) {
         jogo->faseAtual = 4;
         return;
@@ -296,6 +302,7 @@ static void AtualizarCaronaAlagamento(Jogo *jogo)
 {
     float velocidadeApoio;
 
+    /* Na agua o jogador precisa estar em cima de uma plataforma. */
     if (!LinhaEhAlagamento(jogo->jogador.linha)) {
         return;
     }
@@ -307,9 +314,11 @@ static void AtualizarCaronaAlagamento(Jogo *jogo)
         return;
     }
 
+    /* A plataforma leva o jogador junto, tipo uma esteira. */
     jogo->jogador.corpo.x += velocidadeApoio * GetFrameTime();
     jogo->jogador.coluna = (int)((jogo->jogador.corpo.x - MARGEM_JOGADOR + TAM_BLOCO * 0.5f) / TAM_BLOCO);
 
+    /* Se a plataforma carregar o jogador para fora da tela, ele perde. */
     if (jogo->jogador.corpo.x + jogo->jogador.corpo.width < 0 ||
         jogo->jogador.corpo.x > LARGURA_TELA) {
         PerderJogo(jogo);
@@ -348,6 +357,7 @@ void AtualizarJogo(Jogo *jogo)
     direcaoAposEntrada = jogo->jogador.direcao;
     tempoAtaqueAposEntrada = jogo->jogador.tempoUltimoAtaque;
 
+    /* Se bater em arvore/poste/etc, volta para onde estava antes do movimento. */
     if (VerificarColisaoFixaLista(jogo->obstaculos, jogo->jogador.corpo)) {
         jogo->jogador.linha = jogadorAntes.linha;
         jogo->jogador.coluna = jogadorAntes.coluna;
@@ -389,6 +399,7 @@ void DesenharJogo(Jogo *jogo)
         return;
     }
 
+    /* A camera segue o jogador, mas nao deixa mostrar fora do mapa. */
     cameraY = LimitarFloat(cameraY, 0, alturaMapa - ALTURA_TELA);
     camera.target = (Vector2){0, cameraY};
     camera.offset = (Vector2){0, 0};

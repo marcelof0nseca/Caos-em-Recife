@@ -43,6 +43,7 @@ static Texture2D *ObterSpriteAtual(Jogador jogador, bool derrotado)
     double agora = GetTime();
     int direcao = (int)jogador.direcao;
 
+    /* Prioridade: morte, ataque, andando e por ultimo parado. */
     if (derrotado) {
         int frameMorte = (agora - jogador.tempoInicioMorte) >= 0.25 ? 1 : 0;
         return &spritesMorrendo[direcao][frameMorte];
@@ -53,6 +54,7 @@ static Texture2D *ObterSpriteAtual(Jogador jogador, bool derrotado)
     }
 
     if ((agora - jogador.tempoUltimoMovimento) < 0.30) {
+        /* Cada passo fica em um frame por 0.10 segundo. */
         int frameAndando = (int)((agora - jogador.tempoUltimoMovimento) / 0.10);
         if (frameAndando > 2) {
             frameAndando = 2;
@@ -164,6 +166,7 @@ void AtualizarJogador(Jogador *jogador)
     }
 
     if (moveu) {
+        /* Nao deixa o jogador sair dos limites do mapa. */
         if (jogador->linha < 0) jogador->linha = 0;
         if (jogador->linha > TOTAL_LINHAS - 1) jogador->linha = TOTAL_LINHAS - 1;
         if (jogador->coluna < 0) jogador->coluna = 0;
@@ -173,6 +176,7 @@ void AtualizarJogador(Jogador *jogador)
         jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;
     }
     if (jogador->linha < jogador->melhorLinha) {
+        /* O score aumenta quando o jogador chega mais longe. */
         jogador->melhorLinha = jogador->linha;
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
     }
@@ -191,6 +195,7 @@ void DesenharJogador(Jogador jogador, bool derrotado)
         Rectangle origem = {0, 0, (float)sprite->width, (float)sprite->height};
         float larguraMaxima = derrotado ? LARGURA_MAXIMA_SPRITE_MORTE : LARGURA_MAXIMA_SPRITE_JOGADOR;
         float alturaMaxima = derrotado ? ALTURA_MAXIMA_SPRITE_MORTE : ALTURA_MAXIMA_SPRITE_JOGADOR;
+        /* Mantem a proporcao do png dentro do tamanho maximo. */
         float escalaLargura = larguraMaxima / (float)sprite->width;
         float escalaAltura = alturaMaxima / (float)sprite->height;
         float escala = escalaLargura < escalaAltura ? escalaLargura : escalaAltura;

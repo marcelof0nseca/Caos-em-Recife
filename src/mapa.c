@@ -53,6 +53,7 @@ void FinalizarMapa(void)
 static void DesenharPista(int linha)
 {
     if (texturaPista.id != 0) {
+        /* Pego so a parte da imagem que parece pista. */
         Rectangle origem = {
             0,
             texturaPista.height * 0.36f,
@@ -75,6 +76,7 @@ static void DesenharAlagamento(int linha)
 {
     int y = linha * TAM_BLOCO;
     float tempo = (float)GetTime();
+    /* Vai trocando entre os 4 pngs para a agua parecer animada. */
     Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % 4];
 
     if (sprite.id != 0) {
@@ -94,6 +96,7 @@ static bool LinhaEhCalcadaIsolada(int linha)
     bool temRuaAcima = linha == 0 || LinhaEhRua(linha - 1);
     bool temRuaAbaixo = linha == TOTAL_LINHAS - 1 || LinhaEhRua(linha + 1);
 
+    /* Quando a calcada fica entre duas ruas, uso a textura com canaleta. */
     return temRuaAcima && temRuaAbaixo;
 }
 
@@ -139,6 +142,7 @@ void DesenharMapa(void)
 
 bool LinhaEhRua(int linha)
 {
+    /* A parte nova do mapa usa linhas antigas deslocadas pela fase 3. */
     int linhaAntiga = linha - LINHAS_FASE_3;
 
     if (LinhaEhAlagamento(linha)) {
@@ -169,6 +173,7 @@ bool LinhaEhRua(int linha)
 
 bool LinhaEhAlagamento(int linha)
 {
+    /* Alagamento aparece so na fase 4, em linhas separadas. */
     return linha == 1 || linha == 4 || linha == 7 ||
            linha == 10 || linha == 13;
 }
