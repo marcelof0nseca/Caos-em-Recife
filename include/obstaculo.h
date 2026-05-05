@@ -9,7 +9,6 @@ typedef enum {
     TIPO_ONIBUS,
     TIPO_MOTO,
     TIPO_BURACO,
-    TIPO_PEDRA,
     TIPO_ARVORE,
     TIPO_GUARDA_SOL,
     TIPO_GUARDA_CHUVA_FREVO,
@@ -37,7 +36,6 @@ void AtualizarListaObstaculos(Obstaculo *lista);
 void DesenharListaObstaculos(Obstaculo *lista);
 bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador);
 bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador);
-bool VerificarApoioAlagamento(Obstaculo *lista, Rectangle jogador);
 float ObterVelocidadeApoioAlagamento(Obstaculo *lista, Rectangle jogador);
 
 #endif

@@ -108,11 +108,6 @@ static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int colun
     );
 }
 
-static void AdicionarObstaculoFixo(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
-{
-    AdicionarObstaculoFixoMapa(jogo, tipo, coluna, linha + LINHAS_FASE_3);
-}
-
 static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 {
     if (LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
@@ -123,16 +118,6 @@ static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
         &jogo->obstaculos,
         CriarObstaculo(TIPO_BURACO, coluna * TAM_BLOCO, linha * TAM_BLOCO, 0, 0)
     );
-}
-
-static void AdicionarPosteMapa(Jogo *jogo, int coluna, int linha)
-{
-    AdicionarObstaculoFixoMapa(jogo, TIPO_POSTE, coluna, linha);
-}
-
-static void AdicionarPosteFase(Jogo *jogo, int coluna, int linha)
-{
-    AdicionarPosteMapa(jogo, coluna, linha + LINHAS_FASE_3);
 }
 
 static void ConfigurarObstaculos(Jogo *jogo)
@@ -251,19 +236,13 @@ static void ConfigurarObstaculos(Jogo *jogo)
     }
 
     for (int i = 0; i < (int)(sizeof(fixos) / sizeof(fixos[0])); i++) {
-        if (fixos[i].usaDeslocamentoFase) {
-            AdicionarObstaculoFixo(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
-        } else {
-            AdicionarObstaculoFixoMapa(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
-        }
+        int linha = fixos[i].usaDeslocamentoFase ? fixos[i].linha + LINHAS_FASE_3 : fixos[i].linha;
+        AdicionarObstaculoFixoMapa(jogo, fixos[i].tipo, fixos[i].coluna, linha);
     }
 
     for (int i = 0; i < (int)(sizeof(postes) / sizeof(postes[0])); i++) {
-        if (postes[i].usaDeslocamentoFase) {
-            AdicionarPosteFase(jogo, postes[i].coluna, postes[i].linha);
-        } else {
-            AdicionarPosteMapa(jogo, postes[i].coluna, postes[i].linha);
-        }
+        int linha = postes[i].usaDeslocamentoFase ? postes[i].linha + LINHAS_FASE_3 : postes[i].linha;
+        AdicionarObstaculoFixoMapa(jogo, TIPO_POSTE, postes[i].coluna, linha);
     }
 }
 

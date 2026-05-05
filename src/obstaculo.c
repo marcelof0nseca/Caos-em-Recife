@@ -255,11 +255,6 @@ static void IniciarFixo(Obstaculo *obstaculo, TipoObstaculo tipo, Rectangle corp
     ConfigurarObstaculo(obstaculo, tipo, corpo, 0, 0, 0);
 }
 
-static void IniciarPedra(Obstaculo *pedra, float x, float y)
-{
-    IniciarFixo(pedra, TIPO_PEDRA, (Rectangle){x + 6, y + 12, 28, 22});
-}
-
 static void IniciarArvore(Obstaculo *arvore, float x, float y)
 {
     IniciarFixo(arvore, TIPO_ARVORE, (Rectangle){x + 5, y + 4, 30, 32});
@@ -303,8 +298,6 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
 
     if (tipo == TIPO_BURACO) {
         IniciarBuraco(novo, x, y);
-    } else if (tipo == TIPO_PEDRA) {
-        IniciarPedra(novo, x, y);
     } else if (tipo == TIPO_ARVORE) {
         IniciarArvore(novo, x, y);
     } else if (tipo == TIPO_GUARDA_SOL) {
@@ -412,57 +405,6 @@ static void DesenharCachorro(Obstaculo cachorro)
     DrawRectangleLinesEx(cachorro.corpo, 1, BLACK);
 }
 
-static void DesenharLixoGrande(Obstaculo lixo)
-{
-    int x = (int)lixo.corpo.x;
-    int y = (int)lixo.corpo.y;
-    Color madeira = lixo.variante % 2 == 0 ? BROWN : DARKBROWN;
-    Texture2D sprite = spritesLixoGrande[lixo.variante % 6];
-
-    if (sprite.id != 0) {
-        Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
-        Rectangle destino = {
-            lixo.corpo.x - 8,
-            lixo.corpo.y - 8,
-            lixo.corpo.width + 16,
-            lixo.corpo.height + 18
-        };
-
-        DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-        return;
-    }
-
-    DrawEllipse(x + 38, y + 22, 44, 9, Fade(SKYBLUE, 0.35f));
-
-    if (lixo.variante == 1) {
-        DrawRectangle(x + 6, y + 4, 64, 18, (Color){86, 130, 60, 255});
-        DrawRectangleLines(x + 6, y + 4, 64, 18, DARKGREEN);
-        return;
-    }
-
-    if (lixo.variante == 2) {
-        DrawRectangle(x + 8, y + 2, 58, 22, LIGHTGRAY);
-        DrawRectangleLines(x + 8, y + 2, 58, 22, GRAY);
-        DrawLine(x + 12, y + 8, x + 62, y + 8, GRAY);
-        DrawLine(x + 12, y + 15, x + 62, y + 15, GRAY);
-        return;
-    }
-
-    if (lixo.variante == 3) {
-        DrawCircle(x + 26, y + 15, 16, DARKGRAY);
-        DrawCircle(x + 26, y + 15, 8, BLACK);
-        DrawRectangle(x + 48, y + 6, 20, 17, YELLOW);
-        DrawRectangleLines(x + 48, y + 6, 20, 17, GOLD);
-        return;
-    }
-
-    for (int t = 0; t < 4; t++) {
-        int tabuaY = y + 4 + t * 6;
-        DrawRectangle(x + 4, tabuaY, 68, 4, madeira);
-        DrawRectangleLines(x + 4, tabuaY, 68, 4, DARKBROWN);
-    }
-}
-
 static void DesenharCarro(Obstaculo carro)
 {
     if (carro.tipo == TIPO_CACHORRO) {
@@ -471,7 +413,21 @@ static void DesenharCarro(Obstaculo carro)
     }
 
     if (carro.tipo == TIPO_LIXO_GRANDE) {
-        DesenharLixoGrande(carro);
+        Texture2D sprite = spritesLixoGrande[carro.variante % 6];
+
+        if (sprite.id != 0) {
+            Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
+            Rectangle destino = {
+                carro.corpo.x - 8,
+                carro.corpo.y - 8,
+                carro.corpo.width + 16,
+                carro.corpo.height + 18
+            };
+
+            DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
+        } else {
+            DrawRectangleRec(carro.corpo, BROWN);
+        }
         return;
     }
 
@@ -527,17 +483,6 @@ static void DesenharCarro(Obstaculo carro)
 
         DrawRectangle((int)carro.corpo.x + 2, (int)carro.corpo.y - 32, 6, 60, DARKGRAY);
         DrawRectangle((int)carro.corpo.x - 3, (int)carro.corpo.y + 25, 16, 4, DARKBROWN);
-        return;
-    }
-
-    if (carro.tipo == TIPO_PEDRA) {
-        int x = (int)carro.corpo.x;
-        int y = (int)carro.corpo.y;
-
-        DrawEllipse(x + 14, y + 13, 16, 12, GRAY);
-        DrawEllipse(x + 9, y + 9, 9, 7, LIGHTGRAY);
-        DrawCircle(x + 21, y + 8, 5, DARKGRAY);
-        DrawLine(x + 5, y + 18, x + 24, y + 19, DARKGRAY);
         return;
     }
 
@@ -681,8 +626,7 @@ void DesenharListaObstaculos(Obstaculo *lista)
 
 static bool EhObstaculoFixo(TipoObstaculo tipo)
 {
-    return tipo == TIPO_PEDRA || tipo == TIPO_ARVORE ||
-           tipo == TIPO_GUARDA_SOL || tipo == TIPO_GUARDA_CHUVA_FREVO ||
+    return tipo == TIPO_ARVORE || tipo == TIPO_GUARDA_SOL || tipo == TIPO_GUARDA_CHUVA_FREVO ||
            tipo == TIPO_POSTE;
 }
 
@@ -712,21 +656,6 @@ bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
 
     while (atual != NULL) {
         if (EhObstaculoFixo(atual->tipo) && CheckCollisionRecs(atual->corpo, jogador)) {
-            return true;
-        }
-
-        atual = atual->proximo;
-    }
-
-    return false;
-}
-
-bool VerificarApoioAlagamento(Obstaculo *lista, Rectangle jogador)
-{
-    Obstaculo *atual = lista;
-
-    while (atual != NULL) {
-        if (atual->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(atual->corpo, jogador)) {
             return true;
         }
 

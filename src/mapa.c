@@ -94,14 +94,6 @@ static void DesenharAlagamento(int linha)
     }
 
     DrawRectangle(0, y, LARGURA_TELA, TAM_BLOCO, (Color){16, 89, 120, 255});
-
-    for (int x = -40; x < LARGURA_TELA + 40; x += 80) {
-        int ondaX = x + (int)(tempo * 28.0f) % 80;
-        DrawLine(ondaX, y + 10, ondaX + 18, y + 7, (Color){92, 171, 197, 255});
-        DrawLine(ondaX + 18, y + 7, ondaX + 38, y + 12, (Color){92, 171, 197, 255});
-        DrawLine(ondaX + 8, y + 27, ondaX + 25, y + 24, (Color){38, 128, 164, 255});
-        DrawLine(ondaX + 25, y + 24, ondaX + 46, y + 29, (Color){38, 128, 164, 255});
-    }
 }
 
 static bool LinhaEhCalcadaIsolada(int linha)
