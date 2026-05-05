@@ -29,25 +29,11 @@ typedef struct Obstaculo {
 
 void InicializarTexturasObstaculo(void);
 void FinalizarTexturasObstaculo(void);
-void IniciarCarro(Obstaculo *carro);
-void IniciarCarroComDados(Obstaculo *carro, float x, float y, float velocidade, int direcao);
-void IniciarOnibus(Obstaculo *onibus, float x, float y, int direcao);
-void IniciarMoto(Obstaculo *moto, float x, float y, int direcao);
-void IniciarBuraco(Obstaculo *buraco, float x, float y);
-void IniciarPedra(Obstaculo *pedra, float x, float y);
-void IniciarArvore(Obstaculo *arvore, float x, float y);
-void IniciarGuardaSol(Obstaculo *guardaSol, float x, float y);
-void IniciarGuardaChuvaFrevo(Obstaculo *guardaChuvaFrevo, float x, float y);
-void IniciarCachorro(Obstaculo *cachorro, float x, float y, int direcao);
-void IniciarPoste(Obstaculo *poste, float x, float y);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
 void LiberarObstaculos(Obstaculo **lista);
-void AtualizarCarro(Obstaculo *carro);
 void AtualizarListaObstaculos(Obstaculo *lista);
-void DesenharCarro(Obstaculo carro);
 void DesenharListaObstaculos(Obstaculo *lista);
-bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador);
 bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador);
 bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador);
 

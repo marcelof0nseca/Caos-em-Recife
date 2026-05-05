@@ -3,6 +3,29 @@
 #include "config.h"
 #include "score.h"
 
+typedef struct {
+    int coluna;
+    int linha;
+    bool usaDeslocamentoFase;
+} PosicaoMapa;
+
+typedef struct {
+    TipoObstaculo tipo;
+    float x;
+    int linha;
+    float velocidade;
+    int direcao;
+    bool usaDeslocamentoFase;
+    bool xDepoisDaTela;
+} ObstaculoMovel;
+
+typedef struct {
+    TipoObstaculo tipo;
+    int coluna;
+    int linha;
+    bool usaDeslocamentoFase;
+} ObstaculoFixo;
+
 static float LimitarFloat(float valor, float minimo, float maximo)
 {
     if (valor < minimo) {
@@ -41,24 +64,22 @@ static void AdicionarMoedaFase(Jogo *jogo, int coluna, int linha)
 
 static void ConfigurarMoedas(Jogo *jogo)
 {
+    PosicaoMapa moedas[] = {
+        {10, 44, true}, {15, 39, true}, {6, 36, true}, {13, 33, true},
+        {8, 29, true}, {18, 23, true}, {2, 19, true}, {14, 16, true},
+        {4, 13, true}, {12, 10, true}, {6, 7, true}, {17, 4, true},
+        {4, 13, false}, {15, 10, false}, {7, 7, false}, {13, 4, false}
+    };
+
     jogo->totalMoedas = 0;
 
-    AdicionarMoedaFase(jogo, 10, 44);
-    AdicionarMoedaFase(jogo, 15, 39);
-    AdicionarMoedaFase(jogo, 6, 36);
-    AdicionarMoedaFase(jogo, 13, 33);
-    AdicionarMoedaFase(jogo, 8, 29);
-    AdicionarMoedaFase(jogo, 18, 23);
-    AdicionarMoedaFase(jogo, 2, 19);
-    AdicionarMoedaFase(jogo, 14, 16);
-    AdicionarMoedaFase(jogo, 4, 13);
-    AdicionarMoedaFase(jogo, 12, 10);
-    AdicionarMoedaFase(jogo, 6, 7);
-    AdicionarMoedaFase(jogo, 17, 4);
-    AdicionarMoedaMapa(jogo, 4, 13);
-    AdicionarMoedaMapa(jogo, 15, 10);
-    AdicionarMoedaMapa(jogo, 7, 7);
-    AdicionarMoedaMapa(jogo, 13, 4);
+    for (int i = 0; i < (int)(sizeof(moedas) / sizeof(moedas[0])); i++) {
+        if (moedas[i].usaDeslocamentoFase) {
+            AdicionarMoedaFase(jogo, moedas[i].coluna, moedas[i].linha);
+        } else {
+            AdicionarMoedaMapa(jogo, moedas[i].coluna, moedas[i].linha);
+        }
+    }
 }
 
 static void AdicionarObstaculoNaLinhaMapa(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
@@ -111,145 +132,106 @@ static void AdicionarPosteFase(Jogo *jogo, int coluna, int linha)
 
 static void ConfigurarObstaculos(Jogo *jogo)
 {
+    ObstaculoMovel moveis[] = {
+        {TIPO_CARRO, -120, 12, 235, 1, false, false}, {TIPO_ONIBUS, -540, 12, 0, 1, false, false},
+        {TIPO_MOTO, 130, 11, 0, -1, false, true}, {TIPO_CARRO, 480, 11, 225, -1, false, true},
+        {TIPO_MOTO, -180, 9, 0, 1, false, false}, {TIPO_CARRO, -520, 9, 245, 1, false, false},
+        {TIPO_CARRO, 160, 8, 235, -1, false, true}, {TIPO_ONIBUS, 560, 8, 0, -1, false, true},
+        {TIPO_CARRO, -140, 6, 250, 1, false, false}, {TIPO_MOTO, -500, 6, 0, 1, false, false},
+        {TIPO_MOTO, 170, 5, 0, -1, false, true}, {TIPO_CARRO, 520, 5, 240, -1, false, true},
+        {TIPO_CARRO, -170, 3, 255, 1, false, false}, {TIPO_ONIBUS, -610, 3, 0, 1, false, false},
+        {TIPO_MOTO, 190, 2, 0, -1, false, true}, {TIPO_CARRO, 540, 2, 245, -1, false, true},
+
+        {TIPO_CARRO, -100, 41, 165, 1, true, false}, {TIPO_CARRO, -460, 41, 165, 1, true, false},
+        {TIPO_CARRO, 80, 40, 155, -1, true, true}, {TIPO_ONIBUS, 430, 40, 0, -1, true, true},
+        {TIPO_ONIBUS, -220, 38, 0, 1, true, false}, {TIPO_CARRO, -620, 38, 175, 1, true, false},
+        {TIPO_CARRO, 120, 37, 170, -1, true, true}, {TIPO_CARRO, 520, 37, 170, -1, true, true},
+        {TIPO_CARRO, -160, 35, 185, 1, true, false}, {TIPO_ONIBUS, -560, 35, 0, 1, true, false},
+        {TIPO_CARRO, 200, 34, 175, -1, true, true}, {TIPO_CARRO, 610, 34, 175, -1, true, true},
+        {TIPO_CARRO, -140, 31, 190, 1, true, false}, {TIPO_CARRO, -520, 31, 190, 1, true, false},
+        {TIPO_ONIBUS, 220, 30, 0, -1, true, true}, {TIPO_CARRO, 650, 30, 185, -1, true, true},
+        {TIPO_CARRO, -180, 28, 200, 1, true, false}, {TIPO_ONIBUS, -640, 28, 0, 1, true, false},
+        {TIPO_CARRO, 160, 27, 190, -1, true, true}, {TIPO_CARRO, 540, 27, 190, -1, true, true},
+        {TIPO_ONIBUS, -220, 25, 0, 1, true, false}, {TIPO_CARRO, -660, 25, 205, 1, true, false},
+        {TIPO_CARRO, 100, 24, 195, -1, true, true}, {TIPO_ONIBUS, 500, 24, 0, -1, true, true},
+
+        {TIPO_CARRO, -120, 21, 205, 1, true, false}, {TIPO_MOTO, -480, 21, 0, 1, true, false},
+        {TIPO_CARRO, 140, 20, 195, -1, true, true}, {TIPO_MOTO, 500, 20, 0, -1, true, true},
+        {TIPO_MOTO, -180, 18, 0, 1, true, false}, {TIPO_CARRO, -560, 18, 215, 1, true, false},
+        {TIPO_CARRO, 160, 17, 205, -1, true, true}, {TIPO_MOTO, 540, 17, 0, -1, true, true},
+        {TIPO_CARRO, -150, 15, 220, 1, true, false}, {TIPO_MOTO, -510, 15, 0, 1, true, false},
+        {TIPO_MOTO, 150, 14, 0, -1, true, true}, {TIPO_CARRO, 520, 14, 215, -1, true, true},
+        {TIPO_CARRO, -160, 12, 225, 1, true, false}, {TIPO_MOTO, -530, 12, 0, 1, true, false},
+        {TIPO_CARRO, 170, 11, 215, -1, true, true}, {TIPO_MOTO, 540, 11, 0, -1, true, true},
+        {TIPO_MOTO, -190, 9, 0, 1, true, false}, {TIPO_CARRO, -560, 9, 230, 1, true, false},
+        {TIPO_CARRO, 170, 8, 220, -1, true, true}, {TIPO_MOTO, 530, 8, 0, -1, true, true},
+        {TIPO_CARRO, -160, 6, 230, 1, true, false}, {TIPO_MOTO, -520, 6, 0, 1, true, false},
+        {TIPO_MOTO, 170, 5, 0, -1, true, true}, {TIPO_CARRO, 540, 5, 225, -1, true, true},
+        {TIPO_CARRO, -160, 3, 235, 1, true, false}, {TIPO_MOTO, -540, 3, 0, 1, true, false},
+        {TIPO_CARRO, 180, 2, 225, -1, true, true}, {TIPO_MOTO, 540, 2, 0, -1, true, true},
+
+        {TIPO_CACHORRO, -180, 43, 0, 1, true, false}, {TIPO_CACHORRO, 120, 39, 0, -1, true, true},
+        {TIPO_CACHORRO, -260, 32, 0, 1, true, false}, {TIPO_CACHORRO, 210, 26, 0, -1, true, true},
+        {TIPO_CACHORRO, -220, 16, 0, 1, true, false}, {TIPO_CACHORRO, 180, 7, 0, -1, true, true}
+    };
+    PosicaoMapa buracos[] = {
+        {4, 14, false}, {11, 13, false}, {17, 10, false},
+        {2, 7, false}, {10, 4, false}, {15, 1, false}
+    };
+    PosicaoMapa postes[] = {
+        {2, 14, false}, {8, 13, false}, {14, 10, false}, {6, 7, false},
+        {3, 4, false}, {6, 1, false}, {6, 42, true}, {13, 43, true},
+        {4, 39, true}, {15, 36, true}, {6, 32, true}, {13, 29, true},
+        {10, 23, true}, {16, 19, true}, {8, 13, true}, {17, 10, true},
+        {2, 7, true}, {11, 4, true}
+    };
+    ObstaculoFixo fixos[] = {
+        {TIPO_ARVORE, 3, 42, true}, {TIPO_GUARDA_SOL, 12, 42, true},
+        {TIPO_ARVORE, 16, 39, true}, {TIPO_GUARDA_CHUVA_FREVO, 5, 36, true},
+        {TIPO_ARVORE, 14, 32, true}, {TIPO_GUARDA_SOL, 7, 29, true},
+        {TIPO_ARVORE, 17, 26, true}, {TIPO_GUARDA_CHUVA_FREVO, 4, 23, true},
+        {TIPO_ARVORE, 15, 19, true}, {TIPO_GUARDA_SOL, 6, 16, true},
+        {TIPO_ARVORE, 13, 13, true}, {TIPO_GUARDA_CHUVA_FREVO, 3, 10, true},
+        {TIPO_ARVORE, 16, 7, true}, {TIPO_GUARDA_SOL, 8, 4, true},
+        {TIPO_ARVORE, 2, 44, true}, {TIPO_GUARDA_CHUVA_FREVO, 6, 44, true},
+        {TIPO_ARVORE, 15, 44, true}, {TIPO_GUARDA_SOL, 18, 43, true},
+        {TIPO_GUARDA_CHUVA_FREVO, 9, 42, true}, {TIPO_GUARDA_SOL, 10, 39, true},
+        {TIPO_ARVORE, 1, 35, true}, {TIPO_GUARDA_CHUVA_FREVO, 11, 35, true},
+        {TIPO_GUARDA_SOL, 2, 32, true}, {TIPO_ARVORE, 9, 26, true},
+        {TIPO_GUARDA_CHUVA_FREVO, 12, 20, true}, {TIPO_GUARDA_SOL, 1, 19, true},
+        {TIPO_ARVORE, 10, 16, true}, {TIPO_GUARDA_CHUVA_FREVO, 18, 13, true},
+        {TIPO_GUARDA_SOL, 11, 10, true}, {TIPO_ARVORE, 5, 7, true},
+        {TIPO_GUARDA_CHUVA_FREVO, 14, 4, true}
+    };
+
     LiberarObstaculos(&jogo->obstaculos);
     jogo->obstaculos = NULL;
 
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -120, 12, 235, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, -540, 12, 0, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 130, 11, 0, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 480, 11, 225, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, -180, 9, 0, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -520, 9, 245, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 160, 8, 235, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, LARGURA_TELA + 560, 8, 0, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -140, 6, 250, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, -500, 6, 0, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 170, 5, 0, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 520, 5, 240, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, -170, 3, 255, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_ONIBUS, -610, 3, 0, 1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_MOTO, LARGURA_TELA + 190, 2, 0, -1);
-    AdicionarObstaculoNaLinhaMapa(jogo, TIPO_CARRO, LARGURA_TELA + 540, 2, 245, -1);
+    for (int i = 0; i < (int)(sizeof(moveis) / sizeof(moveis[0])); i++) {
+        float x = moveis[i].xDepoisDaTela ? LARGURA_TELA + moveis[i].x : moveis[i].x;
 
-    AdicionarBuracoMapa(jogo, 4, 14);
-    AdicionarBuracoMapa(jogo, 11, 13);
-    AdicionarBuracoMapa(jogo, 17, 10);
-    AdicionarBuracoMapa(jogo, 2, 7);
-    AdicionarBuracoMapa(jogo, 10, 4);
-    AdicionarBuracoMapa(jogo, 15, 1);
+        if (moveis[i].usaDeslocamentoFase) {
+            AdicionarObstaculoNaLinha(jogo, moveis[i].tipo, x, moveis[i].linha, moveis[i].velocidade, moveis[i].direcao);
+        } else {
+            AdicionarObstaculoNaLinhaMapa(jogo, moveis[i].tipo, x, moveis[i].linha, moveis[i].velocidade, moveis[i].direcao);
+        }
+    }
 
-    AdicionarPosteMapa(jogo, 2, 14);
-    AdicionarPosteMapa(jogo, 8, 13);
-    AdicionarPosteMapa(jogo, 14, 10);
-    AdicionarPosteMapa(jogo, 6, 7);
-    AdicionarPosteMapa(jogo, 3, 4);
-    AdicionarPosteMapa(jogo, 6, 1);
+    for (int i = 0; i < (int)(sizeof(buracos) / sizeof(buracos[0])); i++) {
+        AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha);
+    }
 
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -100, 41, 165, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -460, 41, 165, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 80, 40, 155, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 430, 40, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 38, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -620, 38, 175, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 120, 37, 170, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 37, 170, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 35, 185, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -560, 35, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 200, 34, 175, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 610, 34, 175, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -140, 31, 190, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -520, 31, 190, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 220, 30, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 650, 30, 185, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -180, 28, 200, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -640, 28, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 160, 27, 190, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 540, 27, 190, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, -220, 25, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -660, 25, 205, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 100, 24, 195, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_ONIBUS, LARGURA_TELA + 500, 24, 0, -1);
+    for (int i = 0; i < (int)(sizeof(fixos) / sizeof(fixos[0])); i++) {
+        AdicionarObstaculoFixo(jogo, fixos[i].tipo, fixos[i].coluna, fixos[i].linha);
+    }
 
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -120, 21, 205, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -480, 21, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 140, 20, 195, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 500, 20, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -180, 18, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -560, 18, 215, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 160, 17, 205, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 17, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -150, 15, 220, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -510, 15, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 150, 14, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 520, 14, 215, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 12, 225, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -530, 12, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 170, 11, 215, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 11, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -190, 9, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -560, 9, 230, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 170, 8, 220, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 530, 8, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 6, 230, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -520, 6, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 170, 5, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 540, 5, 225, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, -160, 3, 235, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, -540, 3, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CARRO, LARGURA_TELA + 180, 2, 225, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_MOTO, LARGURA_TELA + 540, 2, 0, -1);
-
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -180, 43, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 120, 39, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -260, 32, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 210, 26, 0, -1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, -220, 16, 0, 1);
-    AdicionarObstaculoNaLinha(jogo, TIPO_CACHORRO, LARGURA_TELA + 180, 7, 0, -1);
-
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 3, 42);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 12, 42);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 39);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 5, 36);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 14, 32);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 7, 29);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 17, 26);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 4, 23);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 19);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 6, 16);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 13, 13);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 3, 10);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 16, 7);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 8, 4);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 2, 44);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 6, 44);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 15, 44);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 18, 43);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 9, 42);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 10, 39);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 1, 35);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 11, 35);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 2, 32);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 9, 26);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 12, 20);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 1, 19);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 10, 16);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 18, 13);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_SOL, 11, 10);
-    AdicionarObstaculoFixo(jogo, TIPO_ARVORE, 5, 7);
-    AdicionarObstaculoFixo(jogo, TIPO_GUARDA_CHUVA_FREVO, 14, 4);
-
-    AdicionarPosteFase(jogo, 6, 42);
-    AdicionarPosteFase(jogo, 13, 43);
-    AdicionarPosteFase(jogo, 4, 39);
-    AdicionarPosteFase(jogo, 15, 36);
-    AdicionarPosteFase(jogo, 6, 32);
-    AdicionarPosteFase(jogo, 13, 29);
-    AdicionarPosteFase(jogo, 10, 23);
-    AdicionarPosteFase(jogo, 16, 19);
-    AdicionarPosteFase(jogo, 8, 13);
-    AdicionarPosteFase(jogo, 17, 10);
-    AdicionarPosteFase(jogo, 2, 7);
-    AdicionarPosteFase(jogo, 11, 4);
+    for (int i = 0; i < (int)(sizeof(postes) / sizeof(postes[0])); i++) {
+        if (postes[i].usaDeslocamentoFase) {
+            AdicionarPosteFase(jogo, postes[i].coluna, postes[i].linha);
+        } else {
+            AdicionarPosteMapa(jogo, postes[i].coluna, postes[i].linha);
+        }
+    }
 }
 
 static void ConfigurarFase(Jogo *jogo)
