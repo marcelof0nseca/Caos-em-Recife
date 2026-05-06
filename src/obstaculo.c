@@ -1,5 +1,6 @@
 #include "obstaculo.h"
 #include "config.h"
+#include "mapa.h"
 
 static Texture2D texturaCoqueiro = {0};
 static Texture2D texturaGuardaSol = {0};
@@ -113,6 +114,12 @@ static void DesenharSprite(Texture2D sprite, Rectangle destino)
 
     DrawTexturePro(sprite, (Rectangle){0, 0, (float)sprite.width, (float)sprite.height},
                    destino, (Vector2){0, 0}, 0.0f, WHITE);
+}
+
+static bool ObstaculoEstaNoAlagamento(Obstaculo obstaculo)
+{
+    int linha = (int)((obstaculo.corpo.y + obstaculo.corpo.height * 0.5f) / TAM_BLOCO);
+    return LinhaEhAlagamento(linha);
 }
 
 static int SortearVarianteVeiculo(SpriteVeiculo *sprites, int total)
@@ -429,6 +436,10 @@ static void DesenharCarro(Obstaculo carro)
     }
 
     if (carro.tipo == TIPO_BURACO) {
+        if (ObstaculoEstaNoAlagamento(carro)) {
+            return;
+        }
+
         Texture2D sprite = spritesBuraco[carro.variante % 4];
 
         float larguraDestino = carro.corpo.width + 34;
@@ -560,6 +571,10 @@ static bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
     }
 
     if (carro.tipo == TIPO_BURACO) {
+        if (ObstaculoEstaNoAlagamento(carro)) {
+            return false;
+        }
+
         /* A colisao do buraco e menor que o sprite para ficar mais justo. */
         Rectangle areaPerigosa = {
             carro.corpo.x + 5,

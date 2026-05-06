@@ -5,7 +5,7 @@
 static Texture2D texturaPista = {0};
 static Texture2D texturaCalcadaCanaleta = {0};
 static Texture2D texturaCalcadaSimples = {0};
-static Texture2D spritesAlagamento[4] = {0};
+static Texture2D spritesAlagamento[3] = {0};
 
 static Texture2D CarregarTexturaMapa(const char *caminho)
 {
@@ -34,7 +34,6 @@ void InicializarMapa(void)
     spritesAlagamento[0] = CarregarTexturaMapa("assets/itens/agua1.png");
     spritesAlagamento[1] = CarregarTexturaMapa("assets/itens/agua2.png");
     spritesAlagamento[2] = CarregarTexturaMapa("assets/itens/agua3.png");
-    spritesAlagamento[3] = CarregarTexturaMapa("assets/itens/agua4.png");
 
 }
 
@@ -44,7 +43,7 @@ void FinalizarMapa(void)
     DescarregarTexturaMapa(&texturaCalcadaCanaleta);
     DescarregarTexturaMapa(&texturaCalcadaSimples);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         DescarregarTexturaMapa(&spritesAlagamento[i]);
     }
 
@@ -76,14 +75,14 @@ static void DesenharAlagamento(int linha)
 {
     int y = linha * TAM_BLOCO;
     float tempo = (float)GetTime();
-    /* Vai trocando entre os 4 pngs para a agua parecer animada. */
-    Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % 4];
+    /* Vai trocando entre os pngs bons para a agua parecer animada. */
+    Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % 3];
 
     if (sprite.id != 0) {
         Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
 
-        for (int x = 0; x < LARGURA_TELA; x += TAM_BLOCO * 2) {
-            Rectangle destino = {x, y, TAM_BLOCO * 2, TAM_BLOCO};
+        for (int x = 0; x < LARGURA_TELA; x += TAM_BLOCO) {
+            Rectangle destino = {x, y, TAM_BLOCO, TAM_BLOCO};
             DrawTexturePro(sprite, origem, destino, (Vector2){0, 0}, 0, WHITE);
         }
 

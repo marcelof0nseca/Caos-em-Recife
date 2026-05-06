@@ -112,7 +112,7 @@ static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int colun
 static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 {
     /* Buraco fica so na calcada, nunca em rua ou alagamento. */
-    if (LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
+    if (linha < LINHAS_FASE_3 || LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
         return;
     }
 
