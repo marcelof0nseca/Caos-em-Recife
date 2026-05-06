@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "config.h"
+#include "menu.h"
 #include "jogo.h"
 #include "mapa.h"
 
@@ -9,6 +10,8 @@ static bool telaCheiaSemBorda = false;
 static Vector2 posicaoJanela = {0};
 static int larguraJanela = LARGURA_TELA;
 static int alturaJanela = ALTURA_TELA;
+
+typedef enum { TELA_MENU, TELA_DICAS, TELA_JOGABILIDADE, TELA_JOGO } TelaApp;
 
 static Rectangle CalcularDestinoTela(void)
 {
@@ -48,10 +51,18 @@ static void AlternarTelaCheia(void)
     telaCheiaSemBorda = true;
 }
 
+static void IniciarPartida(Jogo *jogo, TelaApp *tela)
+{
+    IniciarJogo(jogo);
+    jogo->jogoIniciado = true;
+    *tela = TELA_JOGO;
+}
+
 int main(void)
 {
     Jogo jogo = {0};
     RenderTexture2D telaVirtual;
+    TelaApp telaAtual = TELA_MENU;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
@@ -72,20 +83,39 @@ int main(void)
             AlternarTelaCheia();
         }
 
-        if (!jogo.jogoIniciado) {
-            if (IsKeyPressed(KEY_ENTER)) {
-                jogo.jogoIniciado = true;
+        if (telaAtual == TELA_MENU) {
+            jogo.jogoIniciado = false;
+            if (IsKeyPressed(KEY_ENTER) || MenuClicouJogar()) {
+                IniciarPartida(&jogo, &telaAtual);
+            } else if (MenuClicouDicas()) {
+                telaAtual = TELA_DICAS;
+            } else if (MenuClicouJogabilidade()) {
+                telaAtual = TELA_JOGABILIDADE;
             }
-        } else if (IsKeyPressed(KEY_R)) {
-            IniciarJogo(&jogo);
-            jogo.jogoIniciado = true;
-        } else if (!jogo.gameOver) {
-            AtualizarJogo(&jogo);
+        } else if (telaAtual == TELA_DICAS || telaAtual == TELA_JOGABILIDADE) {
+            jogo.jogoIniciado = false;
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                telaAtual = TELA_MENU;
+            }
+        } else {
+            if (IsKeyPressed(KEY_R)) {
+                IniciarPartida(&jogo, &telaAtual);
+            } else if (!jogo.gameOver) {
+                AtualizarJogo(&jogo);
+            }
         }
 
         BeginTextureMode(telaVirtual);
         ClearBackground(RAYWHITE);
-        DesenharJogo(&jogo);
+        if (telaAtual == TELA_MENU) {
+            DesenharMenuPrincipal();
+        } else if (telaAtual == TELA_DICAS) {
+            DesenharTelaDicas();
+        } else if (telaAtual == TELA_JOGABILIDADE) {
+            DesenharTelaJogabilidade();
+        } else {
+            DesenharJogo(&jogo);
+        }
         EndTextureMode();
 
         BeginDrawing();

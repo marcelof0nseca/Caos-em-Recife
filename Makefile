@@ -1,4 +1,4 @@
-SRC = src/main.c src/jogo.c src/jogador.c src/obstaculo.c src/mapa.c src/score.c src/moeda.c
+SRC = src/main.c src/menu.c src/jogo.c src/jogador.c src/obstaculo.c src/mapa.c src/score.c src/moeda.c
 CFLAGS = -Wall -Wextra -Iinclude
 PKG_CONFIG ?= pkg-config
 

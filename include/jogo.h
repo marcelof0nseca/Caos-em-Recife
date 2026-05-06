@@ -26,7 +26,6 @@ void IniciarJogo(Jogo *jogo);
 void AtualizarJogo(Jogo *jogo);
 void DesenharJogo(Jogo *jogo);
 void DesenharInterface(Jogo *jogo);
-void DesenharTelaInicial(void);
 void DesenharGameOver(Jogo *jogo);
 
 #endif
