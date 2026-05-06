@@ -348,7 +348,6 @@ void AtualizarJogo(Jogo *jogo)
 {
     Jogador jogadorAntes;
     DirecaoJogador direcaoAposEntrada;
-    double tempoAtaqueAposEntrada;
 
     if (IsKeyPressed(KEY_P)) {
         jogo->pausado = !jogo->pausado;
@@ -361,7 +360,6 @@ void AtualizarJogo(Jogo *jogo)
     jogadorAntes = jogo->jogador;
     AtualizarJogador(&jogo->jogador);
     direcaoAposEntrada = jogo->jogador.direcao;
-    tempoAtaqueAposEntrada = jogo->jogador.tempoUltimoAtaque;
 
     /* Se bater em arvore/poste/etc, volta para onde estava antes do movimento. */
     if (VerificarColisaoFixaLista(jogo->obstaculos, jogo->jogador.corpo)) {
@@ -372,7 +370,6 @@ void AtualizarJogo(Jogo *jogo)
         jogo->jogador.melhorLinha = jogadorAntes.melhorLinha;
         jogo->jogador.tempoUltimoMovimento = jogadorAntes.tempoUltimoMovimento;
         jogo->jogador.direcao = direcaoAposEntrada;
-        jogo->jogador.tempoUltimoAtaque = tempoAtaqueAposEntrada;
     }
 
     AtualizarRecorde(jogo);

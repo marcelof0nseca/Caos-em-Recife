@@ -19,7 +19,6 @@ typedef struct {
     int melhorLinha;
     DirecaoJogador direcao;
     double tempoUltimoMovimento;
-    double tempoUltimoAtaque;
     double tempoInicioMorte;
 } Jogador;
 

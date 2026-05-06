@@ -3,7 +3,6 @@
 
 static Texture2D spritesIdle[4] = {0};
 static Texture2D spritesAndando[4][3] = {0};
-static Texture2D spritesAtacando[4] = {0};
 static Texture2D spritesMorrendo[4][2] = {0};
 
 #define LARGURA_MAXIMA_SPRITE_JOGADOR 38.0f
@@ -43,14 +42,10 @@ static Texture2D *ObterSpriteAtual(Jogador jogador, bool derrotado)
     double agora = GetTime();
     int direcao = (int)jogador.direcao;
 
-    /* Prioridade: morte, ataque, andando e por ultimo parado. */
+    /* Prioridade: morte, andando e por ultimo parado. */
     if (derrotado) {
         int frameMorte = (agora - jogador.tempoInicioMorte) >= 0.25 ? 1 : 0;
         return &spritesMorrendo[direcao][frameMorte];
-    }
-
-    if ((agora - jogador.tempoUltimoAtaque) < 0.18) {
-        return &spritesAtacando[direcao];
     }
 
     if ((agora - jogador.tempoUltimoMovimento) < 0.30) {
@@ -85,11 +80,6 @@ void InicializarSpritesJogador(void)
     spritesAndando[DIRECAO_COSTAS][1] = CarregarTexturaSprite("assets/personagem/andando_costas_2.png");
     spritesAndando[DIRECAO_COSTAS][2] = CarregarTexturaSprite("assets/personagem/andando_costas_3.png");
 
-    spritesAtacando[DIRECAO_FRENTE] = CarregarTexturaSprite("assets/personagem/atacando_frente.png");
-    spritesAtacando[DIRECAO_DIREITA] = CarregarTexturaSprite("assets/personagem/atacando_direita.png");
-    spritesAtacando[DIRECAO_ESQUERDA] = CarregarTexturaSprite("assets/personagem/atacando_esquerda.png");
-    spritesAtacando[DIRECAO_COSTAS] = CarregarTexturaSprite("assets/personagem/atacando_costas.png");
-
     spritesMorrendo[DIRECAO_FRENTE][0] = CarregarTexturaSprite("assets/personagem/morrendo_frente_1.png");
     spritesMorrendo[DIRECAO_FRENTE][1] = CarregarTexturaSprite("assets/personagem/morrendo_frente_2.png");
     spritesMorrendo[DIRECAO_DIREITA][0] = CarregarTexturaSprite("assets/personagem/morrendo_direita_1.png");
@@ -107,7 +97,6 @@ void FinalizarSpritesJogador(void)
 
     for (direcao = 0; direcao < 4; direcao++) {
         DescarregarSeCarregada(&spritesIdle[direcao]);
-        DescarregarSeCarregada(&spritesAtacando[direcao]);
 
         for (frame = 0; frame < 3; frame++) {
             DescarregarSeCarregada(&spritesAndando[direcao][frame]);
@@ -128,7 +117,6 @@ void IniciarJogador(Jogador *jogador)
     jogador->melhorLinha = jogador->linha;
     jogador->direcao = DIRECAO_FRENTE;
     jogador->tempoUltimoMovimento = -10.0;
-    jogador->tempoUltimoAtaque = -10.0;
     jogador->tempoInicioMorte = -10.0;
 }
 
@@ -159,10 +147,6 @@ void AtualizarJogador(Jogador *jogador)
 
     if (moveu) {
         jogador->tempoUltimoMovimento = GetTime();
-    }
-
-    if (IsKeyPressed(KEY_SPACE)) {
-        jogador->tempoUltimoAtaque = GetTime();
     }
 
     if (moveu) {
