@@ -451,13 +451,20 @@ void DesenharInterface(Jogo *jogo)
 
 void DesenharGameOver(Jogo *jogo)
 {
-    if (jogo->venceu) {
-        DrawText("VOCE VENCEU", 250, 250, 40, YELLOW);
-    } else {
-        DrawText("VOCE PERDEU", 260, 210, 40, RED);
-    }
-    DrawText(TextFormat("Score da partida: %d", jogo->jogador.score), 250, 275, 24, WHITE);
-    DrawText(TextFormat("Moedas coletadas: %d", jogo->moedasColetadas), 250, 310, 24, GOLD);
-    DrawText("Deseja jogar novamente?", 245, 365, 24, WHITE);
-    DrawText("Pressione R para sim", 275, 400, 22, YELLOW);
+    const char *titulo = jogo->venceu ? "VOCE VENCEU" : "VOCE PERDEU";
+    int tituloTamanho = 40;
+    int tituloLargura = MeasureText(titulo, tituloTamanho);
+    int caixaX = 170;
+    int caixaY = 190;
+    int caixaLargura = 460;
+    int caixaAltura = 250;
+
+    DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.55f));
+    DrawRectangle(caixaX, caixaY, caixaLargura, caixaAltura, Fade(RAYWHITE, 0.92f));
+    DrawRectangleLines(caixaX, caixaY, caixaLargura, caixaAltura, Fade(DARKBLUE, 0.85f));
+    DesenharTextoHUD(titulo, caixaX + (caixaLargura - tituloLargura) / 2, 220, tituloTamanho, jogo->venceu ? GOLD : RED);
+    DesenharTextoHUD(TextFormat("Score da partida: %d", jogo->jogador.score), 240, 280, 24, DARKBLUE);
+    DesenharTextoHUD(TextFormat("Moedas coletadas: %d", jogo->moedasColetadas), 240, 315, 24, DARKBLUE);
+    DesenharTextoHUD("Deseja jogar novamente?", 230, 365, 24, DARKBLUE);
+    DesenharTextoHUD("Pressione R para sim", 250, 400, 22, DARKGRAY);
 }
