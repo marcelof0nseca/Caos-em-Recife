@@ -136,22 +136,22 @@ void AtualizarJogador(Jogador *jogador)
 {
     bool moveu = false;
 
-    if (IsKeyPressed(KEY_W)) {
+    if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
         jogador->linha--;
         jogador->direcao = DIRECAO_COSTAS;
         moveu = true;
     }
-    if (IsKeyPressed(KEY_S)) {
+    if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
         jogador->linha++;
         jogador->direcao = DIRECAO_FRENTE;
         moveu = true;
     }
-    if (IsKeyPressed(KEY_A)) {
+    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
         jogador->coluna--;
         jogador->direcao = DIRECAO_ESQUERDA;
         moveu = true;
     }
-    if (IsKeyPressed(KEY_D)) {
+    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
         jogador->coluna++;
         jogador->direcao = DIRECAO_DIREITA;
         moveu = true;
