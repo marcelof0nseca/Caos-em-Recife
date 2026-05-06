@@ -133,6 +133,7 @@ static void ConfigurarObstaculos(Jogo *jogo)
 {
     /* Aqui ficam as posicoes principais dos obstaculos.
        usaDeslocamentoFase = true joga a linha para a parte nova do mapa. */
+    ResetarVarianteLixoGrande();
     ObstaculoMovel moveis[] = {
         {TIPO_CARRO, -120, 12, 235, 1, false, false}, {TIPO_ONIBUS, -540, 12, 0, 1, false, false},
         {TIPO_MOTO, 130, 11, 0, -1, false, true}, {TIPO_CARRO, 480, 11, 225, -1, false, true},

@@ -29,6 +29,7 @@ typedef struct Obstaculo {
 
 void InicializarTexturasObstaculo(void);
 void FinalizarTexturasObstaculo(void);
+void ResetarVarianteLixoGrande(void);
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao);
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo);
 void LiberarObstaculos(Obstaculo **lista);

@@ -12,6 +12,7 @@ static Texture2D spriteCachorroMordendoDireita = {0};
 static Texture2D spriteCachorroMordendoEsquerda = {0};
 static Texture2D spritesBuraco[4] = {0};
 static Texture2D spritesLixoGrande[6] = {0};
+static int proximaVarianteLixoGrande = 0;
 
 typedef struct {
     Texture2D esquerda;
@@ -90,6 +91,11 @@ static void DescarregarTextura(Texture2D *textura)
         UnloadTexture(*textura);
         *textura = (Texture2D){0};
     }
+}
+
+void ResetarVarianteLixoGrande(void)
+{
+    proximaVarianteLixoGrande = 0;
 }
 
 static void CarregarSpritesVeiculo(SpriteVeiculo *sprites, const CaminhosVeiculo *caminhos, int total)
@@ -305,8 +311,11 @@ static void IniciarPoste(Obstaculo *poste, float x, float y)
 
 static void IniciarLixoGrande(Obstaculo *lixo, float x, float y, float velocidade, int direcao)
 {
+    int variante = proximaVarianteLixoGrande;
+    proximaVarianteLixoGrande = (proximaVarianteLixoGrande + 1) % 6;
+
     ConfigurarObstaculo(lixo, TIPO_LIXO_GRANDE, (Rectangle){x + 2, y + 6, 76, 28},
-                        velocidade, direcao, ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO)) % 6);
+                        velocidade, direcao, variante);
 }
 
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
@@ -427,10 +436,10 @@ static void DesenharCarro(Obstaculo carro)
         Texture2D sprite = spritesLixoGrande[carro.variante % 6];
 
         DesenharSprite(sprite, (Rectangle){
-            carro.corpo.x - 8,
-            carro.corpo.y - 8,
-            carro.corpo.width + 16,
-            carro.corpo.height + 18
+            carro.corpo.x,
+            carro.corpo.y,
+            carro.corpo.width,
+            carro.corpo.height
         });
         return;
     }
