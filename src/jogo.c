@@ -39,6 +39,12 @@ static float LimitarFloat(float valor, float minimo, float maximo)
     return valor;
 }
 
+static void DesenharTextoHUD(const char *texto, int x, int y, int tamanho, Color cor)
+{
+    DrawText(texto, x + 1, y + 1, tamanho, Fade(BLACK, 0.70f));
+    DrawText(texto, x, y, tamanho, cor);
+}
+
 static void AtualizarRecorde(Jogo *jogo)
 {
     if (jogo->jogador.score > jogo->recorde) {
@@ -429,17 +435,17 @@ void DesenharTelaInicial(void)
 
 void DesenharInterface(Jogo *jogo)
 {
-    DrawText(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_INTERFACE_TITULOS, 20, BLACK);
-    DrawText(TextFormat("Recorde: %d", jogo->recorde), 190, Y_INTERFACE_TITULOS, 20, BLACK);
-    DrawText(TextFormat("Fase: %d", jogo->faseAtual), 360, Y_INTERFACE_TITULOS, 20, BLACK);
-    DrawText(TextFormat("Moedas: %d", jogo->moedasColetadas), 480, Y_INTERFACE_TITULOS, 20, BLACK);
-    DrawText("WASD para mover", X_INTERFACE, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("R para reiniciar", 220, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("P para pausar", 400, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
-    DrawText("Cuidado com alagamentos", 530, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, BLACK);
-
+    DrawRectangle(0, 0, LARGURA_TELA, 64, Fade(RAYWHITE, 0.88f));
+    DrawRectangle(0, 64, LARGURA_TELA, 28, Fade(RAYWHITE, 0.78f));
+    DesenharTextoHUD(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_INTERFACE_TITULOS, 20, DARKBLUE);
+    DesenharTextoHUD(TextFormat("Recorde: %d", jogo->recorde), 190, Y_INTERFACE_TITULOS, 20, DARKBLUE);
+    DesenharTextoHUD(TextFormat("Fase: %d", jogo->faseAtual), 360, Y_INTERFACE_TITULOS, 20, DARKBLUE);
+    DesenharTextoHUD(TextFormat("Moedas: %d", jogo->moedasColetadas), 480, Y_INTERFACE_TITULOS, 20, DARKBLUE);
+    DesenharTextoHUD("Mover: WASD ou setas", X_INTERFACE, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
+    DesenharTextoHUD("R para reiniciar", 255, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
+    DesenharTextoHUD("P para pausar", 400, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
     if (jogo->pausado) {
-        DrawText("PAUSADO", 335, 300, 34, YELLOW);
+        DesenharTextoHUD("PAUSADO", 335, 300, 34, YELLOW);
     }
 }
 
