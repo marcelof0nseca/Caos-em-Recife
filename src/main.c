@@ -41,6 +41,7 @@ int main(void)
     Jogo jogo = {0};
     RenderTexture2D telaVirtual;
     TelaApp telaAtual = TELA_MENU;
+    int menuSelecionado = 0;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
@@ -64,12 +65,11 @@ int main(void)
 
         if (telaAtual == TELA_MENU) {
             jogo.jogoIniciado = false;
-            if (IsKeyPressed(KEY_ENTER) || MenuClicouJogar()) {
-                IniciarPartida(&jogo, &telaAtual);
-            } else if (MenuClicouDicas()) {
-                telaAtual = TELA_DICAS;
-            } else if (MenuClicouJogabilidade()) {
-                telaAtual = TELA_JOGABILIDADE;
+            if (IsKeyPressed(KEY_DOWN)) menuSelecionado = (menuSelecionado + 1) % 3;
+            if (IsKeyPressed(KEY_UP)) menuSelecionado = (menuSelecionado + 2) % 3;
+            if (IsKeyPressed(KEY_ENTER)) {
+                if (menuSelecionado == 0) IniciarPartida(&jogo, &telaAtual);
+                else telaAtual = menuSelecionado == 1 ? TELA_DICAS : TELA_JOGABILIDADE;
             }
         } else if (telaAtual == TELA_DICAS || telaAtual == TELA_JOGABILIDADE) {
             jogo.jogoIniciado = false;
@@ -87,7 +87,7 @@ int main(void)
         BeginTextureMode(telaVirtual);
         ClearBackground(RAYWHITE);
         if (telaAtual == TELA_MENU) {
-            DesenharMenuPrincipal();
+            DesenharMenuPrincipal(menuSelecionado);
         } else if (telaAtual == TELA_DICAS) {
             DesenharTelaDicas();
         } else if (telaAtual == TELA_JOGABILIDADE) {
