@@ -6,11 +6,6 @@
 #include "jogo.h"
 #include "mapa.h"
 
-static bool telaCheiaSemBorda = false;
-static Vector2 posicaoJanela = {0};
-static int larguraJanela = LARGURA_TELA;
-static int alturaJanela = ALTURA_TELA;
-
 typedef enum { TELA_MENU, TELA_DICAS, TELA_JOGABILIDADE, TELA_JOGO } TelaApp;
 
 static Rectangle CalcularDestinoTela(void)
@@ -31,24 +26,7 @@ static Rectangle CalcularDestinoTela(void)
 
 static void AlternarTelaCheia(void)
 {
-    int monitor = GetCurrentMonitor();
-    Vector2 posicaoMonitor = GetMonitorPosition(monitor);
-
-    if (telaCheiaSemBorda) {
-        ClearWindowState(FLAG_WINDOW_UNDECORATED);
-        SetWindowSize(larguraJanela, alturaJanela);
-        SetWindowPosition((int)posicaoJanela.x, (int)posicaoJanela.y);
-        telaCheiaSemBorda = false;
-        return;
-    }
-
-    posicaoJanela = GetWindowPosition();
-    larguraJanela = GetScreenWidth();
-    alturaJanela = GetScreenHeight();
-    SetWindowState(FLAG_WINDOW_UNDECORATED);
-    SetWindowPosition((int)posicaoMonitor.x, (int)posicaoMonitor.y);
-    SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-    telaCheiaSemBorda = true;
+    ToggleFullscreen();
 }
 
 static void IniciarPartida(Jogo *jogo, TelaApp *tela)
