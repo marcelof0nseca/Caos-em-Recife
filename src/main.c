@@ -52,6 +52,7 @@ int main(void)
     telaVirtual = LoadRenderTexture(LARGURA_TELA, ALTURA_TELA);
     SetTextureFilter(telaVirtual.texture, TEXTURE_FILTER_POINT);
 
+    InicializarFundosMenu();
     InicializarMapa();
     InicializarSpritesJogador();
     InicializarTexturaMoeda();
@@ -111,6 +112,7 @@ int main(void)
     }
 
     UnloadRenderTexture(telaVirtual);
+    FinalizarFundosMenu();
     FinalizarMapa();
     FinalizarTexturasObstaculo();
     FinalizarTexturaMoeda();
