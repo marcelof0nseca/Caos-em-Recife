@@ -1,4 +1,5 @@
 #include "jogo.h"
+#include "debug_mode.h"
 #include "mapa.h"
 #include "config.h"
 #include "score.h"
@@ -378,7 +379,9 @@ void AtualizarJogo(Jogo *jogo)
     AtualizarListaObstaculos(jogo->obstaculos);
 
     if (VerificarColisaoLista(jogo->obstaculos, jogo->jogador.corpo)) {
-        PerderJogo(jogo);
+        if (!DebugInvencibilidadeAtiva()) {
+            PerderJogo(jogo);
+        }
     }
 
     AtualizarCaronaAlagamento(jogo);
