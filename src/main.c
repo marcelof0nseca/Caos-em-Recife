@@ -66,6 +66,7 @@ int main(void)
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Caos em Recife");
+    SetExitKey(0);
     SetTargetFPS(60);
     SetRandomSeed((unsigned int)time(NULL));
     ChangeDirectory(GetApplicationDirectory());
