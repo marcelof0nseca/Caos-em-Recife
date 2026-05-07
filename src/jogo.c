@@ -401,8 +401,8 @@ void DesenharJogo(Jogo *jogo)
     float alturaMapa = TOTAL_LINHAS * TAM_BLOCO;
     float cameraY = jogo->jogador.corpo.y - ALTURA_TELA * 0.65f;
 
-    /* A camera segue o jogador, mas nao deixa mostrar fora do mapa. */
-    cameraY = LimitarFloat(cameraY, 0, alturaMapa - ALTURA_TELA);
+    /* Reserva espaco para a HUD no topo para a reta final continuar visivel. */
+    cameraY = LimitarFloat(cameraY, -ALTURA_INTERFACE, alturaMapa - ALTURA_TELA);
     camera.target = (Vector2){0, cameraY};
     camera.offset = (Vector2){0, 0};
     camera.rotation = 0;
