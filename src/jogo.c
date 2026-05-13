@@ -4,6 +4,8 @@
 #include "config.h"
 #include "score.h"
 
+#define QUANTIDADE(lista) ((int)(sizeof(lista) / sizeof((lista)[0])))
+
 typedef struct {
     int coluna;
     int linha;
@@ -40,6 +42,11 @@ static float LimitarFloat(float valor, float minimo, float maximo)
     return valor;
 }
 
+static int LinhaNoMapa(int linha, bool usaDeslocamentoFase)
+{
+    return usaDeslocamentoFase ? linha + LINHAS_FASE_3 : linha;
+}
+
 static void DesenharTextoHUD(const char *texto, int x, int y, int tamanho, Color cor)
 {
     DrawText(texto, x + 1, y + 1, tamanho, Fade(BLACK, 0.70f));
@@ -54,52 +61,12 @@ static void AtualizarRecorde(Jogo *jogo)
     }
 }
 
-static void AdicionarMoedaMapa(Jogo *jogo, int coluna, int linha)
-{
-    if (jogo->totalMoedas >= MAX_MOEDAS) {
-        return;
-    }
-
-    IniciarMoeda(&jogo->moedas[jogo->totalMoedas], coluna, linha);
-    jogo->totalMoedas++;
-}
-
-static void AdicionarMoedaFase(Jogo *jogo, int coluna, int linha)
-{
-    AdicionarMoedaMapa(jogo, coluna, linha + LINHAS_FASE_3);
-}
-
-static void ConfigurarMoedas(Jogo *jogo)
-{
-    PosicaoMapa moedas[] = {
-        {10, 44, true}, {15, 39, true}, {6, 36, true}, {13, 33, true},
-        {8, 29, true}, {18, 23, true}, {2, 19, true}, {14, 16, true},
-        {4, 13, true}, {12, 10, true}, {6, 7, true}, {17, 4, true},
-        {4, 13, false}, {15, 10, false}, {7, 7, false}, {13, 4, false}
-    };
-
-    jogo->totalMoedas = 0;
-
-    for (int i = 0; i < (int)(sizeof(moedas) / sizeof(moedas[0])); i++) {
-        if (moedas[i].usaDeslocamentoFase) {
-            AdicionarMoedaFase(jogo, moedas[i].coluna, moedas[i].linha);
-        } else {
-            AdicionarMoedaMapa(jogo, moedas[i].coluna, moedas[i].linha);
-        }
-    }
-}
-
 static void AdicionarObstaculoNaLinhaMapa(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
 {
     AdicionarObstaculo(
         &jogo->obstaculos,
         CriarObstaculo(tipo, x, linha * TAM_BLOCO -3 , velocidade, direcao)
     );
-}
-
-static void AdicionarObstaculoNaLinha(Jogo *jogo, TipoObstaculo tipo, float x, int linha, float velocidade, int direcao)
-{
-    AdicionarObstaculoNaLinhaMapa(jogo, tipo, x, linha + LINHAS_FASE_3, velocidade, direcao);
 }
 
 static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
@@ -229,57 +196,27 @@ static void ConfigurarObstaculos(Jogo *jogo)
     LiberarObstaculos(&jogo->obstaculos);
     jogo->obstaculos = NULL;
 
-    for (int i = 0; i < (int)(sizeof(moveis) / sizeof(moveis[0])); i++) {
+    for (int i = 0; i < QUANTIDADE(moveis); i++) {
         /* Alguns carros comecam depois da tela para nao aparecer tudo junto. */
         float x = moveis[i].xDepoisDaTela ? LARGURA_TELA + moveis[i].x : moveis[i].x;
+        int linha = LinhaNoMapa(moveis[i].linha, moveis[i].usaDeslocamentoFase);
 
-        if (moveis[i].usaDeslocamentoFase) {
-            AdicionarObstaculoNaLinha(jogo, moveis[i].tipo, x, moveis[i].linha, moveis[i].velocidade, moveis[i].direcao);
-        } else {
-            AdicionarObstaculoNaLinhaMapa(jogo, moveis[i].tipo, x, moveis[i].linha, moveis[i].velocidade, moveis[i].direcao);
-        }
+        AdicionarObstaculoNaLinhaMapa(jogo, moveis[i].tipo, x, linha, moveis[i].velocidade, moveis[i].direcao);
     }
 
-    for (int i = 0; i < (int)(sizeof(buracos) / sizeof(buracos[0])); i++) {
-        if (buracos[i].usaDeslocamentoFase) {
-            AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha + LINHAS_FASE_3);
-        } else {
-            AdicionarBuracoMapa(jogo, buracos[i].coluna, buracos[i].linha);
-        }
+    for (int i = 0; i < QUANTIDADE(buracos); i++) {
+        int linha = LinhaNoMapa(buracos[i].linha, buracos[i].usaDeslocamentoFase);
+        AdicionarBuracoMapa(jogo, buracos[i].coluna, linha);
     }
 
-    for (int i = 0; i < (int)(sizeof(fixos) / sizeof(fixos[0])); i++) {
-        int linha = fixos[i].usaDeslocamentoFase ? fixos[i].linha + LINHAS_FASE_3 : fixos[i].linha;
+    for (int i = 0; i < QUANTIDADE(fixos); i++) {
+        int linha = LinhaNoMapa(fixos[i].linha, fixos[i].usaDeslocamentoFase);
         AdicionarObstaculoFixoMapa(jogo, fixos[i].tipo, fixos[i].coluna, linha);
     }
 
-    for (int i = 0; i < (int)(sizeof(postes) / sizeof(postes[0])); i++) {
-        int linha = postes[i].usaDeslocamentoFase ? postes[i].linha + LINHAS_FASE_3 : postes[i].linha;
+    for (int i = 0; i < QUANTIDADE(postes); i++) {
+        int linha = LinhaNoMapa(postes[i].linha, postes[i].usaDeslocamentoFase);
         AdicionarObstaculoFixoMapa(jogo, TIPO_POSTE, postes[i].coluna, linha);
-    }
-}
-
-static void ConfigurarFase(Jogo *jogo)
-{
-    ConfigurarObstaculos(jogo);
-    ConfigurarMoedas(jogo);
-}
-
-static void AtualizarMoedas(Jogo *jogo)
-{
-    for (int i = 0; i < jogo->totalMoedas; i++) {
-        if (ColetarMoeda(&jogo->moedas[i], jogo->jogador.corpo)) {
-            jogo->jogador.score += jogo->moedas[i].valor;
-            jogo->moedasColetadas++;
-            AtualizarRecorde(jogo);
-        }
-    }
-}
-
-static void DesenharMoedasJogo(Jogo *jogo)
-{
-    for (int i = 0; i < jogo->totalMoedas; i++) {
-        DesenharMoeda(jogo->moedas[i]);
     }
 }
 
@@ -337,8 +274,7 @@ void IniciarJogo(Jogo *jogo)
 {
     IniciarJogador(&jogo->jogador);
     jogo->faseAtual = 1;
-    jogo->moedasColetadas = 0;
-    ConfigurarFase(jogo);
+    ConfigurarObstaculos(jogo);
     jogo->gameOver = false;
     jogo->jogoIniciado = false;
     jogo->venceu = false;
@@ -375,7 +311,6 @@ void AtualizarJogo(Jogo *jogo)
     }
 
     AtualizarRecorde(jogo);
-    AtualizarMoedas(jogo);
 
     AtualizarListaObstaculos(jogo->obstaculos);
 
@@ -410,7 +345,6 @@ void DesenharJogo(Jogo *jogo)
 
     BeginMode2D(camera);
     DesenharMapa();
-    DesenharMoedasJogo(jogo);
     DesenharListaObstaculos(jogo->obstaculos);
     DesenharJogador(jogo->jogador, jogo->gameOver && !jogo->venceu);
     EndMode2D();
@@ -429,7 +363,6 @@ void DesenharInterface(Jogo *jogo)
     DesenharTextoHUD(TextFormat("Score: %d", jogo->jogador.score), X_INTERFACE, Y_INTERFACE_TITULOS, 20, DARKBLUE);
     DesenharTextoHUD(TextFormat("Recorde: %d", jogo->recorde), 190, Y_INTERFACE_TITULOS, 20, DARKBLUE);
     DesenharTextoHUD(TextFormat("Fase: %d", jogo->faseAtual), 360, Y_INTERFACE_TITULOS, 20, DARKBLUE);
-    DesenharTextoHUD(TextFormat("Moedas: %d", jogo->moedasColetadas), 480, Y_INTERFACE_TITULOS, 20, DARKBLUE);
     DesenharTextoHUD("Mover: WASD ou setas", X_INTERFACE, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
     DesenharTextoHUD("R para reiniciar", 255, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
     DesenharTextoHUD("P para pausar", 400, Y_INTERFACE_INFORMACOES, TAM_TEXTO_INTERFACE, DARKGRAY);
@@ -453,7 +386,6 @@ void DesenharGameOver(Jogo *jogo)
     DrawRectangleLines(caixaX, caixaY, caixaLargura, caixaAltura, Fade(DARKBLUE, 0.85f));
     DesenharTextoHUD(titulo, caixaX + (caixaLargura - tituloLargura) / 2, 220, tituloTamanho, jogo->venceu ? GOLD : RED);
     DesenharTextoHUD(TextFormat("Score da partida: %d", jogo->jogador.score), 240, 280, 24, DARKBLUE);
-    DesenharTextoHUD(TextFormat("Moedas coletadas: %d", jogo->moedasColetadas), 240, 315, 24, DARKBLUE);
     DesenharTextoHUD("Deseja jogar novamente?", 230, 365, 24, DARKBLUE);
     DesenharTextoHUD("Pressione R para sim", 250, 400, 22, DARKGRAY);
 }

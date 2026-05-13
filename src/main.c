@@ -56,7 +56,6 @@ int main(void)
     InicializarFundosMenu();
     InicializarMapa();
     InicializarSpritesJogador();
-    InicializarTexturaMoeda();
     InicializarTexturasObstaculo();
     IniciarJogo(&jogo);
 
@@ -79,28 +78,20 @@ int main(void)
             }
         } else if (telaAtual == TELA_DICAS || telaAtual == TELA_JOGABILIDADE) {
             jogo.jogoIniciado = false;
-            if (IsKeyPressed(KEY_ESCAPE)) {
-                telaAtual = TELA_MENU;
-            }
-        } else {
-            if (IsKeyPressed(KEY_R)) {
-                IniciarPartida(&jogo, &telaAtual);
-            } else if (!jogo.gameOver) {
-                AtualizarJogo(&jogo);
-            }
+            if (IsKeyPressed(KEY_ESCAPE)) telaAtual = TELA_MENU;
+        } else if (IsKeyPressed(KEY_R)) {
+            IniciarPartida(&jogo, &telaAtual);
+        } else if (!jogo.gameOver) {
+            AtualizarJogo(&jogo);
         }
 
         BeginTextureMode(telaVirtual);
         ClearBackground(RAYWHITE);
-        if (telaAtual == TELA_MENU) {
-            DesenharMenuPrincipal(menuSelecionado);
-        } else if (telaAtual == TELA_DICAS) {
-            DesenharTelaDicas();
-        } else if (telaAtual == TELA_JOGABILIDADE) {
-            DesenharTelaJogabilidade();
-        } else {
-            DesenharJogo(&jogo);
-        }
+        if (telaAtual == TELA_MENU) DesenharMenuPrincipal(menuSelecionado);
+        else if (telaAtual == TELA_DICAS) DesenharTelaDicas();
+        else if (telaAtual == TELA_JOGABILIDADE) DesenharTelaJogabilidade();
+        else DesenharJogo(&jogo);
+
         if (DebugInvencibilidadeAtiva() && telaAtual == TELA_JOGO) {
             DrawText("DEBUG: INVENCIVEL", 520, 8, 16, YELLOW);
         }
@@ -123,7 +114,6 @@ int main(void)
     FinalizarFundosMenu();
     FinalizarMapa();
     FinalizarTexturasObstaculo();
-    FinalizarTexturaMoeda();
     FinalizarSpritesJogador();
     CloseWindow();
     return 0;

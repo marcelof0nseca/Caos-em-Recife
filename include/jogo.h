@@ -4,16 +4,10 @@
 #include <stdbool.h>
 #include "jogador.h"
 #include "obstaculo.h"
-#include "moeda.h"
-
-#define MAX_MOEDAS 16
 
 typedef struct {
     Jogador jogador;
     Obstaculo *obstaculos;
-    Moeda moedas[MAX_MOEDAS];
-    int totalMoedas;
-    int moedasColetadas;
     int faseAtual;
     bool gameOver;
     bool jogoIniciado;
