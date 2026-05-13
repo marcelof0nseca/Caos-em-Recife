@@ -1,5 +1,6 @@
 #include "jogador.h"
 #include "config.h"
+#include <stdio.h>
 
 static Texture2D spritesIdle[4] = {0};
 static Texture2D spritesAndando[4][3] = {0};
@@ -10,23 +11,24 @@ static Texture2D spritesMorrendo[4][2] = {0};
 #define LARGURA_MAXIMA_SPRITE_MORTE 42.0f
 #define ALTURA_MAXIMA_SPRITE_MORTE 24.0f
 
+static const char *nomesDirecao[] = {"frente", "direita", "esquerda", "costas"};
+
 static Texture2D CarregarTexturaSprite(const char *caminho)
 {
-    Texture2D textura = {0};
-    Image imagem = LoadImage(caminho);
-
-    if (imagem.data == 0) {
-        return textura;
-    }
-
-    textura = LoadTextureFromImage(imagem);
-    UnloadImage(imagem);
+    Texture2D textura = LoadTexture(caminho);
 
     if (textura.id != 0) {
         SetTextureFilter(textura, TEXTURE_FILTER_POINT);
     }
 
     return textura;
+}
+
+static void CarregarSprite(Texture2D *sprite, const char *modelo, const char *direcao, int frame)
+{
+    char caminho[100];
+    snprintf(caminho, sizeof(caminho), modelo, direcao, frame);
+    *sprite = CarregarTexturaSprite(caminho);
 }
 
 static void DescarregarSeCarregada(Texture2D *textura)
@@ -62,47 +64,31 @@ static Texture2D *ObterSpriteAtual(Jogador jogador, bool derrotado)
 
 void InicializarSpritesJogador(void)
 {
-    spritesIdle[DIRECAO_FRENTE] = CarregarTexturaSprite("assets/personagem/idle_frente.png");
-    spritesIdle[DIRECAO_DIREITA] = CarregarTexturaSprite("assets/personagem/idle_direita.png");
-    spritesIdle[DIRECAO_ESQUERDA] = CarregarTexturaSprite("assets/personagem/idle_esquerda.png");
-    spritesIdle[DIRECAO_COSTAS] = CarregarTexturaSprite("assets/personagem/idle_costas.png");
+    for (int direcao = 0; direcao < 4; direcao++) {
+        CarregarSprite(&spritesIdle[direcao], "assets/personagem/idle_%s.png", nomesDirecao[direcao], 0);
 
-    spritesAndando[DIRECAO_FRENTE][0] = CarregarTexturaSprite("assets/personagem/andando_frente_1.png");
-    spritesAndando[DIRECAO_FRENTE][1] = CarregarTexturaSprite("assets/personagem/andando_frente_2.png");
-    spritesAndando[DIRECAO_FRENTE][2] = CarregarTexturaSprite("assets/personagem/andando_frente_3.png");
-    spritesAndando[DIRECAO_DIREITA][0] = CarregarTexturaSprite("assets/personagem/andando_direita_1.png");
-    spritesAndando[DIRECAO_DIREITA][1] = CarregarTexturaSprite("assets/personagem/andando_direita_2.png");
-    spritesAndando[DIRECAO_DIREITA][2] = CarregarTexturaSprite("assets/personagem/andando_direita_3.png");
-    spritesAndando[DIRECAO_ESQUERDA][0] = CarregarTexturaSprite("assets/personagem/andando_esquerda_1.png");
-    spritesAndando[DIRECAO_ESQUERDA][1] = CarregarTexturaSprite("assets/personagem/andando_esquerda_2.png");
-    spritesAndando[DIRECAO_ESQUERDA][2] = CarregarTexturaSprite("assets/personagem/andando_esquerda_3.png");
-    spritesAndando[DIRECAO_COSTAS][0] = CarregarTexturaSprite("assets/personagem/andando_costas_1.png");
-    spritesAndando[DIRECAO_COSTAS][1] = CarregarTexturaSprite("assets/personagem/andando_costas_2.png");
-    spritesAndando[DIRECAO_COSTAS][2] = CarregarTexturaSprite("assets/personagem/andando_costas_3.png");
+        for (int frame = 0; frame < 3; frame++) {
+            CarregarSprite(&spritesAndando[direcao][frame], "assets/personagem/andando_%s_%d.png",
+                           nomesDirecao[direcao], frame + 1);
+        }
 
-    spritesMorrendo[DIRECAO_FRENTE][0] = CarregarTexturaSprite("assets/personagem/morrendo_frente_1.png");
-    spritesMorrendo[DIRECAO_FRENTE][1] = CarregarTexturaSprite("assets/personagem/morrendo_frente_2.png");
-    spritesMorrendo[DIRECAO_DIREITA][0] = CarregarTexturaSprite("assets/personagem/morrendo_direita_1.png");
-    spritesMorrendo[DIRECAO_DIREITA][1] = CarregarTexturaSprite("assets/personagem/morrendo_direita_2.png");
-    spritesMorrendo[DIRECAO_ESQUERDA][0] = CarregarTexturaSprite("assets/personagem/morrendo_esquerda_1.png");
-    spritesMorrendo[DIRECAO_ESQUERDA][1] = CarregarTexturaSprite("assets/personagem/morrendo_esquerda_2.png");
-    spritesMorrendo[DIRECAO_COSTAS][0] = CarregarTexturaSprite("assets/personagem/morrendo_costas_1.png");
-    spritesMorrendo[DIRECAO_COSTAS][1] = CarregarTexturaSprite("assets/personagem/morrendo_costas_2.png");
+        for (int frame = 0; frame < 2; frame++) {
+            CarregarSprite(&spritesMorrendo[direcao][frame], "assets/personagem/morrendo_%s_%d.png",
+                           nomesDirecao[direcao], frame + 1);
+        }
+    }
 }
 
 void FinalizarSpritesJogador(void)
 {
-    int direcao;
-    int frame;
-
-    for (direcao = 0; direcao < 4; direcao++) {
+    for (int direcao = 0; direcao < 4; direcao++) {
         DescarregarSeCarregada(&spritesIdle[direcao]);
 
-        for (frame = 0; frame < 3; frame++) {
+        for (int frame = 0; frame < 3; frame++) {
             DescarregarSeCarregada(&spritesAndando[direcao][frame]);
         }
 
-        for (frame = 0; frame < 2; frame++) {
+        for (int frame = 0; frame < 2; frame++) {
             DescarregarSeCarregada(&spritesMorrendo[direcao][frame]);
         }
     }
@@ -120,30 +106,24 @@ void IniciarJogador(Jogador *jogador)
     jogador->tempoInicioMorte = -10.0;
 }
 
+static bool TentarMover(Jogador *jogador, int tecla1, int tecla2, int linha, int coluna, DirecaoJogador direcao)
+{
+    if (!IsKeyPressed(tecla1) && !IsKeyPressed(tecla2)) {
+        return false;
+    }
+
+    jogador->linha += linha;
+    jogador->coluna += coluna;
+    jogador->direcao = direcao;
+    return true;
+}
+
 void AtualizarJogador(Jogador *jogador)
 {
-    bool moveu = false;
-
-    if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
-        jogador->linha--;
-        jogador->direcao = DIRECAO_COSTAS;
-        moveu = true;
-    }
-    if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
-        jogador->linha++;
-        jogador->direcao = DIRECAO_FRENTE;
-        moveu = true;
-    }
-    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
-        jogador->coluna--;
-        jogador->direcao = DIRECAO_ESQUERDA;
-        moveu = true;
-    }
-    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
-        jogador->coluna++;
-        jogador->direcao = DIRECAO_DIREITA;
-        moveu = true;
-    }
+    bool moveu = TentarMover(jogador, KEY_W, KEY_UP, -1, 0, DIRECAO_COSTAS);
+    moveu = TentarMover(jogador, KEY_S, KEY_DOWN, 1, 0, DIRECAO_FRENTE) || moveu;
+    moveu = TentarMover(jogador, KEY_A, KEY_LEFT, 0, -1, DIRECAO_ESQUERDA) || moveu;
+    moveu = TentarMover(jogador, KEY_D, KEY_RIGHT, 0, 1, DIRECAO_DIREITA) || moveu;
 
     if (moveu) {
         jogador->tempoUltimoMovimento = GetTime();
@@ -151,10 +131,10 @@ void AtualizarJogador(Jogador *jogador)
 
     if (moveu) {
         /* Nao deixa o jogador sair dos limites do mapa. */
-        if (jogador->linha < 0) jogador->linha = 0;
-        if (jogador->linha > TOTAL_LINHAS - 1) jogador->linha = TOTAL_LINHAS - 1;
-        if (jogador->coluna < 0) jogador->coluna = 0;
-        if (jogador->coluna > TOTAL_COLUNAS - 1) jogador->coluna = TOTAL_COLUNAS - 1;
+        jogador->linha = jogador->linha < 0 ? 0 : jogador->linha;
+        jogador->linha = jogador->linha > TOTAL_LINHAS - 1 ? TOTAL_LINHAS - 1 : jogador->linha;
+        jogador->coluna = jogador->coluna < 0 ? 0 : jogador->coluna;
+        jogador->coluna = jogador->coluna > TOTAL_COLUNAS - 1 ? TOTAL_COLUNAS - 1 : jogador->coluna;
 
         jogador->corpo.x = jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR;
         jogador->corpo.y = jogador->linha * TAM_BLOCO + MARGEM_JOGADOR;

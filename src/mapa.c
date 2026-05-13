@@ -2,6 +2,8 @@
 #include "config.h"
 #include "mapa.h"
 
+#define QUANTIDADE(lista) ((int)(sizeof(lista) / sizeof((lista)[0])))
+
 static Texture2D texturaPista = {0};
 static Texture2D texturaCalcadaCanaleta = {0};
 static Texture2D texturaCalcadaSimples = {0};
@@ -26,15 +28,32 @@ static void DescarregarTexturaMapa(Texture2D *textura)
     }
 }
 
+static void CarregarTexturas(Texture2D *texturas, const char **caminhos, int total)
+{
+    for (int i = 0; i < total; i++) {
+        texturas[i] = CarregarTexturaMapa(caminhos[i]);
+    }
+}
+
+static void DescarregarTexturas(Texture2D *texturas, int total)
+{
+    for (int i = 0; i < total; i++) {
+        DescarregarTexturaMapa(&texturas[i]);
+    }
+}
+
 void InicializarMapa(void)
 {
+    const char *aguas[] = {
+        "assets/itens/agua1.png",
+        "assets/itens/agua2.png",
+        "assets/itens/agua3.png"
+    };
+
     texturaPista = CarregarTexturaMapa("assets/cenario/pista.png");
     texturaCalcadaCanaleta = CarregarTexturaMapa("assets/cenario/calcada_canaleta.png");
     texturaCalcadaSimples = CarregarTexturaMapa("assets/cenario/calcada_simples.png");
-    spritesAlagamento[0] = CarregarTexturaMapa("assets/itens/agua1.png");
-    spritesAlagamento[1] = CarregarTexturaMapa("assets/itens/agua2.png");
-    spritesAlagamento[2] = CarregarTexturaMapa("assets/itens/agua3.png");
-
+    CarregarTexturas(spritesAlagamento, aguas, QUANTIDADE(spritesAlagamento));
 }
 
 void FinalizarMapa(void)
@@ -42,33 +61,24 @@ void FinalizarMapa(void)
     DescarregarTexturaMapa(&texturaPista);
     DescarregarTexturaMapa(&texturaCalcadaCanaleta);
     DescarregarTexturaMapa(&texturaCalcadaSimples);
+    DescarregarTexturas(spritesAlagamento, QUANTIDADE(spritesAlagamento));
+}
 
-    for (int i = 0; i < 3; i++) {
-        DescarregarTexturaMapa(&spritesAlagamento[i]);
+static void DesenharFaixa(Texture2D textura, Rectangle origem, int linha)
+{
+    if (textura.id == 0) {
+        return;
     }
 
+    DrawTexturePro(textura, origem, (Rectangle){0, linha * TAM_BLOCO, LARGURA_TELA, TAM_BLOCO},
+                   (Vector2){0, 0}, 0, WHITE);
 }
 
 static void DesenharPista(int linha)
 {
-    if (texturaPista.id != 0) {
-        /* Pego so a parte da imagem que parece pista. */
-        Rectangle origem = {
-            0,
-            texturaPista.height * 0.36f,
-            texturaPista.width,
-            texturaPista.height * 0.31f
-        };
-        Rectangle destino = {
-            0,
-            linha * TAM_BLOCO,
-            LARGURA_TELA,
-            TAM_BLOCO
-        };
-
-        DrawTexturePro(texturaPista, origem, destino, (Vector2){0, 0}, 0, WHITE);
-        return;
-    }
+    /* Pego so a parte da imagem que parece pista. */
+    Rectangle origem = {0, texturaPista.height * 0.36f, texturaPista.width, texturaPista.height * 0.31f};
+    DesenharFaixa(texturaPista, origem, linha);
 }
 
 static void DesenharAlagamento(int linha)
@@ -76,7 +86,7 @@ static void DesenharAlagamento(int linha)
     int y = linha * TAM_BLOCO;
     float tempo = (float)GetTime();
     /* Vai trocando entre os pngs bons para a agua parecer animada. */
-    Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % 3];
+    Texture2D sprite = spritesAlagamento[((int)(tempo * 6.0f) + linha) % QUANTIDADE(spritesAlagamento)];
 
     if (sprite.id != 0) {
         Rectangle origem = {0, 0, (float)sprite.width, (float)sprite.height};
@@ -102,24 +112,9 @@ static bool LinhaEhCalcadaIsolada(int linha)
 static void DesenharCalcada(int linha)
 {
     Texture2D textura = LinhaEhCalcadaIsolada(linha) ? texturaCalcadaCanaleta : texturaCalcadaSimples;
+    Rectangle origem = {0, 0, textura.width, textura.height};
 
-    if (textura.id != 0) {
-        Rectangle origem = {
-            0,
-            0,
-            textura.width,
-            textura.height
-        };
-        Rectangle destino = {
-            0,
-            linha * TAM_BLOCO,
-            LARGURA_TELA,
-            TAM_BLOCO
-        };
-
-        DrawTexturePro(textura, origem, destino, (Vector2){0, 0}, 0, WHITE);
-        return;
-    }
+    DesenharFaixa(textura, origem, linha);
 }
 
 void DesenharMapa(void)
@@ -143,31 +138,30 @@ bool LinhaEhRua(int linha)
 {
     /* A parte nova do mapa usa linhas antigas deslocadas pela fase 3. */
     int linhaAntiga = linha - LINHAS_FASE_3;
+    int ruasPrimeiraParte[] = {2, 3, 5, 6, 8, 9, 11, 12};
+    int ruasParteNova[] = {
+        2, 3, 5, 6, 8, 9, 11, 12,
+        14, 15, 17, 18, 20, 21, 24, 25,
+        27, 28, 30, 31, 34, 35, 37, 38, 40, 41
+    };
 
     if (LinhaEhAlagamento(linha)) {
         return false;
     }
 
-    if (linha == 2 || linha == 3 ||
-        linha == 5 || linha == 6 ||
-        linha == 8 || linha == 9 ||
-        linha == 11 || linha == 12) {
-        return true;
+    for (int i = 0; i < QUANTIDADE(ruasPrimeiraParte); i++) {
+        if (linha == ruasPrimeiraParte[i]) {
+            return true;
+        }
     }
 
-    return linhaAntiga == 2 || linhaAntiga == 3 ||
-           linhaAntiga == 5 || linhaAntiga == 6 ||
-           linhaAntiga == 8 || linhaAntiga == 9 ||
-           linhaAntiga == 11 || linhaAntiga == 12 ||
-           linhaAntiga == 14 || linhaAntiga == 15 ||
-           linhaAntiga == 17 || linhaAntiga == 18 ||
-           linhaAntiga == 20 || linhaAntiga == 21 ||
-           linhaAntiga == 24 || linhaAntiga == 25 ||
-           linhaAntiga == 27 || linhaAntiga == 28 ||
-           linhaAntiga == 30 || linhaAntiga == 31 ||
-           linhaAntiga == 34 || linhaAntiga == 35 ||
-           linhaAntiga == 37 || linhaAntiga == 38 ||
-           linhaAntiga == 40 || linhaAntiga == 41;
+    for (int i = 0; i < QUANTIDADE(ruasParteNova); i++) {
+        if (linhaAntiga == ruasParteNova[i]) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool LinhaEhAlagamento(int linha)
