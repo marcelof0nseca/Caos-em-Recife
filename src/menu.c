@@ -13,7 +13,12 @@ static void Texto(const char *texto, int x, int y, int tamanho, Color cor)
 static void Fundo(Texture2D fundo)
 {
     if (fundo.id != 0) {
-        DrawTexturePro(fundo, (Rectangle){0, 0, (float)fundo.width, (float)fundo.height}, (Rectangle){0, 0, LARGURA_TELA, ALTURA_TELA}, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(fundo,
+                       (Rectangle){0, 0, (float)fundo.width, (float)fundo.height},
+                       (Rectangle){0, 0, LARGURA_TELA, ALTURA_TELA},
+                       (Vector2){0, 0},
+                       0.0f,
+                       WHITE);
     }
 }
 
@@ -62,7 +67,20 @@ void DesenharTelaJogabilidade(void)
     Texto("ESC volta ao menu principal", 120, 360, 22, YELLOW);
 }
 
-void InicializarFundosMenu(void) { fundoMenu = LoadTexture("assets/cenario/imagem de fundo menup.png"); fundoPadrao = LoadTexture("assets/cenario/imagem fundo sem titulo.png"); }
+void InicializarFundosMenu(void)
+{
+    fundoMenu = LoadTexture("assets/cenario/imagem de fundo menup.png");
+    fundoPadrao = LoadTexture("assets/cenario/imagem fundo sem titulo.png");
+}
 
-void FinalizarFundosMenu(void) { if (fundoMenu.id != 0) { UnloadTexture(fundoMenu); } if (fundoPadrao.id != 0) { UnloadTexture(fundoPadrao); } }
+void FinalizarFundosMenu(void)
+{
+    if (fundoMenu.id != 0) {
+        UnloadTexture(fundoMenu);
+    }
+
+    if (fundoPadrao.id != 0) {
+        UnloadTexture(fundoPadrao);
+    }
+}
 

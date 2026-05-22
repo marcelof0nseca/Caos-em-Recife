@@ -13,6 +13,14 @@ static Texture2D spritesMorrendo[4][2] = {0};
 
 static const char *nomesDirecao[] = {"frente", "direita", "esquerda", "costas"};
 
+typedef struct {
+    int tecla1;
+    int tecla2;
+    int linha;
+    int coluna;
+    DirecaoJogador direcao;
+} ComandoMovimento;
+
 static Texture2D CarregarTexturaSprite(const char *caminho)
 {
     Texture2D textura = LoadTexture(caminho);
@@ -98,7 +106,12 @@ void IniciarJogador(Jogador *jogador)
 {
     jogador->linha = LINHA_INICIAL_JOGADOR;
     jogador->coluna = COLUNA_INICIAL_JOGADOR;
-    jogador->corpo = (Rectangle){jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR, jogador->linha * TAM_BLOCO + MARGEM_JOGADOR, LARGURA_JOGADOR, ALTURA_JOGADOR};
+    jogador->corpo = (Rectangle){
+        jogador->coluna * TAM_BLOCO + MARGEM_JOGADOR,
+        jogador->linha * TAM_BLOCO + MARGEM_JOGADOR,
+        LARGURA_JOGADOR,
+        ALTURA_JOGADOR
+    };
     jogador->score = 0;
     jogador->melhorLinha = jogador->linha;
     jogador->direcao = DIRECAO_FRENTE;
@@ -120,10 +133,20 @@ static bool TentarMover(Jogador *jogador, int tecla1, int tecla2, int linha, int
 
 void AtualizarJogador(Jogador *jogador)
 {
-    bool moveu = TentarMover(jogador, KEY_W, KEY_UP, -1, 0, DIRECAO_COSTAS);
-    moveu = TentarMover(jogador, KEY_S, KEY_DOWN, 1, 0, DIRECAO_FRENTE) || moveu;
-    moveu = TentarMover(jogador, KEY_A, KEY_LEFT, 0, -1, DIRECAO_ESQUERDA) || moveu;
-    moveu = TentarMover(jogador, KEY_D, KEY_RIGHT, 0, 1, DIRECAO_DIREITA) || moveu;
+    /* Vetor de comandos: deixa o movimento facil de alterar. */
+    ComandoMovimento comandos[] = {
+        {KEY_W, KEY_UP, -1, 0, DIRECAO_COSTAS},
+        {KEY_S, KEY_DOWN, 1, 0, DIRECAO_FRENTE},
+        {KEY_A, KEY_LEFT, 0, -1, DIRECAO_ESQUERDA},
+        {KEY_D, KEY_RIGHT, 0, 1, DIRECAO_DIREITA}
+    };
+    bool moveu = false;
+
+    for (int i = 0; i < 4; i++) {
+        moveu = TentarMover(jogador, comandos[i].tecla1, comandos[i].tecla2,
+                            comandos[i].linha, comandos[i].coluna,
+                            comandos[i].direcao) || moveu;
+    }
 
     if (moveu) {
         jogador->tempoUltimoMovimento = GetTime();
@@ -144,7 +167,6 @@ void AtualizarJogador(Jogador *jogador)
         jogador->melhorLinha = jogador->linha;
         jogador->score = (TOTAL_LINHAS - 1) - jogador->melhorLinha;
     }
-
 }
 
 void DesenharJogador(Jogador jogador, bool derrotado)

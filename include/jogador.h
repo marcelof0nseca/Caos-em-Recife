@@ -11,6 +11,7 @@ typedef enum {
     DIRECAO_COSTAS
 } DirecaoJogador;
 
+/* Struct com os dados do jogador. */
 typedef struct {
     Rectangle corpo;
     int linha;
