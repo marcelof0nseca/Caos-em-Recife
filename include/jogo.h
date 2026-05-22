@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include "jogador.h"
 #include "obstaculo.h"
-#include "score.h"
 
 /* Struct principal: guarda tudo que muda durante a partida. */
 typedef struct {
@@ -16,7 +15,6 @@ typedef struct {
     bool venceu;
     bool pausado;
     int recorde;
-    int topScores[TOTAL_RECORDES];
 } Jogo;
 
 void IniciarJogo(Jogo *jogo);
