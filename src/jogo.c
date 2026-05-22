@@ -58,6 +58,7 @@ static void AtualizarRecorde(Jogo *jogo)
     if (jogo->jogador.score > jogo->recorde) {
         jogo->recorde = jogo->jogador.score;
         SalvarRecorde(jogo->recorde);
+        CarregarTopScores(jogo->topScores, TOTAL_RECORDES);
     }
 }
 
@@ -280,6 +281,7 @@ void IniciarJogo(Jogo *jogo)
     jogo->venceu = false;
     jogo->pausado = false;
     jogo->recorde = CarregarRecorde();
+    CarregarTopScores(jogo->topScores, TOTAL_RECORDES);
 }
 
 void AtualizarJogo(Jogo *jogo)
@@ -379,13 +381,19 @@ void DesenharGameOver(Jogo *jogo)
     int caixaX = 170;
     int caixaY = 190;
     int caixaLargura = 460;
-    int caixaAltura = 250;
+    int caixaAltura = 310;
 
     DrawRectangle(0, 0, LARGURA_TELA, ALTURA_TELA, Fade(BLACK, 0.55f));
     DrawRectangle(caixaX, caixaY, caixaLargura, caixaAltura, Fade(RAYWHITE, 0.92f));
     DrawRectangleLines(caixaX, caixaY, caixaLargura, caixaAltura, Fade(DARKBLUE, 0.85f));
     DesenharTextoHUD(titulo, caixaX + (caixaLargura - tituloLargura) / 2, 220, tituloTamanho, jogo->venceu ? GOLD : RED);
     DesenharTextoHUD(TextFormat("Score da partida: %d", jogo->jogador.score), 240, 280, 24, DARKBLUE);
-    DesenharTextoHUD("Deseja jogar novamente?", 230, 365, 24, DARKBLUE);
-    DesenharTextoHUD("Pressione R para sim", 250, 400, 22, DARKGRAY);
+    DesenharTextoHUD("Top scores:", 240, 318, 20, DARKBLUE);
+
+    for (int i = 0; i < TOTAL_RECORDES; i++) {
+        DesenharTextoHUD(TextFormat("%d. %d", i + 1, jogo->topScores[i]), 390, 318 + i * 22, 20, DARKGRAY);
+    }
+
+    DesenharTextoHUD("Deseja jogar novamente?", 230, 435, 24, DARKBLUE);
+    DesenharTextoHUD("Pressione R para sim", 250, 470, 22, DARKGRAY);
 }
