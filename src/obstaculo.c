@@ -3,513 +3,360 @@
 #include "mapa.h"
 #include <stdio.h>
 
-#define QUANTIDADE(lista) ((int)(sizeof(lista) / sizeof((lista)[0])))
-
-static Texture2D texturaCoqueiro = {0};
-static Texture2D texturaGuardaSol = {0};
-static Texture2D texturaGuardaChuvaFrevo = {0};
-static Texture2D texturaPoste = {0};
-static Texture2D spritesCachorroDireita[4] = {0};
-static Texture2D spritesCachorroEsquerda[4] = {0};
-static Texture2D spriteCachorroMordendoDireita = {0};
-static Texture2D spriteCachorroMordendoEsquerda = {0};
-static Texture2D spritesBuraco[4] = {0};
-static Texture2D spritesLixoGrande[6] = {0};
-static int proximaVarianteLixoGrande = 0;
+#define QTD(v) ((int)(sizeof(v) / sizeof((v)[0])))
+#define ESQ 0
+#define DIR 1
 
 typedef struct {
-    Texture2D esquerda;
-    Texture2D direita;
+    Texture2D lado[2];
 } SpriteVeiculo;
 
-static SpriteVeiculo spritesCarro[5] = {0};
-static SpriteVeiculo spritesOnibus[4] = {0};
-static SpriteVeiculo spritesMoto[2] = {0};
+typedef struct {
+    float dx;
+    float dy;
+    float largura;
+    float altura;
+    float velocidade;
+} ConfigObstaculo;
 
-static Texture2D CarregarTextura(const char *caminho, int filtro)
+static Texture2D decoracao[4];
+static Texture2D cachorro[2][4]; /* matriz: lado e frame da animacao */
+static Texture2D cachorroMordendo[2];
+static Texture2D buraco[4];
+static Texture2D lixoGrande[6];
+static SpriteVeiculo carros[5];
+static SpriteVeiculo onibus[4];
+static SpriteVeiculo motos[2];
+static int proximoLixo = 0;
+/* Matriz/tabela principal: cada linha descreve um tipo de obstaculo. */
+static const ConfigObstaculo config[] = {
+    [TIPO_CARRO] = {0, 0, LARGURA_CARRO, ALTURA_CARRO, 0},
+
+    [TIPO_ONIBUS] = {0, 0, 110, ALTURA_CARRO, VELOCIDADE_CARRO * 0.65f},
+    [TIPO_MOTO] = {0, 5, 45, 22, VELOCIDADE_CARRO * 1.35f},
+    [TIPO_BURACO] = {0, 0, TAM_BLOCO, TAM_BLOCO, 0},
+    [TIPO_ARVORE] = {5, 4, 30, 32, 0},
+    [TIPO_GUARDA_SOL] = {7, 10, 26, 24, 0},
+    [TIPO_GUARDA_CHUVA_FREVO] = {7, 9, 26, 25, 0},
+    [TIPO_CACHORRO] = {0, 2, LARGURA_CACHORRO, ALTURA_CACHORRO, VELOCIDADE_CACHORRO},
+    [TIPO_POSTE] = {15, 6, 10, 30, 0},
+    [TIPO_LIXO_GRANDE] = {2, 6, 76, 28, 0},
+};
+static Texture2D Carregar(const char *caminho, int filtro)
 {
-    Texture2D textura = {0};
-    textura = LoadTexture(caminho);
+    Texture2D t = LoadTexture(caminho);
 
-    if (textura.id != 0) {
-        SetTextureFilter(textura, filtro);
+    if (t.id != 0) {
+        SetTextureFilter(t, filtro);
     }
 
-    return textura;
+    return t;
 }
 
-static Texture2D CarregarTexturaFormatada(const char *modelo, const char *texto, int numero, int filtro)
+static void Descarregar(Texture2D *t)
+{
+    if (t->id != 0) {
+        UnloadTexture(*t);
+        *t = (Texture2D){0};
+    }
+}
+
+static void CarregarNumeradas(Texture2D v[], int total, const char *modelo)
 {
     char caminho[128];
-
-    if (texto != NULL) {
-        snprintf(caminho, sizeof(caminho), modelo, texto);
-    } else {
-        snprintf(caminho, sizeof(caminho), modelo, numero);
+    for (int i = 0; i < total; i++) {
+        snprintf(caminho, sizeof(caminho), modelo, i + 1);
+        v[i] = Carregar(caminho, TEXTURE_FILTER_POINT);
     }
-
-    return CarregarTextura(caminho, filtro);
 }
-
-static SpriteVeiculo CarregarSpriteVeiculo(const char *pasta, const char *tipo, const char *nome)
+static void CarregarNomeadas(Texture2D v[], int total, const char *modelo, const char *nomes[])
 {
-    SpriteVeiculo sprite = {0};
-    char esquerda[128];
-    char direita[128];
-
-    snprintf(esquerda, sizeof(esquerda), "%s/%s_%s_esquerda.png", pasta, tipo, nome);
-    snprintf(direita, sizeof(direita), "%s/%s_%s_direita.png", pasta, tipo, nome);
-    sprite.esquerda = CarregarTextura(esquerda, TEXTURE_FILTER_BILINEAR);
-    sprite.direita = CarregarTextura(direita, TEXTURE_FILTER_BILINEAR);
-    return sprite;
-}
-
-static void DescarregarSpriteVeiculo(SpriteVeiculo *sprite)
-{
-    if (sprite->esquerda.id != 0) {
-        UnloadTexture(sprite->esquerda);
-        sprite->esquerda = (Texture2D){0};
-    }
-
-    if (sprite->direita.id != 0) {
-        UnloadTexture(sprite->direita);
-        sprite->direita = (Texture2D){0};
+    char caminho[128];
+    for (int i = 0; i < total; i++) {
+        snprintf(caminho, sizeof(caminho), modelo, nomes[i]);
+        v[i] = Carregar(caminho, TEXTURE_FILTER_POINT);
     }
 }
-
-static void DescarregarTextura(Texture2D *textura)
-{
-    if (textura->id != 0) {
-        UnloadTexture(*textura);
-        *textura = (Texture2D){0};
-    }
-}
-
-static void CarregarTexturasPorNumero(Texture2D *texturas, const char *modelo, int total)
+static void DescarregarVetor(Texture2D v[], int total)
 {
     for (int i = 0; i < total; i++) {
-        texturas[i] = CarregarTexturaFormatada(modelo, NULL, i + 1, TEXTURE_FILTER_POINT);
+        Descarregar(&v[i]);
     }
 }
 
-static void CarregarTexturasPorNome(Texture2D *texturas, const char *modelo, const char **nomes, int total)
+static void CarregarVeiculos(SpriteVeiculo v[], int total, const char *pasta, const char *tipo, const char *nomes[])
+{
+    char caminho[128];
+    for (int i = 0; i < total; i++) {
+        snprintf(caminho, sizeof(caminho), "%s/%s_%s_esquerda.png", pasta, tipo, nomes[i]);
+        v[i].lado[ESQ] = Carregar(caminho, TEXTURE_FILTER_BILINEAR);
+        snprintf(caminho, sizeof(caminho), "%s/%s_%s_direita.png", pasta, tipo, nomes[i]);
+        v[i].lado[DIR] = Carregar(caminho, TEXTURE_FILTER_BILINEAR);
+    }
+}
+static void DescarregarVeiculos(SpriteVeiculo v[], int total)
 {
     for (int i = 0; i < total; i++) {
-        texturas[i] = CarregarTexturaFormatada(modelo, nomes[i], 0, TEXTURE_FILTER_POINT);
+        Descarregar(&v[i].lado[ESQ]);
+        Descarregar(&v[i].lado[DIR]);
     }
 }
-
-static void DescarregarTexturas(Texture2D *texturas, int total)
+static Texture2D TexturaVeiculo(SpriteVeiculo s, int direcao)
 {
-    for (int i = 0; i < total; i++) {
-        DescarregarTextura(&texturas[i]);
-    }
+    return s.lado[direcao == -1 ? ESQ : DIR];
 }
+static int SortearVeiculo(SpriteVeiculo v[], int total)
+{
+    int sorteado = GetRandomValue(0, total - 1);
 
+    for (int i = 0; i < total; i++) {
+        int indice = (sorteado + i) % total;
+        if (v[indice].lado[ESQ].id != 0 || v[indice].lado[DIR].id != 0) {
+            return indice;
+        }
+    }
+
+    return sorteado;
+}
 void ResetarVarianteLixoGrande(void)
 {
-    proximaVarianteLixoGrande = 0;
+    proximoLixo = 0;
 }
-
-static void CarregarSpritesVeiculo(SpriteVeiculo *sprites, const char *pasta, const char *tipo, const char **nomes, int total)
+void InicializarTexturasObstaculo(void)
 {
-    for (int i = 0; i < total; i++) {
-        sprites[i] = CarregarSpriteVeiculo(pasta, tipo, nomes[i]);
-    }
+    const char *nomesCarros[] = {"taxi", "rocam", "pm", "cttu", "firma"};
+    const char *nomesOnibus[] = {"borborema", "sport", "nautico", "santa_cruz"};
+    const char *nomesMotos[] = {"ifood", "dupla"};
+    const char *nomesLixo[] = {"madeira", "caixa", "sofa", "concreto", "cacamba", "barril"};
+    decoracao[0] = Carregar("assets/cenario/coqueiro.png", TEXTURE_FILTER_POINT);
+    decoracao[1] = Carregar("assets/cenario/guarda_sol.png", TEXTURE_FILTER_POINT);
+    decoracao[2] = Carregar("assets/cenario/guarda_chuva_frevo.png", TEXTURE_FILTER_POINT);
+    decoracao[3] = Carregar("assets/cenario/poste.png", TEXTURE_FILTER_POINT);
+    CarregarVeiculos(carros, QTD(carros), "assets/veiculos/carros", "carro", nomesCarros);
+    CarregarVeiculos(onibus, QTD(onibus), "assets/veiculos/onibus", "onibus", nomesOnibus);
+    CarregarVeiculos(motos, QTD(motos), "assets/veiculos/motos", "moto", nomesMotos);
+    CarregarNumeradas(cachorro[DIR], QTD(cachorro[DIR]), "assets/cachorro/cachorro_correndo_direita_%d.png");
+    CarregarNumeradas(cachorro[ESQ], QTD(cachorro[ESQ]), "assets/cachorro/cachorro_correndo_esquerda_%d.png");
+    CarregarNumeradas(buraco, QTD(buraco), "assets/itens/buraco_%d.png");
+    CarregarNomeadas(lixoGrande, QTD(lixoGrande), "assets/itens/plataforma_%s.png", nomesLixo);
+    cachorroMordendo[DIR] = Carregar("assets/cachorro/cachorro_mordendo_direita.png", TEXTURE_FILTER_POINT);
+    cachorroMordendo[ESQ] = Carregar("assets/cachorro/cachorro_mordendo_esquerda.png", TEXTURE_FILTER_POINT);
 }
-
-static void DescarregarSpritesVeiculo(SpriteVeiculo *sprites, int total)
+void FinalizarTexturasObstaculo(void)
 {
-    for (int i = 0; i < total; i++) {
-        DescarregarSpriteVeiculo(&sprites[i]);
-    }
+    DescarregarVetor(decoracao, QTD(decoracao));
+    DescarregarVeiculos(carros, QTD(carros));
+    DescarregarVeiculos(onibus, QTD(onibus));
+    DescarregarVeiculos(motos, QTD(motos));
+    DescarregarVetor(cachorro[DIR], QTD(cachorro[DIR]));
+    DescarregarVetor(cachorro[ESQ], QTD(cachorro[ESQ]));
+    DescarregarVetor(cachorroMordendo, QTD(cachorroMordendo));
+    DescarregarVetor(buraco, QTD(buraco));
+    DescarregarVetor(lixoGrande, QTD(lixoGrande));
 }
-
-static Texture2D ObterTexturaVeiculo(SpriteVeiculo sprite, int direcao)
+static Rectangle Retangulo(float x, float y, ConfigObstaculo c)
 {
-    /* Cada veiculo tem uma imagem para esquerda e outra para direita. */
-    return direcao == -1 ? sprite.esquerda : sprite.direita;
+    return (Rectangle){x + c.dx, y + c.dy, c.largura, c.altura};
 }
-
-static void DesenharSprite(Texture2D sprite, Rectangle destino)
+static Rectangle RetanguloBuraco(float x, float y, int variante)
 {
-    /* Sem desenho manual: se o png nao carregou, nao desenha nada. */
-    if (sprite.id == 0) {
-        return;
-    }
+    static const float tamanho[4][2] = {{34, 26}, {42, 31}, {50, 37}, {62, 42}};
+    float largura = tamanho[variante][0];
+    float altura = tamanho[variante][1];
 
-    DrawTexturePro(sprite, (Rectangle){0, 0, (float)sprite.width, (float)sprite.height},
-                   destino, (Vector2){0, 0}, 0.0f, WHITE);
-}
-
-static Rectangle RetanguloAjustado(Rectangle base, float x, float y, float largura, float altura)
-{
-    return (Rectangle){base.x + x, base.y + y, base.width + largura, base.height + altura};
-}
-
-static Rectangle RetanguloCentralizado(Rectangle base, float largura, float altura, float y)
-{
     return (Rectangle){
-        base.x + base.width * 0.5f - largura * 0.5f,
-        base.y + base.height - altura + y,
+        x + (TAM_BLOCO - largura) * 0.5f,
+        y + (TAM_BLOCO - altura) * 0.5f,
         largura,
         altura
     };
 }
-
-static bool ObstaculoEstaNoAlagamento(Obstaculo obstaculo)
+static int Variante(TipoObstaculo tipo, int base)
 {
-    int linha = (int)((obstaculo.corpo.y + obstaculo.corpo.height * 0.5f) / TAM_BLOCO);
-    return LinhaEhAlagamento(linha);
-}
-
-static int SortearVarianteVeiculo(SpriteVeiculo *sprites, int total)
-{
-    int varianteInicial = GetRandomValue(0, total - 1);
-
-    /* Tenta sortear um sprite carregado, para nao escolher imagem vazia. */
-    if (ObterTexturaVeiculo(sprites[varianteInicial], 1).id != 0 ||
-        ObterTexturaVeiculo(sprites[varianteInicial], -1).id != 0) {
-        return varianteInicial;
-    }
-
-    for (int variante = 0; variante < total; variante++) {
-        if (ObterTexturaVeiculo(sprites[variante], 1).id != 0 ||
-            ObterTexturaVeiculo(sprites[variante], -1).id != 0) {
-            return variante;
+    switch (tipo) {
+        case TIPO_CARRO:
+            return SortearVeiculo(carros, QTD(carros));
+        case TIPO_ONIBUS:
+            return SortearVeiculo(onibus, QTD(onibus));
+        case TIPO_MOTO:
+            return SortearVeiculo(motos, QTD(motos));
+        case TIPO_LIXO_GRANDE: {
+            int atual = proximoLixo;
+            proximoLixo = (proximoLixo + 1) % QTD(lixoGrande);
+            return atual;
         }
+        case TIPO_BURACO:
+            return base % QTD(buraco);
+        case TIPO_POSTE:
+            return base % 6;
+        default:
+            return 0;
     }
-
-    return varianteInicial;
 }
-
-void InicializarTexturasObstaculo(void)
-{
-    const char *carros[] = {"taxi", "rocam", "pm", "cttu", "firma"};
-    const char *onibus[] = {"borborema", "sport", "nautico", "santa_cruz"};
-    const char *motos[] = {"ifood", "dupla"};
-    const char *plataformas[] = {"madeira", "caixa", "sofa", "concreto", "cacamba", "barril"};
-
-    texturaCoqueiro = CarregarTextura("assets/cenario/coqueiro.png", TEXTURE_FILTER_POINT);
-    texturaGuardaSol = CarregarTextura("assets/cenario/guarda_sol.png", TEXTURE_FILTER_POINT);
-    texturaGuardaChuvaFrevo = CarregarTextura("assets/cenario/guarda_chuva_frevo.png", TEXTURE_FILTER_POINT);
-    texturaPoste = CarregarTextura("assets/cenario/poste.png", TEXTURE_FILTER_POINT);
-    CarregarSpritesVeiculo(spritesCarro, "assets/veiculos/carros", "carro", carros, QUANTIDADE(spritesCarro));
-    CarregarSpritesVeiculo(spritesOnibus, "assets/veiculos/onibus", "onibus", onibus, QUANTIDADE(spritesOnibus));
-    CarregarSpritesVeiculo(spritesMoto, "assets/veiculos/motos", "moto", motos, QUANTIDADE(spritesMoto));
-    CarregarTexturasPorNumero(spritesCachorroDireita, "assets/cachorro/cachorro_correndo_direita_%d.png", QUANTIDADE(spritesCachorroDireita));
-    CarregarTexturasPorNumero(spritesCachorroEsquerda, "assets/cachorro/cachorro_correndo_esquerda_%d.png", QUANTIDADE(spritesCachorroEsquerda));
-    CarregarTexturasPorNumero(spritesBuraco, "assets/itens/buraco_%d.png", QUANTIDADE(spritesBuraco));
-    CarregarTexturasPorNome(spritesLixoGrande, "assets/itens/plataforma_%s.png", plataformas, QUANTIDADE(spritesLixoGrande));
-    spriteCachorroMordendoDireita = CarregarTextura("assets/cachorro/cachorro_mordendo_direita.png", TEXTURE_FILTER_POINT);
-    spriteCachorroMordendoEsquerda = CarregarTextura("assets/cachorro/cachorro_mordendo_esquerda.png", TEXTURE_FILTER_POINT);
-}
-
-void FinalizarTexturasObstaculo(void)
-{
-    DescarregarTextura(&texturaCoqueiro);
-    DescarregarTextura(&texturaGuardaSol);
-    DescarregarTextura(&texturaGuardaChuvaFrevo);
-    DescarregarTextura(&texturaPoste);
-    DescarregarSpritesVeiculo(spritesCarro, QUANTIDADE(spritesCarro));
-    DescarregarSpritesVeiculo(spritesOnibus, QUANTIDADE(spritesOnibus));
-    DescarregarSpritesVeiculo(spritesMoto, QUANTIDADE(spritesMoto));
-    DescarregarTexturas(spritesCachorroDireita, QUANTIDADE(spritesCachorroDireita));
-    DescarregarTexturas(spritesCachorroEsquerda, QUANTIDADE(spritesCachorroEsquerda));
-    DescarregarTexturas(spritesBuraco, QUANTIDADE(spritesBuraco));
-    DescarregarTexturas(spritesLixoGrande, QUANTIDADE(spritesLixoGrande));
-    DescarregarTextura(&spriteCachorroMordendoDireita);
-    DescarregarTextura(&spriteCachorroMordendoEsquerda);
-}
-
-static void ConfigurarObstaculo(Obstaculo *obstaculo, TipoObstaculo tipo, Rectangle corpo,
-                                float velocidade, int direcao, int variante)
-{
-    obstaculo->tipo = tipo;
-    obstaculo->corpo = corpo;
-    obstaculo->velocidade = velocidade;
-    obstaculo->direcao = direcao;
-    obstaculo->mordendo = false;
-    obstaculo->variante = variante;
-    obstaculo->proximo = NULL;
-}
-
-static Rectangle CriarCorpoBuraco(float x, float y, int variante)
-{
-    /* O buraco muda um pouco de tamanho para nao ficar tudo igual. */
-    float larguras[] = {34, 42, 50, 62};
-    float alturas[] = {26, 31, 37, 42};
-
-    return (Rectangle){
-        x + (TAM_BLOCO - larguras[variante]) * 0.5f,
-        y + (TAM_BLOCO - alturas[variante]) * 0.5f,
-        larguras[variante],
-        alturas[variante]
-    };
-}
-
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
-    Obstaculo *novo = (Obstaculo *)malloc(sizeof(Obstaculo));
-    int variante = ((int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO));
+    Obstaculo *novo = malloc(sizeof(Obstaculo)); /* alocacao dinamica */
+    int base = (int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO);
+    ConfigObstaculo c = config[tipo];
 
     if (novo == NULL) {
         return NULL;
     }
 
-    switch (tipo) {
-        case TIPO_BURACO:
-            ConfigurarObstaculo(novo, tipo, CriarCorpoBuraco(x, y, variante % 4), 0, 0, variante % 4);
-            break;
-        case TIPO_ARVORE:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x + 5, y + 4, 30, 32}, 0, 0, 0);
-            break;
-        case TIPO_GUARDA_SOL:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x + 7, y + 10, 26, 24}, 0, 0, 0);
-            break;
-        case TIPO_GUARDA_CHUVA_FREVO:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x + 7, y + 9, 26, 25}, 0, 0, 0);
-            break;
-        case TIPO_MOTO:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x, y + 5, 45, 22}, VELOCIDADE_CARRO * 1.35f,
-                                direcao, SortearVarianteVeiculo(spritesMoto, QUANTIDADE(spritesMoto)));
-            break;
-        case TIPO_CACHORRO:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x, y + 2, LARGURA_CACHORRO, ALTURA_CACHORRO},
-                                VELOCIDADE_CACHORRO, direcao, 0);
-            break;
-        case TIPO_POSTE:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x + 15, y + 6, 10, 30}, 0, 0, variante % 6);
-            break;
-        case TIPO_LIXO_GRANDE:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x + 2, y + 6, 76, 28}, velocidade,
-                                direcao, proximaVarianteLixoGrande);
-            proximaVarianteLixoGrande = (proximaVarianteLixoGrande + 1) % QUANTIDADE(spritesLixoGrande);
-            break;
-        case TIPO_ONIBUS:
-            ConfigurarObstaculo(novo, tipo, (Rectangle){x, y, 110, ALTURA_CARRO}, VELOCIDADE_CARRO * 0.65f,
-                                direcao, SortearVarianteVeiculo(spritesOnibus, QUANTIDADE(spritesOnibus)));
-            break;
-        default:
-            ConfigurarObstaculo(novo, TIPO_CARRO, (Rectangle){x, y, LARGURA_CARRO, ALTURA_CARRO},
-                                velocidade, direcao, SortearVarianteVeiculo(spritesCarro, QUANTIDADE(spritesCarro)));
-    }
-
+    novo->tipo = tipo;
+    novo->corpo = tipo == TIPO_BURACO ? RetanguloBuraco(x, y, base % QTD(buraco)) : Retangulo(x, y, c);
+    novo->velocidade = c.velocidade != 0 ? c.velocidade : velocidade;
+    novo->direcao = novo->velocidade == 0 ? 0 : direcao;
+    novo->mordendo = false;
+    novo->variante = Variante(tipo, base);
+    novo->proximo = NULL;
     return novo;
 }
-
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo)
 {
-    if (novo == NULL) {
-        return;
+    if (novo != NULL) {
+        novo->proximo = *lista; /* lista encadeada */
+        *lista = novo;
     }
-
-    novo->proximo = *lista;
-    *lista = novo;
 }
-
 void LiberarObstaculos(Obstaculo **lista)
 {
-    Obstaculo *atual = *lista;
-
-    while (atual != NULL) {
-        Obstaculo *proximo = atual->proximo;
-        free(atual);
-        atual = proximo;
-    }
-
-    *lista = NULL;
-}
-
-static void AtualizarCarro(Obstaculo *carro)
-{
-    if (carro->velocidade == 0) {
-        return;
-    }
-
-    carro->corpo.x += carro->velocidade * carro->direcao * GetFrameTime();
-
-    /* Quando sai da tela, volta pelo outro lado para continuar o fluxo. */
-    if (carro->direcao == 1 && carro->corpo.x > LARGURA_TELA) {
-        carro->corpo.x = -carro->corpo.width - 10;
-    }
-
-    if (carro->direcao == -1 && carro->corpo.x + carro->corpo.width < 0) {
-        carro->corpo.x = LARGURA_TELA + carro->corpo.width;
+    while (*lista != NULL) {
+        Obstaculo *proximo = (*lista)->proximo;
+        free(*lista); /* libera a alocacao dinamica */
+        *lista = proximo;
     }
 }
-
 void AtualizarListaObstaculos(Obstaculo *lista)
 {
-    Obstaculo *atual = lista;
+    for (Obstaculo *o = lista; o != NULL; o = o->proximo) {
+        o->corpo.x += o->velocidade * o->direcao * GetFrameTime();
 
-    while (atual != NULL) {
-        AtualizarCarro(atual);
-        atual = atual->proximo;
-    }
-}
-
-static void DesenharCachorro(Obstaculo cachorro)
-{
-    Texture2D sprite;
-    /* Troca de frame pelo tempo para o cachorro parecer correndo. */
-    int frame = (int)(GetTime() * 10.0) % 4;
-
-    if (cachorro.mordendo) {
-        sprite = cachorro.direcao == 1 ? spriteCachorroMordendoDireita : spriteCachorroMordendoEsquerda;
-    } else {
-        sprite = cachorro.direcao == 1 ? spritesCachorroDireita[frame] : spritesCachorroEsquerda[frame];
-    }
-
-    float larguraDestino = cachorro.mordendo ? 68.0f : 64.0f;
-    float alturaDestino = cachorro.mordendo ? 40.0f : 36.0f;
-
-    DesenharSprite(sprite, RetanguloCentralizado(cachorro.corpo, larguraDestino, alturaDestino, 4));
-}
-
-static void DesenharCarro(Obstaculo carro)
-{
-    if (carro.tipo == TIPO_CACHORRO) {
-        DesenharCachorro(carro);
-        return;
-    }
-
-    if (carro.tipo == TIPO_LIXO_GRANDE) {
-        DesenharSprite(spritesLixoGrande[carro.variante % QUANTIDADE(spritesLixoGrande)], carro.corpo);
-        return;
-    }
-
-    if (carro.tipo == TIPO_BURACO) {
-        if (ObstaculoEstaNoAlagamento(carro)) {
-            return;
+        if (o->direcao == 1 && o->corpo.x > LARGURA_TELA) {
+            o->corpo.x = -o->corpo.width - 10;
         }
 
-        Texture2D sprite = spritesBuraco[carro.variante % QUANTIDADE(spritesBuraco)];
-        DesenharSprite(sprite, RetanguloCentralizado(carro.corpo, carro.corpo.width + 34, carro.corpo.height + 34, 8));
-        return;
-    }
-
-    if (carro.tipo == TIPO_POSTE) {
-        if (texturaPoste.id == 0) {
-            return;
+        if (o->direcao == -1 && o->corpo.x + o->corpo.width < 0) {
+            o->corpo.x = LARGURA_TELA + o->corpo.width;
         }
-
-        /* Espelha e varia um pouco o poste para nao repetir igual. */
-        bool espelhar = carro.variante % 2 == 1;
-        float largura = 17.0f + (carro.variante % 3);
-        float altura = 66.0f + (carro.variante % 4) * 3.0f;
-        Rectangle origem = {
-            espelhar ? (float)texturaPoste.width : 0,
-            0,
-            espelhar ? -(float)texturaPoste.width : (float)texturaPoste.width,
-            (float)texturaPoste.height
-        };
-        Rectangle destino = {
-            carro.corpo.x + carro.corpo.width * 0.5f - largura * 0.5f,
-            carro.corpo.y + carro.corpo.height - altura + 4,
-            largura,
-            altura
-        };
-
-        DrawTexturePro(texturaPoste, origem, destino, (Vector2){0, 0}, 0.0f, WHITE);
-        return;
-    }
-
-    if (carro.tipo == TIPO_ARVORE) {
-        DesenharSprite(texturaCoqueiro, (Rectangle){carro.corpo.x - 4, carro.corpo.y - 14, 38, 56});
-        return;
-    }
-
-    if (carro.tipo == TIPO_GUARDA_SOL || carro.tipo == TIPO_GUARDA_CHUVA_FREVO) {
-        Texture2D textura = carro.tipo == TIPO_GUARDA_SOL ? texturaGuardaSol : texturaGuardaChuvaFrevo;
-
-        DesenharSprite(textura, (Rectangle){carro.corpo.x - 6, carro.corpo.y - 11, 38,
-                                            carro.tipo == TIPO_GUARDA_SOL ? 40 : 41});
-        return;
-    }
-
-    if (carro.tipo == TIPO_MOTO) {
-        int varianteMoto = carro.variante % QUANTIDADE(spritesMoto);
-        Texture2D sprite = ObterTexturaVeiculo(spritesMoto[varianteMoto], carro.direcao);
-        /* A primeira moto e menor no arquivo, entao aumento um pouco. */
-        float escala = varianteMoto == 0 ? 1.18f : 1.0f;
-
-        float larguraDestinoBase = carro.corpo.width + 12;
-        float alturaDestinoBase = carro.corpo.height + 24;
-        float larguraDestino = larguraDestinoBase * escala;
-        float alturaDestino = alturaDestinoBase * escala;
-
-        DesenharSprite(sprite, (Rectangle){carro.corpo.x - 6 - (larguraDestino - larguraDestinoBase) * 0.5f,
-                                           carro.corpo.y - 12 - (alturaDestino - alturaDestinoBase) * 0.5f,
-                                           larguraDestino, alturaDestino});
-        return;
-    }
-
-    if (carro.tipo == TIPO_CARRO) {
-        Texture2D sprite = ObterTexturaVeiculo(spritesCarro[carro.variante % QUANTIDADE(spritesCarro)], carro.direcao);
-        DesenharSprite(sprite, RetanguloAjustado(carro.corpo, -4, -7, 8, 14));
-        return;
-    }
-
-    if (carro.tipo == TIPO_ONIBUS) {
-        Texture2D sprite = ObterTexturaVeiculo(spritesOnibus[carro.variante % QUANTIDADE(spritesOnibus)], carro.direcao);
-        DesenharSprite(sprite, RetanguloAjustado(carro.corpo, -8, -15, 16, 26));
-        return;
     }
 }
+static bool NoAlagamento(Obstaculo o)
+{
+    int linha = (int)((o.corpo.y + o.corpo.height * 0.5f) / TAM_BLOCO);
+    return LinhaEhAlagamento(linha);
+}
+static Rectangle Ajustar(Rectangle r, float x, float y, float largura, float altura)
+{
+    return (Rectangle){r.x + x, r.y + y, r.width + largura, r.height + altura};
+}
+static Rectangle Centralizar(Rectangle r, float largura, float altura, float y)
+{
+    return (Rectangle){
+        r.x + r.width * 0.5f - largura * 0.5f,
+        r.y + r.height - altura + y,
+        largura,
+        altura
+    };
+}
+static void Desenhar(Texture2D textura, Rectangle destino)
+{
+    if (textura.id != 0) {
+        DrawTexturePro(textura, (Rectangle){0, 0, (float)textura.width, (float)textura.height},
+                       destino, (Vector2){0, 0}, 0, WHITE);
+    }
+}
+static void DesenharPoste(Obstaculo o)
+{
+    Texture2D t = decoracao[3];
+    bool espelhar = o.variante % 2 == 1;
+    float largura = 17.0f + (o.variante % 3);
+    float altura = 66.0f + (o.variante % 4) * 3.0f;
+    Rectangle origem = {
+        espelhar ? (float)t.width : 0,
+        0,
+        espelhar ? -(float)t.width : (float)t.width,
+        (float)t.height
+    };
 
+    if (t.id != 0) {
+        DrawTexturePro(t, origem, Centralizar(o.corpo, largura, altura, 4), (Vector2){0, 0}, 0, WHITE);
+    }
+}
+static void DesenharCachorro(Obstaculo o)
+{
+    int lado = o.direcao == -1 ? ESQ : DIR;
+    int frame = (int)(GetTime() * 10.0) % QTD(cachorro[0]);
+    Texture2D t = o.mordendo ? cachorroMordendo[lado] : cachorro[lado][frame];
+    Desenhar(t, Centralizar(o.corpo, o.mordendo ? 68.0f : 64.0f, o.mordendo ? 40.0f : 36.0f, 4));
+}
+static void DesenharMoto(Obstaculo o)
+{
+    int v = o.variante % QTD(motos);
+    float escala = v == 0 ? 1.18f : 1.0f;
+    float largura = (o.corpo.width + 12) * escala;
+    float altura = (o.corpo.height + 24) * escala;
+
+    Desenhar(TexturaVeiculo(motos[v], o.direcao),
+             (Rectangle){o.corpo.x - 6 - (largura - o.corpo.width - 12) * 0.5f,
+                         o.corpo.y - 12 - (altura - o.corpo.height - 24) * 0.5f, largura, altura});
+}
+static void DesenharObstaculo(Obstaculo o)
+{
+    switch (o.tipo) {
+        case TIPO_CACHORRO:
+            DesenharCachorro(o);
+            break;
+        case TIPO_LIXO_GRANDE:
+            Desenhar(lixoGrande[o.variante % QTD(lixoGrande)], o.corpo);
+            break;
+        case TIPO_POSTE:
+            DesenharPoste(o);
+            break;
+        case TIPO_ARVORE:
+            Desenhar(decoracao[0], (Rectangle){o.corpo.x - 4, o.corpo.y - 14, 38, 56});
+            break;
+        case TIPO_GUARDA_SOL:
+            Desenhar(decoracao[1], (Rectangle){o.corpo.x - 6, o.corpo.y - 11, 38, 40});
+            break;
+        case TIPO_GUARDA_CHUVA_FREVO:
+            Desenhar(decoracao[2], (Rectangle){o.corpo.x - 6, o.corpo.y - 11, 38, 41});
+            break;
+        case TIPO_MOTO:
+            DesenharMoto(o);
+            break;
+        case TIPO_ONIBUS:
+            Desenhar(TexturaVeiculo(onibus[o.variante % QTD(onibus)], o.direcao),
+                     Ajustar(o.corpo, -8, -15, 16, 26));
+            break;
+        case TIPO_BURACO:
+            if (!NoAlagamento(o)) {
+                Desenhar(buraco[o.variante % QTD(buraco)],
+                         Centralizar(o.corpo, o.corpo.width + 34, o.corpo.height + 34, 8));
+            }
+            break;
+        default:
+            Desenhar(TexturaVeiculo(carros[o.variante % QTD(carros)], o.direcao),
+                     Ajustar(o.corpo, -4, -7, 8, 14));
+            break;
+    }
+}
 void DesenharListaObstaculos(Obstaculo *lista)
 {
-    Obstaculo *atual = lista;
-
-    while (atual != NULL) {
-        DesenharCarro(*atual);
-        atual = atual->proximo;
+    for (Obstaculo *o = lista; o != NULL; o = o->proximo) {
+        DesenharObstaculo(*o);
     }
 }
-
-static bool EhObstaculoFixo(TipoObstaculo tipo)
+static bool Fixo(TipoObstaculo tipo)
 {
-    return tipo == TIPO_ARVORE || tipo == TIPO_GUARDA_SOL || tipo == TIPO_GUARDA_CHUVA_FREVO ||
-           tipo == TIPO_POSTE;
+    return tipo == TIPO_ARVORE || tipo == TIPO_GUARDA_SOL || tipo == TIPO_GUARDA_CHUVA_FREVO || tipo == TIPO_POSTE;
 }
-
-static bool VerificarColisaoCarro(Obstaculo carro, Rectangle jogador)
-{
-    /* Obstaculos parados bloqueiam o caminho em outra funcao. */
-    if (EhObstaculoFixo(carro.tipo) || carro.tipo == TIPO_LIXO_GRANDE) {
-        return false;
-    }
-
-    if (carro.tipo == TIPO_BURACO) {
-        if (ObstaculoEstaNoAlagamento(carro)) {
-            return false;
-        }
-
-        /* A colisao do buraco e menor que o sprite para ficar mais justo. */
-        Rectangle areaPerigosa = {
-            carro.corpo.x + 5,
-            carro.corpo.y + 5,
-            carro.corpo.width - 10,
-            carro.corpo.height - 9
-        };
-
-        return CheckCollisionRecs(areaPerigosa, jogador);
-    }
-
-    return CheckCollisionRecs(carro.corpo, jogador);
-}
-
 bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
 {
-    Obstaculo *atual = lista;
-
-    while (atual != NULL) {
-        if (EhObstaculoFixo(atual->tipo) && CheckCollisionRecs(atual->corpo, jogador)) {
+    for (Obstaculo *o = lista; o != NULL; o = o->proximo) {
+        if (Fixo(o->tipo) && CheckCollisionRecs(o->corpo, jogador)) {
             return true;
         }
-
-        atual = atual->proximo;
     }
 
     return false;
@@ -517,43 +364,40 @@ bool VerificarColisaoFixaLista(Obstaculo *lista, Rectangle jogador)
 
 float ObterVelocidadeApoioAlagamento(Obstaculo *lista, Rectangle jogador)
 {
-    Obstaculo *atual = lista;
-
-    while (atual != NULL) {
-        /* Retorna a velocidade da plataforma que esta debaixo do jogador. */
-        if (atual->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(atual->corpo, jogador)) {
-            return atual->velocidade * atual->direcao;
+    for (Obstaculo *o = lista; o != NULL; o = o->proximo) {
+        if (o->tipo == TIPO_LIXO_GRANDE && CheckCollisionRecs(o->corpo, jogador)) {
+            return o->velocidade * o->direcao;
         }
-
-        atual = atual->proximo;
     }
 
     return 0.0f;
 }
 
-bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
+static bool Colide(Obstaculo o, Rectangle jogador)
 {
-    Obstaculo *atual = lista;
-
-    while (atual != NULL) {
-        if (atual->tipo == TIPO_CACHORRO) {
-            /* Quando encosta no jogador, troca para o sprite mordendo. */
-            atual->mordendo = CheckCollisionRecs(atual->corpo, jogador);
-
-            if (atual->mordendo) {
-                return true;
-            }
-
-            atual = atual->proximo;
-            continue;
-        }
-
-        if (VerificarColisaoCarro(*atual, jogador)) {
-            return true;
-        }
-
-        atual = atual->proximo;
+    if (Fixo(o.tipo) || o.tipo == TIPO_LIXO_GRANDE || (o.tipo == TIPO_BURACO && NoAlagamento(o))) {
+        return false;
     }
 
+    if (o.tipo == TIPO_BURACO) {
+        return CheckCollisionRecs(Ajustar(o.corpo, 5, 5, -10, -9), jogador);
+    }
+
+    return CheckCollisionRecs(o.corpo, jogador);
+}
+
+bool VerificarColisaoLista(Obstaculo *lista, Rectangle jogador)
+{
+    for (Obstaculo *o = lista; o != NULL; o = o->proximo) {
+        if (o->tipo == TIPO_CACHORRO) {
+            o->mordendo = CheckCollisionRecs(o->corpo, jogador);
+            if (o->mordendo) {
+                return true;
+            }
+        } else if (Colide(*o, jogador)) {
+            return true;
+        }
+    }
     return false;
 }
+        

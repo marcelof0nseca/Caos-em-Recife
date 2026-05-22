@@ -17,6 +17,7 @@ typedef enum {
     TIPO_LIXO_GRANDE
 } TipoObstaculo;
 
+/* Struct do no da lista encadeada de obstaculos. */
 typedef struct Obstaculo {
     TipoObstaculo tipo;
     Rectangle corpo;
@@ -24,7 +25,7 @@ typedef struct Obstaculo {
     int direcao;
     bool mordendo;
     int variante;
-    struct Obstaculo *proximo;
+    struct Obstaculo *proximo; /* ponteiro para o proximo no da lista */
 } Obstaculo;
 
 void InicializarTexturasObstaculo(void);
