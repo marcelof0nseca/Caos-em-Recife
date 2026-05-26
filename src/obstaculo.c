@@ -20,7 +20,7 @@ typedef struct {
 } ConfigObstaculo;
 
 static Texture2D decoracao[4];
-static Texture2D cachorro[2][4]; /* matriz: lado e frame da animacao */
+static Texture2D cachorro[2][4]; /* matriz [lado][frame] da animacao do cachorro */
 static Texture2D cachorroMordendo[2];
 static Texture2D buraco[4];
 static Texture2D lixoGrande[6];
@@ -28,7 +28,10 @@ static SpriteVeiculo carros[5];
 static SpriteVeiculo onibus[4];
 static SpriteVeiculo motos[2];
 static int proximoLixo = 0;
-/* Matriz/tabela principal: cada linha descreve um tipo de obstaculo. */
+static int proximoCarro = 0;
+static int proximoOnibus = 0;
+static int proximaMoto = 0;
+/* Vetor/tabela principal: cada indice do enum aponta para a configuracao do tipo de obstaculo. */
 static const ConfigObstaculo config[] = {
     [TIPO_CARRO] = {0, 0, LARGURA_CARRO, ALTURA_CARRO, 0},
 
@@ -105,22 +108,24 @@ static Texture2D TexturaVeiculo(SpriteVeiculo s, int direcao)
 {
     return s.lado[direcao == -1 ? ESQ : DIR];
 }
-static int SortearVeiculo(SpriteVeiculo v[], int total)
+static int ProximoVeiculo(SpriteVeiculo v[], int total, int *proximo)
 {
-    int sorteado = GetRandomValue(0, total - 1);
-
     for (int i = 0; i < total; i++) {
-        int indice = (sorteado + i) % total;
+        int indice = (*proximo + i) % total;
         if (v[indice].lado[ESQ].id != 0 || v[indice].lado[DIR].id != 0) {
+            *proximo = (indice + 1) % total;
             return indice;
         }
     }
 
-    return sorteado;
+    return 0;
 }
 void ResetarVarianteLixoGrande(void)
 {
     proximoLixo = 0;
+    proximoCarro = 0;
+    proximoOnibus = 0;
+    proximaMoto = 0;
 }
 void InicializarTexturasObstaculo(void)
 {
@@ -160,6 +165,7 @@ static Rectangle Retangulo(float x, float y, ConfigObstaculo c)
 }
 static Rectangle RetanguloBuraco(float x, float y, int variante)
 {
+    /* Matriz [variante][largura/altura] para deixar explicito o uso de matrizes. */
     static const float tamanho[4][2] = {{34, 26}, {42, 31}, {50, 37}, {62, 42}};
     float largura = tamanho[variante][0];
     float altura = tamanho[variante][1];
@@ -175,11 +181,11 @@ static int Variante(TipoObstaculo tipo, int base)
 {
     switch (tipo) {
         case TIPO_CARRO:
-            return SortearVeiculo(carros, QTD(carros));
+            return ProximoVeiculo(carros, QTD(carros), &proximoCarro);
         case TIPO_ONIBUS:
-            return SortearVeiculo(onibus, QTD(onibus));
+            return ProximoVeiculo(onibus, QTD(onibus), &proximoOnibus);
         case TIPO_MOTO:
-            return SortearVeiculo(motos, QTD(motos));
+            return ProximoVeiculo(motos, QTD(motos), &proximaMoto);
         case TIPO_LIXO_GRANDE: {
             int atual = proximoLixo;
             proximoLixo = (proximoLixo + 1) % QTD(lixoGrande);
@@ -195,7 +201,8 @@ static int Variante(TipoObstaculo tipo, int base)
 }
 Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade, int direcao)
 {
-    Obstaculo *novo = malloc(sizeof(Obstaculo)); /* alocacao dinamica */
+    /* Alocacao dinamica: cada obstaculo nasce em tempo de execucao e vira um no da lista. */
+    Obstaculo *novo = malloc(sizeof(Obstaculo));
     int base = (int)(x / TAM_BLOCO) + (int)(y / TAM_BLOCO);
     ConfigObstaculo c = config[tipo];
 
@@ -215,7 +222,8 @@ Obstaculo *CriarObstaculo(TipoObstaculo tipo, float x, float y, float velocidade
 void AdicionarObstaculo(Obstaculo **lista, Obstaculo *novo)
 {
     if (novo != NULL) {
-        novo->proximo = *lista; /* lista encadeada */
+        /* Encadeamento: o novo no aponta para o antigo inicio da lista. */
+        novo->proximo = *lista;
         *lista = novo;
     }
 }
@@ -223,7 +231,8 @@ void LiberarObstaculos(Obstaculo **lista)
 {
     while (*lista != NULL) {
         Obstaculo *proximo = (*lista)->proximo;
-        free(*lista); /* libera a alocacao dinamica */
+        /* Libera a memoria que foi reservada com malloc em CriarObstaculo(). */
+        free(*lista);
         *lista = proximo;
     }
 }

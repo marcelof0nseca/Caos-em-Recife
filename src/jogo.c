@@ -29,6 +29,11 @@ typedef struct {
     bool usaDeslocamentoFase;
 } ObstaculoFixo;
 
+static const PosicaoMapa linhasCachorro[] = {
+    {0, 43, true}, {0, 39, true}, {0, 32, true},
+    {0, 26, true}, {0, 44, true}, {0, 36, true}
+};
+
 static float LimitarFloat(float valor, float minimo, float maximo)
 {
     if (valor < minimo) {
@@ -69,11 +74,60 @@ static void AdicionarObstaculoNaLinhaMapa(Jogo *jogo, TipoObstaculo tipo, float 
     );
 }
 
+static bool TipoOcupaCalcada(TipoObstaculo tipo)
+{
+    return tipo == TIPO_BURACO || tipo == TIPO_ARVORE || tipo == TIPO_GUARDA_SOL ||
+           tipo == TIPO_GUARDA_CHUVA_FREVO || tipo == TIPO_POSTE;
+}
+
+static bool LinhaReservadaParaCachorro(int linha)
+{
+    for (int i = 0; i < QUANTIDADE(linhasCachorro); i++) {
+        if (LinhaNoMapa(linhasCachorro[i].linha, linhasCachorro[i].usaDeslocamentoFase) == linha) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool PosicaoFixaOcupada(Jogo *jogo, int coluna, int linha)
+{
+    for (Obstaculo *o = jogo->obstaculos; o != NULL; o = o->proximo) {
+        int colunaObstaculo;
+        int linhaObstaculo;
+        int distanciaColuna;
+        int distanciaLinha;
+
+        if (!TipoOcupaCalcada(o->tipo)) {
+            continue;
+        }
+
+        colunaObstaculo = (int)(o->corpo.x / TAM_BLOCO);
+        linhaObstaculo = (int)(o->corpo.y / TAM_BLOCO);
+        distanciaColuna = colunaObstaculo > coluna ? colunaObstaculo - coluna : coluna - colunaObstaculo;
+        distanciaLinha = linhaObstaculo > linha ? linhaObstaculo - linha : linha - linhaObstaculo;
+
+        if ((distanciaLinha == 0 && distanciaColuna <= 2) ||
+            (distanciaColuna == 0 && distanciaLinha <= 1) ||
+            (distanciaLinha == 1 && distanciaColuna <= 1)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int coluna, int linha)
 {
     /* Evita colocar lixo fora da agua e obstaculo fixo no meio da rua. */
-    if ((tipo == TIPO_LIXO_GRANDE && !LinhaEhAlagamento(linha)) ||
+    if ((tipo != TIPO_LIXO_GRANDE && LinhaReservadaParaCachorro(linha)) ||
+        (tipo == TIPO_LIXO_GRANDE && !LinhaEhAlagamento(linha)) ||
         (tipo != TIPO_LIXO_GRANDE && (LinhaEhRua(linha) || LinhaEhAlagamento(linha)))) {
+        return;
+    }
+
+    if (TipoOcupaCalcada(tipo) && PosicaoFixaOcupada(jogo, coluna, linha)) {
         return;
     }
 
@@ -86,7 +140,12 @@ static void AdicionarObstaculoFixoMapa(Jogo *jogo, TipoObstaculo tipo, int colun
 static void AdicionarBuracoMapa(Jogo *jogo, int coluna, int linha)
 {
     /* Buraco fica so na calcada, nunca em rua ou alagamento. */
-    if (linha < LINHAS_FASE_3 || LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
+    if (linha < LINHAS_FASE_3 || LinhaReservadaParaCachorro(linha) ||
+        LinhaEhRua(linha) || LinhaEhAlagamento(linha)) {
+        return;
+    }
+
+    if (PosicaoFixaOcupada(jogo, coluna, linha)) {
         return;
     }
 
@@ -152,12 +211,12 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_ONIBUS, -940, 12, 0, 1, true, false}, {TIPO_CARRO, 870, 8, 245, -1, true, true},
         {TIPO_MOTO, -900, 3, 0, 1, true, false},
 
-        {TIPO_CACHORRO, -520, 43, 0, 1, true, false},
-        {TIPO_CACHORRO, 640, 39, 0, -1, true, true},
-        {TIPO_CACHORRO, -760, 32, 0, 1, true, false},
-        {TIPO_CACHORRO, 820, 26, 0, -1, true, true},
-        {TIPO_CACHORRO, -980, 44, 0, 1, true, false},
-        {TIPO_CACHORRO, 1040, 36, 0, -1, true, true}
+        {TIPO_CACHORRO, -520, linhasCachorro[0].linha, 0, 1, true, false},
+        {TIPO_CACHORRO, 640, linhasCachorro[1].linha, 0, -1, true, true},
+        {TIPO_CACHORRO, -760, linhasCachorro[2].linha, 0, 1, true, false},
+        {TIPO_CACHORRO, 820, linhasCachorro[3].linha, 0, -1, true, true},
+        {TIPO_CACHORRO, -980, linhasCachorro[4].linha, 0, 1, true, false},
+        {TIPO_CACHORRO, 1040, linhasCachorro[5].linha, 0, -1, true, true}
     };
     PosicaoMapa buracos[] = {
         {3, 0, true}, {11, 1, true}, {17, 4, true},
@@ -182,6 +241,9 @@ static void ConfigurarObstaculos(Jogo *jogo)
         {TIPO_ARVORE, 2, 44, true}, {TIPO_GUARDA_CHUVA_FREVO, 6, 44, true},
         {TIPO_ARVORE, 15, 44, true}, {TIPO_GUARDA_SOL, 18, 43, true},
         {TIPO_GUARDA_CHUVA_FREVO, 9, 42, true}, {TIPO_GUARDA_SOL, 10, 39, true},
+        {TIPO_ARVORE, 4, 33, true}, {TIPO_GUARDA_SOL, 10, 33, true},
+        {TIPO_GUARDA_CHUVA_FREVO, 16, 33, true},
+        {TIPO_GUARDA_SOL, 4, 22, true}, {TIPO_ARVORE, 10, 22, true},
         {TIPO_ARVORE, 1, 35, true}, {TIPO_GUARDA_CHUVA_FREVO, 11, 35, true},
         {TIPO_GUARDA_SOL, 2, 32, true}, {TIPO_ARVORE, 9, 26, true},
         {TIPO_GUARDA_CHUVA_FREVO, 12, 20, true}, {TIPO_GUARDA_SOL, 1, 19, true},

@@ -6,6 +6,12 @@ Jogo simples em C usando Raylib. O objetivo e atravessar a rua desviando dos car
 
 O projeto esta separado em arquivos de jogador, obstaculo, mapa e jogo para facilitar a manutencao.
 
+## Conteudos de programacao usados
+
+- Alocacao dinamica: os obstaculos sao criados com `malloc` em `src/obstaculo.c`, na funcao `CriarObstaculo`, ligados em uma lista encadeada por `AdicionarObstaculo` e liberados com `free` em `LiberarObstaculos`.
+- Matrizes: animacoes e tamanhos usam matrizes, como `cachorro[2][4]` e `tamanho[4][2]` em `src/obstaculo.c`.
+- Vetores/tabelas: o mapa e os obstaculos tambem usam vetores para guardar linhas, texturas e configuracoes do jogo.
+
 ## Estrutura do projeto
 
 ```text
