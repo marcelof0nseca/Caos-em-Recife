@@ -4,7 +4,7 @@
 
 Jogo simples em C usando Raylib. O objetivo e atravessar a rua desviando dos carros e chegar ate a parte de cima do mapa.
 
-O projeto esta separado em arquivos de jogador, obstaculo, mapa e jogo para facilitar a manutencao.
+O projeto esta separado em arquivos de jogador, obstaculo, mapa, menu, score e jogo para facilitar a manutencao.
 
 ## Conteudos de programacao usados
 
@@ -16,21 +16,36 @@ O projeto esta separado em arquivos de jogador, obstaculo, mapa e jogo para faci
 
 ```text
 Caos-em-Recife/
-├── assets/
-│   └── capa-crossy-recife.png
-├── include/
-│   ├── config.h
-│   ├── jogador.h
-│   ├── jogo.h
-│   ├── mapa.h
-│   └── obstaculo.h
-├── src/
-│   ├── jogador.c
-│   ├── jogo.c
-│   ├── main.c
-│   ├── mapa.c
-│   └── obstaculo.c
-└── README.md
+|-- assets/
+|   |-- cachorro/
+|   |-- cenario/
+|   |-- itens/
+|   |-- personagem/
+|   `-- veiculos/
+|       |-- carros/
+|       |-- motos/
+|       `-- onibus/
+|-- include/
+|   |-- config.h
+|   |-- debug_mode.h
+|   |-- jogador.h
+|   |-- jogo.h
+|   |-- mapa.h
+|   |-- menu.h
+|   |-- obstaculo.h
+|   `-- score.h
+|-- src/
+|   |-- debug_mode.c
+|   |-- jogador.c
+|   |-- jogo.c
+|   |-- main.c
+|   |-- mapa.c
+|   |-- menu.c
+|   |-- obstaculo.c
+|   `-- score.c
+|-- Makefile
+|-- README.md
+`-- scores.txt
 ```
 
 ## Controles
@@ -48,7 +63,7 @@ Caos-em-Recife/
 Usando o comando completo:
 
 ```powershell
-$env:Path = "C:\raylib\w64devkit\bin;" + $env:Path; gcc src\main.c src\jogo.c src\jogador.c src\obstaculo.c src\mapa.c src\score.c -o CrossyRecife.exe -Iinclude -IC:\raylib\w64devkit\include -LC:\raylib\w64devkit\lib -lraylib -lopengl32 -lgdi32 -lwinmm
+$env:Path = "C:\raylib\w64devkit\bin;" + $env:Path; gcc src\main.c src\menu.c src\debug_mode.c src\jogo.c src\jogador.c src\obstaculo.c src\mapa.c src\score.c -o CrossyRecife.exe -Iinclude -IC:\raylib\w64devkit\include -LC:\raylib\w64devkit\lib -lraylib -lopengl32 -lgdi32 -lwinmm
 ```
 
 Ou usando o Makefile:
