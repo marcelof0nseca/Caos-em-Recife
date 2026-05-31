@@ -2,7 +2,6 @@
 
 #include "raylib.h"
 #include "config.h"
-#include "debug_mode.h"
 #include "menu.h"
 #include "jogo.h"
 #include "mapa.h"
@@ -64,10 +63,6 @@ int main(void)
             AlternarTelaCheia();
         }
 
-        if (IsKeyPressed(KEY_F10)) {
-            DebugAlternarInvencibilidade();
-        }
-
         if (telaAtual == TELA_MENU) {
             jogo.jogoIniciado = false;
             if (IsKeyPressed(KEY_DOWN)) menuSelecionado = (menuSelecionado + 1) % 3;
@@ -91,10 +86,6 @@ int main(void)
         else if (telaAtual == TELA_DICAS) DesenharTelaDicas();
         else if (telaAtual == TELA_JOGABILIDADE) DesenharTelaJogabilidade();
         else DesenharJogo(&jogo);
-
-        if (DebugInvencibilidadeAtiva() && telaAtual == TELA_JOGO) {
-            DrawText("DEBUG: INVENCIVEL", 520, 8, 16, YELLOW);
-        }
         EndTextureMode();
 
         BeginDrawing();
